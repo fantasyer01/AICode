@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高效能人士的七个习惯</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2962FF;
+            --primary-light: #448AFF;
+            --primary-dark: #0039CB;
+            --bg-color: #f5f7fa;
+            --text-color: #263238;
+            --secondary-text: #607D8B;
+            --accent-color: #00C853;
+            --warning-color: #FFAB00;
+            --error-color: #FF5252;
+            --cover-bg: #e6f0ff; /* 新增浅蓝色背景 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            height: 100vh;
+            touch-action: pan-y;
+        }
+        
+        .slides-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+        
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            padding: 1.5rem; /* 统一减少内边距 */
+            scroll-snap-align: start;
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 确保内容垂直居中 */
+            align-items: center;
+            text-align: center;
+            transition: opacity 0.5s ease;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .slide-content {
+            max-width: 900px;
+            width: 90%;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .slide.active .slide-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.2rem; /* 减少间距 */
+        }
+        
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem; /* 减少间距 */
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem; /* 减少间距 */
+        }
+        
+        p, li {
+            font-size: 1.1rem;
+            line-height: 1.5; /* 紧凑行高 */
+            margin-bottom: 0.8rem; /* 减少间距 */
+            color: var(--secondary-text);
+        }
+        
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.2rem; /* 减少间距 */
+            text-align: left;
+        }
+        
+        li {
+            margin-bottom: 0.4rem; /* 减少间距 */
+        }
+        
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: rgba(41, 98, 255, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            color: var(--primary-dark);
+        }
+        
+        pre {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0.8rem; /* 减少内边距 */
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 0.8rem 0; /* 减少间距 */
+            text-align: left;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4; /* 紧凑行高 */
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(41, 98, 255, 0.2);
+        }
+        
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(41, 98, 255, 0.7);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            opacity: 0.7;
+        }
+        
+        .nav-btn:hover {
+            background-color: var(--primary-color);
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        #prev-btn {
+            left: 1rem;
+        }
+        
+        #next-btn {
+            right: 1rem;
+        }
+        
+        .progress-container {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(41, 98, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .progress-dot.active {
+            background-color: var(--primary-color);
+            transform: scale(1.3);
+        }
+        
+        .cover {
+            background: var(--cover-bg); /* 使用浅蓝色背景 */
+            color: var(--primary-dark);
+            justify-content: center; /* 确保内容垂直居中 */
+        }
+        
+        .cover h1 {
+            color: var(--primary-dark);
+            text-shadow: none;
+            margin-bottom: 1rem;
+        }
+        
+        .cover p {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .author-info {
+            position: absolute;
+            bottom: 1.5rem; /* 调整位置 */
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+        }
+        
+        .toc {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            margin-top: -1rem; /* 上移内容 */
+        }
+        
+        .toc-item {
+            margin-bottom: 1rem; /* 减少间距 */
+            text-align: center;
+            width: 100%;
+            padding: 1rem; /* 减少内边距 */
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        
+        .toc-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+        
+        .toc-item h2 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1.5rem; /* 减小字号 */
+        }
+        
+        .toc-item ul {
+            margin-left: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.8rem; /* 减少间距 */
+        }
+        
+        .toc-item li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.2rem; /* 减少间距 */
+            font-size: 1rem; /* 减小字号 */
+        }
+        
+        .toc-item li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+        }
+        
+        .two-column {
+            display: flex;
+            width: 100%;
+            gap: 1.5rem; /* 减少间距 */
+            text-align: left;
+            margin-top: -0.5rem; /* 上移内容 */
+        }
+        
+        .column {
+            flex: 1;
+            padding: 0.8rem; /* 减少内边距 */
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .icon {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .note {
+            background-color: rgba(41, 98, 255, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 0.8rem; /* 减少内边距 */
+            margin: 0.8rem 0; /* 减少间距 */
+            text-align: left;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.95rem; /* 减小字号 */
+        }
+        
+        .tip {
+            background-color: rgba(0, 200, 83, 0.05);
+            border-left: 4px solid var(--accent-color);
+            padding: 0.8rem; /* 减少内边距 */
+            margin: 0.8rem 0; /* 减少间距 */
+            text-align: left;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.95rem; /* 减小字号 */
+        }
+        
+        .warning {
+            background-color: rgba(255, 171, 0, 0.05);
+            border-left: 4px solid var(--warning-color);
+            padding: 0.8rem; /* 减少内边距 */
+            margin: 0.8rem 0; /* 减少间距 */
+            text-align: left;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.95rem; /* 减小字号 */
+        }
+        
+        .pyramid {
+            width: 80%;
+            max-width: 350px; /* 减小尺寸 */
+            margin: 1rem auto; /* 减少间距 */
+            position: relative;
+        }
+        
+        .pyramid-level {
+            width: 100%;
+            padding: 0.8rem; /* 减少内边距 */
+            margin-bottom: 0.3rem; /* 减少间距 */
+            background-color: var(--primary-color);
+            color: white;
+            position: relative;
+            clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            font-size: 0.9rem; /* 减小字号 */
+        }
+        
+        .pyramid-level:nth-child(1) { background-color: #0039CB; }
+        .pyramid-level:nth-child(2) { background-color: #2962FF; }
+        .pyramid-level:nth-child(3) { background-color: #448AFF; }
+        .pyramid-level:nth-child(4) { background-color: #82B1FF; }
+        
+        .slide.active .pyramid-level {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .slide.active .pyramid-level:nth-child(1) { transition-delay: 0.1s; }
+        .slide.active .pyramid-level:nth-child(2) { transition-delay: 0.2s; }
+        .slide.active .pyramid-level:nth-child(3) { transition-delay: 0.3s; }
+        .slide.active .pyramid-level:nth-child(4) { transition-delay: 0.4s; }
+        
+        .quadrant {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 0.4rem; /* 减少间距 */
+            margin: 0.8rem 0; /* 减少间距 */
+        }
+        
+        .quadrant-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1rem; /* 减小字号 */
+        }
+        
+        .quadrant-item {
+            padding: 0.7rem; /* 减少内边距 */
+            border-radius: 4px;
+            background-color: rgba(41, 98, 255, 0.05);
+            border: 1px solid rgba(41, 98, 255, 0.1);
+            transition: all 0.3s;
+            font-size: 0.9rem; /* 减小字号 */
+        }
+        
+        .quadrant-item:hover {
+            background-color: rgba(41, 98, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .quadrant-item h4 {
+            margin-bottom: 0.3rem; /* 减少间距 */
+            color: var(--primary-color);
+            font-size: 0.95rem; /* 减小字号 */
+        }
+        
+        .habit-icon {
+            font-size: 1.8rem; /* 减小尺寸 */
+            margin-bottom: 0.8rem; /* 减少间距 */
+            color: var(--primary-color);
+        }
+        
+        .interaction-question {
+            background-color: rgba(41, 98, 255, 0.1);
+            padding: 1rem; /* 减少内边距 */
+            border-radius: 8px;
+            margin: 0.8rem 0; /* 减少间距 */
+            font-size: 1rem; /* 减小字号 */
+            color: var(--primary-dark);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .slide {
+                padding: 1rem;
+            }
+            
+            .two-column {
+                flex-direction: column;
+            }
+            
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .toc-item ul {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slides-container" id="slides-container">
+        <!-- 封面页 -->
+        <div class="slide cover active" id="slide-1">
+            <div class="slide-content">
+                <i class="fas fa-chart-line habit-icon" style="font-size: 2.5rem;"></i>
+                <h1>高效能人士的七个习惯</h1>
+                <p>从依赖到互赖的成长之路</p>
+            </div>
+        </div>
+        
+        <!-- 目录页 -->
+        <div class="slide" id="slide-2">
+            <div class="slide-content">
+                <h1><i class="fas fa-list-ul icon"></i>内容目录</h1>
+                <div class="toc">
+                    <div class="toc-item">
+                        <h2><i class="fas fa-lightbulb icon"></i>核心理念</h2>
+                        <ul>
+                            <li>效能定义与思维模式</li>
+                            <li>成长三阶段模型</li>
+                        </ul>
+                    </div>
+                    <div class="toc-item">
+                        <h2><i class="fas fa-user icon"></i>个人领域</h2>
+                        <ul>
+                            <li>习惯1-3：从依赖到独立</li>
+                        </ul>
+                    </div>
+                    <div class="toc-item">
+                        <h2><i class="fas fa-users icon"></i>公众领域</h2>
+                        <ul>
+                            <li>习惯4-6：从独立到互赖</li>
+                        </ul>
+                    </div>
+                    <div class="toc-item">
+                        <h2><i class="fas fa-sync-alt icon"></i>自我更新</h2>
+                        <ul>
+                            <li>习惯7：持续提升</li>
+                            <li>实践行动计划</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 核心理念页 -->
+        <div class="slide" id="slide-3">
+            <div class="slide-content">
+                <h1><i class="fas fa-lightbulb icon"></i>核心理念</h1>
+                <div class="two-column">
+                    <div class="column">
+                        <h3><i class="fas fa-balance-scale icon"></i>效能定义</h3>
+                        <p><strong>P/PC平衡</strong>：产出(金蛋)与产能(鹅)的平衡</p>
+                        <div class="tip">
+                            <i class="fas fa-check-circle icon"></i>真正的效能是短期利益与长期能力的平衡
+                        </div>
+                        
+                        <h3 style="margin-top: 1rem;"><i class="fas fa-brain icon"></i>思维模式</h3>
+                        <p>"<strong>由内而外</strong>"的改变：</p>
+                        <ul>
+                            <li>先改变行为模式</li>
+                            <li>再改变人际关系</li>
+                            <li>最终影响环境</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3><i class="fas fa-stairs icon"></i>成长三阶段</h3>
+                        <div class="pyramid">
+                            <div class="pyramid-level">互赖：我们能够...</div>
+                            <div class="pyramid-level">独立：我可以...</div>
+                            <div class="pyramid-level">依赖：你为我...</div>
+                        </div>
+                        <div class="note">
+                            <i class="fas fa-info-circle icon"></i> 七个习惯帮助我们从依赖走向互赖
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 个人领域三习惯 -->
+        <div class="slide" id="slide-4">
+            <div class="slide-content">
+                <h1><i class="fas fa-user icon"></i>个人领域的成功</h1>
+                <div class="two-column">
+                    <div class="column">
+                        <h3><span class="habit-icon">1</span> 积极主动</h3>
+                        <p><strong>影响圈 vs 关注圈</strong>：</p>
+                        <ul>
+                            <li>主动扩大影响圈</li>
+                            <li>减少对关注圈的抱怨</li>
+                        </ul>
+                        <div class="warning">
+                            <i class="fas fa-exclamation-triangle icon"></i> 语言模式转变："我必须" → "我选择"
+                        </div>
+                        
+                        <h3 style="margin-top: 1rem;"><span class="habit-icon">2</span> 以终为始</h3>
+                        <p><strong>个人使命宣言</strong>：</p>
+                        <ul>
+                            <li>基于核心原则</li>
+                            <li>指导日常决策</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3><span class="habit-icon">3</span> 要事第一</h3>
+                        <div class="quadrant">
+                            <div class="quadrant-header">时间管理四象限</div>
+                            <div class="quadrant-item">
+                                <h4>重要 · 紧急</h4>
+                                <p>危机、截止期限</p>
+                            </div>
+                            <div class="quadrant-item">
+                                <h4>重要 · 不紧急</h4>
+                                <p>规划、关系建立</p>
+                            </div>
+                            <div class="quadrant-item">
+                                <h4>不重要 · 紧急</h4>
+                                <p>干扰、会议</p>
+                            </div>
+                            <div class="quadrant-item">
+                                <h4>不重要 · 不紧急</h4>
+                                <p>琐事、消遣</p>
+                            </div>
+                        </div>
+                        <div class="tip">
+                            <i class="fas fa-check-circle icon"></i> 高效能人士聚焦第二象限
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 公众领域三习惯 -->
+        <div class="slide" id="slide-5">
+            <div class="slide-content">
+                <h1><i class="fas fa-users icon"></i>公众领域的成功</h1>
+                <div class="two-column">
+                    <div class="column">
+                        <h3><span class="habit-icon">4</span> 双赢思维</h3>
+                        <p><strong>六种人际关系模式</strong>：</p>
+                        <ul>
+                            <li>双赢（唯一可持续模式）</li>
+                            <li>赢/输 · 输/赢 · 输/输</li>
+                            <li>赢 · 不成交</li>
+                        </ul>
+                        <div class="note">
+                            <i class="fas fa-piggy-bank icon"></i> 情感账户：存款(理解、诚信)与取款(失信、冷漠)
+                        </div>
+                        
+                        <h3 style="margin-top: 1rem;"><span class="habit-icon">5</span> 知彼解己</h3>
+                        <p><strong>同理心倾听</strong>：</p>
+                        <ol>
+                            <li>重复内容</li>
+                            <li>反映感受</li>
+                            <li>总结需求</li>
+                        </ol>
+                    </div>
+                    <div class="column">
+                        <h3><span class="habit-icon">6</span> 统合综效</h3>
+                        <p><strong>创造性合作</strong>：</p>
+                        <ul>
+                            <li>尊重差异</li>
+                            <li>寻求第三选择</li>
+                            <li>1+1>3的协同效应</li>
+                        </ul>
+                        <div class="interaction-question">
+                            <i class="fas fa-question-circle icon"></i> 你最近一次通过差异获得创新解决方案的经历是？
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 自我更新 -->
+        <div class="slide" id="slide-6">
+            <div class="slide-content">
+                <h1><i class="fas fa-sync-alt icon"></i>习惯7：不断更新</h1>
+                <div class="two-column">
+                    <div class="column">
+                        <h3><i class="fas fa-heartbeat icon"></i>四维度更新</h3>
+                        <ul>
+                            <li><strong>身体</strong>：健康饮食、规律锻炼</li>
+                            <li><strong>精神</strong>：冥想、价值观内化</li>
+                            <li><strong>智力</strong>：阅读、写作、学习</li>
+                            <li><strong>社会情感</strong>：服务他人、建立关系</li>
+                        </ul>
+                        <div class="tip">
+                            <i class="fas fa-check-circle icon"></i> 每日/每周小量投资，复利效应显著
+                        </div>
+                    </div>
+                    <div class="column">
+                        <img src="https://7habitsweb.azureedge.net/7habits/media/Images/Sharpen-the-Saw-800x800.png" alt="不断更新" style="max-width: 100%; border-radius: 8px; height: auto;">
+                        <div class="interaction-question" style="margin-top: 0.8rem;">
+                            <i class="fas fa-question-circle icon"></i> 你最近一次"投资自己"是在哪个维度？
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 实践行动 -->
+        <div class="slide" id="slide-7">
+            <div class="slide-content">
+                <h1><i class="fas fa-rocket icon"></i>实践行动计划</h1>
+                <div class="two-column">
+                    <div class="column">
+                        <h3><i class="fas fa-calendar-check icon"></i>30天挑战</h3>
+                        <ol>
+                            <li>选择一个习惯重点突破</li>
+                            <li>每日记录：
+                                <ul>
+                                    <li>影响圈行动</li>
+                                    <li>四象限任务分配</li>
+                                    <li>情感账户存款</li>
+                                </ul>
+                            </li>
+                            <li>每周复盘调整</li>
+                        </ol>
+                    </div>
+                    <div class="column">
+                        <h3><i class="fas fa-tools icon"></i>实用工具</h3>
+                        <ul>
+                            <li>个人使命宣言模板</li>
+                            <li>周计划表（按四象限设计）</li>
+                            <li>情感账户记录表</li>
+                            <li>双赢协议模板</li>
+                        </ul>
+                        <div class="note" style="margin-top: 0.8rem;">
+                            <i class="fas fa-book icon"></i> 推荐阅读：《原子习惯》辅助习惯养成
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; font-size: 1.1rem; color: var(--primary-dark);">
+                    <p>"思想决定行动，行动决定习惯，习惯决定命运"</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Q&A -->
+        <div class="slide" id="slide-8">
+            <div class="slide-content">
+                <h1><i class="fas fa-question-circle icon"></i>Q&A 讨论</h1>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>高频问题</h3>
+                        <ol>
+                            <li>如何应对"重要不紧急"事务的拖延？</li>
+                            <li>双赢思维在竞争环境中是否适用？</li>
+                            <li>习惯养成到底需要多少天？</li>
+                            <li>如何平衡四个更新维度？</li>
+                        </ol>
+                    </div>
+                    <div class="column">
+                        <h3>开放讨论</h3>
+                        <div style="background-color: rgba(41, 98, 255, 0.05); padding: 1rem; border-radius: 8px; min-height: 180px;">
+                            <p>分享你在实践七个习惯中的经验或困惑</p>
+                        </div>
+                        <div class="tip" style="margin-top: 0.8rem;">
+                            <i class="fas fa-book icon"></i> 延伸资源：《高效能人士的第八个习惯》
+                        </div>
+                    </div>
+                </div>
+                <div class="author-info" style="position: static; margin-top: 1.5rem; color: var(--secondary-text);">
+                    <p>感谢参与！实践是检验真理的唯一标准</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 导航按钮 -->
+    <button class="nav-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
+    <button class="nav-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
+    
+    <!-- 进度指示器 -->
+    <div class="progress-container" id="progress-container">
+        <!-- 由JS动态生成 -->
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slidesContainer = document.getElementById('slides-container');
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressContainer = document.getElementById('progress-container');
+            
+            let currentSlide = 0;
+            let isScrolling = false;
+            let startX = 0;
+            let scrollLeft = 0;
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            // 初始化进度指示器
+            slides.forEach((slide, index) => {
+                const dot = document.createElement('div');
+                dot.classList.add('progress-dot');
+                dot.dataset.index = index;
+                progressContainer.appendChild(dot);
+                
+                dot.addEventListener('click', () => {
+                    goToSlide(index);
+                });
+            });
+            
+            // 设置第一个进度点为活动状态
+            updateProgressDots();
+            
+            // 键盘导航
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+                    nextSlide();
+                } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                    prevSlide();
+                }
+            });
+            
+            // 按钮事件
+            prevBtn.addEventListener('click', prevSlide);
+            nextBtn.addEventListener('click', nextSlide);
+            
+            // 触屏滑动支持
+            slidesContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+            slidesContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+            slidesContainer.addEventListener('touchend', handleTouchEnd);
+            
+            // 平滑滚动检测
+            slidesContainer.addEventListener('scroll', () => {
+                if (!isScrolling) {
+                    const slideIndex = Math.round(slidesContainer.scrollLeft / window.innerWidth);
+                    if (slideIndex !== currentSlide) {
+                        currentSlide = slideIndex;
+                        updateActiveSlide();
+                        updateProgressDots();
+                    }
+                }
+            });
+            
+            function handleTouchStart(e) {
+                touchStartX = e.touches[0].clientX;
+                scrollLeft = slidesContainer.scrollLeft;
+            }
+            
+            function handleTouchMove(e) {
+                if (!touchStartX) return;
+                
+                touchEndX = e.touches[0].clientX;
+                const diff = touchStartX - touchEndX;
+                
+                if (Math.abs(diff) > 5) {
+                    e.preventDefault(); // 阻止默认滚动行为
+                    slidesContainer.scrollLeft = scrollLeft + diff;
+                }
+            }
+            
+            function handleTouchEnd() {
+                if (touchStartX - touchEndX > 50) {
+                    nextSlide();
+                } else if (touchEndX - touchStartX > 50) {
+                    prevSlide();
+                }
+                
+                touchStartX = 0;
+                touchEndX = 0;
+            }
+            
+            function nextSlide() {
+                if (currentSlide < slides.length - 1) {
+                    goToSlide(currentSlide + 1);
+                }
+            }
+            
+            function prevSlide() {
+                if (currentSlide > 0) {
+                    goToSlide(currentSlide - 1);
+                }
+            }
+            
+            function goToSlide(index) {
+                if (index < 0 || index >= slides.length) return;
+                
+                currentSlide = index;
+                isScrolling = true;
+                
+                slidesContainer.scrollTo({
+                    left: window.innerWidth * index,
+                    behavior: 'smooth'
+                });
+                
+                updateActiveSlide();
+                updateProgressDots();
+                
+                setTimeout(() => {
+                    isScrolling = false;
+                }, 500);
+            }
+            
+            function updateActiveSlide() {
+                slides.forEach((slide, index) => {
+                    if (index === currentSlide) {
+                        slide.classList.add('active');
+                        slide.querySelector('.slide-content').style.opacity = 1;
+                        slide.querySelector('.slide-content').style.transform = 'translateY(0)';
+                    } else {
+                        slide.classList.remove('active');
+                        slide.querySelector('.slide-content').style.opacity = 0;
+                        slide.querySelector('.slide-content').style.transform = 'translateY(20px)';
+                    }
+                });
+            }
+            
+            function updateProgressDots() {
+                const dots = document.querySelectorAll('.progress-dot');
+                dots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 初始化内容动画
+            setTimeout(() => {
+                updateActiveSlide();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

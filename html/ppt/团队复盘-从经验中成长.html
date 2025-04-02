@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队复盘：从经验中成长</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+            --dark-gray: #7f8c8d;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .slide-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            padding: 20px;
+        }
+        .slide {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+            position: relative;
+            min-height: 70vh; /* 统一高度 */
+            /* overflow-y: auto; /* 内容过多时滚动 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .slide.active {
+            display: block;
+        }
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            position: sticky;
+            top: 10px;
+            z-index: 10;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        h2 {
+            color: var(--dark);
+            border-left: 5px solid var(--primary);
+            padding-left: 15px;
+            margin: 20px 0 10px;
+            font-size: 1.3em;
+        }
+        h3 {
+            color: var(--dark);
+            margin: 15px 0 8px;
+            font-size: 1.1em;
+        }
+        p {
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .icon {
+            margin-right: 6px;
+        }
+        .highlight {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+            font-size: 0.95em;
+        }
+        .data-point {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .data-icon {
+            font-size: 1.5em;
+            color: var(--primary);
+            margin-right: 12px;
+            min-width: 30px;
+            text-align: center;
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .comparison-box {
+            flex: 1 1 300px;
+            padding: 15px;
+            border-radius: 6px;
+            background-color: white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+        .comparison-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .process-step {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+        .step-number {
+            background-color: var(--primary);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .tool-card {
+            background-color: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            border-top: 3px solid var(--secondary);
+        }
+        .tool-title {
+            color: var(--dark);
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .case-study {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 3px solid var(--gray);
+        }
+        .case-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        .success-case {
+            border-left-color: var(--secondary);
+        }
+        .failure-case {
+            border-left-color: #e74c3c;
+        }
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .action-icon {
+            color: var(--secondary);
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+        .commitment-form {
+            background-color: #f0f7fb;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.95em;
+        }
+        textarea {
+            min-height: 80px;
+        }
+        .resource-item {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .resource-icon {
+            color: var(--primary);
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            position: sticky;
+            bottom: 10px;
+            background: white;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+        }
+        .btn {
+            padding: 8px 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.3s;
+            flex: 1;
+            margin: 0 5px;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        .btn-secondary:hover {
+            background-color: #27ae60;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--dark-gray);
+            font-size: 0.85em;
+        }
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 20px;
+                min-height: 80vh;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            h2 {
+                font-size: 1.2em;
+            }
+            .nav-buttons {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 10px;
+                background: rgba(255,255,255,0.9);
+                backdrop-filter: blur(5px);
+                z-index: 100;
+            }
+            .btn {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+            .progress-container {
+                top: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .slide {
+                padding: 15px;
+            }
+            .comparison-box {
+                flex: 1 1 100%;
+            }
+            .process-step {
+                flex-direction: column;
+            }
+            .step-number {
+                margin-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- 进度指示器 -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- 封面 -->
+        <div class="slide active" id="slide1">
+            <h1>团队复盘：从经验中成长</h1>
+            <p style="text-align: center; font-size: 1.1em; color: var(--dark);">打造持续改进的学习型团队</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="font-size: 3em; color: var(--primary);">🔄</div>
+            </div>
+            
+            <div class="highlight">
+                <p style="text-align: center; font-size: 1em;">"我们不应该只关注做了什么，更要关注从中学到了什么。"</p>
+            </div>
+            
+            <div class="footer">
+                <p>团队知识管理系列 · 2025</p>
+            </div>
+        </div>
+
+        <!-- 复盘认知 -->
+        <div class="slide" id="slide2">
+            <h1>复盘认知：定义与价值</h1>
+            
+            <h2>什么是复盘？</h2>
+            <p>复盘源自围棋术语，指对局后重新推演棋局以分析得失。在团队管理中，复盘是<strong>对过去项目的结构化回顾</strong>，目的是：</p>
+            <ul>
+                <li><span class="icon">🔍</span> 系统分析项目全过程</li>
+                <li><span class="icon">📊</span> 识别成功与失败的关键因素</li>
+                <li><span class="icon">🚀</span> 提炼经验指导未来行动</li>
+            </ul>
+            
+            <h2>为什么复盘如此重要？</h2>
+            <div class="data-point">
+                <div class="data-icon">📈</div>
+                <div>哈佛商学院研究发现：<strong>定期复盘的团队比不复盘的团队绩效高23%</strong></div>
+            </div>
+            <div class="data-point">
+                <div class="data-icon">💡</div>
+                <div>麻省理工团队研究显示：<strong>复盘可将错误重复率降低40%</strong></div>
+            </div>
+            
+            <div class="highlight">
+                <p><span class="icon">✅</span> 复盘不是批评会，而是<strong>学习会</strong>和<strong>改进会</strong></p>
+            </div>
+        </div>
+
+        <!-- 传统总结 vs 结构化复盘 -->
+        <div class="slide" id="slide3">
+            <h1>传统总结 vs 结构化复盘</h1>
+            
+            <div class="comparison">
+                <div class="comparison-box">
+                    <div class="comparison-title">传统总结</div>
+                    <ul>
+                        <li><span class="icon">❌</span> 流于表面，缺乏深度分析</li>
+                        <li><span class="icon">❌</span> 侧重结果，忽视过程</li>
+                        <li><span class="icon">❌</span> 容易变成"表彰会"或"批斗会"</li>
+                        <li><span class="icon">❌</span> 缺乏结构化框架</li>
+                        <li><span class="icon">❌</span> 很少产生具体改进措施</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-box">
+                    <div class="comparison-title">结构化复盘</div>
+                    <ul>
+                        <li><span class="icon">✅</span> 系统化分析全过程</li>
+                        <li><span class="icon">✅</span> 关注事实与数据</li>
+                        <li><span class="icon">✅</span> 平衡成功与改进点</li>
+                        <li><span class="icon">✅</span> 使用科学方法论</li>
+                        <li><span class="icon">✅</span> 产出具体行动计划</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight">
+                <p><span class="icon">💡</span> 麦肯锡研究：<strong>结构化复盘</strong>的团队知识转化效率比传统总结高<strong>3-5倍</strong></p>
+            </div>
+        </div>
+
+        <!-- 标准复盘流程（5步法） -->
+        <div class="slide" id="slide4">
+            <h1 style="font-size:1.6em">标准复盘流程（5步法）</h1>
+            
+            <div class="process-step">
+                <div class="step-number" style="width:22px;height:22px;font-size:0.8em">1</div>
+                <div>
+                    <h3 style="font-size:1em;margin:8px 0 5px">回顾目标</h3>
+                    <p style="font-size:0.9em;margin-bottom:5px">
+                        明确最初的目标和预期结果，确保所有人对基准有共识。
+                        <span style="color:var(--secondary)">
+                            <em>关键问题：我们当初希望达成什么？</em>
+                        </span>
+                    </p>    
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number" style="width:22px;height:22px;font-size:0.8em">2</div>
+                <div>
+                    <h3 style="font-size:1em;margin:8px 0 5px">评估结果</h3>
+                    <p style="font-size:0.9em;margin-bottom:5px">
+                        客观评估实际达成情况，与目标进行量化对比。
+                        <span style="color:var(--secondary)">
+                            <em>关键问题：实际发生了什么？与目标有何差距？</em>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number" style="width:22px;height:22px;font-size:0.8em">3</div>
+                <div>
+                    <h3 style="font-size:1em;margin:8px 0 5px">分析原因</h3>
+                    <p style="font-size:0.9em;margin-bottom:5px">
+                        深入分析成功或失败的根本原因，区分可控与不可控因素。
+                        <span style="color:var(--secondary)">
+                            <em>关键问题：为什么会产生这些结果？关键因素是什么？</em>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number" style="width:22px;height:22px;font-size:0.8em">4</div>
+                <div>
+                    <h3 style="font-size:1em;margin:8px 0 5px">总结经验</h3>
+                    <p style="font-size:0.9em;margin-bottom:5px">
+                        提炼可复用的经验和教训，形成团队知识。
+                        <span style="color:var(--secondary)">
+                            <em>关键问题：我们学到了什么？有哪些规律？</em>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number" style="width:22px;height:22px;font-size:0.8em">5</div>
+                <div>
+                    <h3 style="font-size:1em;margin:8px 0 5px">行动计划</h3>
+                    <p style="font-size:0.9em;margin-bottom:5px">
+                        制定具体、可衡量的改进措施，明确责任人和时间节点。
+                        <span style="color:var(--secondary)">
+                            <em>关键问题：接下来我们要做什么不同的事？</em>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 复盘工具集 -->
+        <div class="slide" id="slide5">
+            <h1 style="font-size:1.6em">复盘工具集</h1>
+            
+            <div class="tool-card" style="padding:12px;margin-bottom:12px">
+                <div class="tool-title" style="font-size:1em"><span class="icon">🔧</span> KPT 模型</div>
+                <p style="font-size:0.9em;margin:5px 0"><strong>Keep（保持）</strong>：做得好的、应该继续保持的</p>
+                <p style="font-size:0.9em;margin:5px 0"><strong>Problem（问题）</strong>：遇到的困难和挑战</p>
+                <p style="font-size:0.9em;margin:5px 0"><strong>Try（尝试）</strong>：下一步可以尝试的改进措施</p>
+                <p style="font-size:0.85em;margin:5px 0"><em>适用场景：快速复盘、日常迭代</em></p>
+            </div>
+                        
+            <div class="tool-card" style="padding:12px">
+                <div class="tool-title" style="font-size:1em"><span class="icon">🧠</span> ORID 焦点讨论法</div>
+                <p style="font-size:0.9em;margin:5px 0"><strong>Objective（事实）</strong>：发生了什么？客观事实是什么？</p>
+                <p style="font-size:0.9em;margin:5px 0"><strong>Reflective（感受）</strong>：团队成员的感受和反应</p>
+                <p style="font-size:0.9em;margin:5px 0"><strong>Interpretive（意义）</strong>：这些事实意味着什么？</p>
+                <p style="font-size:0.9em;margin:5px 0"><strong>Decisional（决定）</strong>：基于分析我们应该做什么？</p>
+                <p style="font-size:0.85em;margin:5px 0"><em>适用场景：需要平衡理性与感性的复杂项目</em></p>
+            </div>
+        </div>
+
+        <!-- 复盘工具集 -->
+        <div class="slide" id="slide6">
+            <h1 style="font-size:1.6em">复盘工具集</h1>
+            
+            <div class="tool-card" style="padding:12px;margin-bottom:12px">
+                <div class="tool-title" style="font-size:1em"><span class="icon">🔍</span> 5Why 分析法</div>
+                <p style="font-size:0.9em;margin:5px 0">通过连续追问"为什么"（至少5次）找到问题根本原因</p>
+                <p style="font-size:0.9em;margin:5px 0"><strong>示例</strong>：</p>
+                <ol style="font-size:0.85em;margin-left:18px">
+                    <li style="margin-bottom:4px">为什么项目延期？→ 测试阶段发现大量缺陷</li>
+                    <li style="margin-bottom:4px">为什么有这么多缺陷？→ 开发阶段质量检查不足</li>
+                    <li style="margin-bottom:4px">为什么质量检查不足？→ 没有明确的代码审查流程</li>
+                    <li style="margin-bottom:4px">为什么没有审查流程？→ 时间压力下流程被跳过</li>
+                    <li>为什么时间压力这么大？→ 需求变更未评估影响</li>
+                </ol>
+                <p style="font-size:0.85em;margin:5px 0"><em>适用场景：问题根源分析</em></p>
+            </div>
+            
+        </div>
+
+        <!-- 成功案例 -->
+        <div class="slide" id="slide7">
+            <h1>复盘案例：成功项目分析</h1>
+            
+            <div class="case-study success-case">
+                <div class="case-title">✅ 营销活动超额完成目标</div>
+                <p><strong>背景</strong>：新产品上线获客活动，目标1000注册用户</p>
+                <p><strong>结果</strong>：实际获得1500注册，转化率提升30%</p>
+                
+                <h3 style="margin-top: 12px;">复盘发现：</h3>
+                <ul>
+                    <li>精准定位目标用户画像（25-35岁科技从业者）</li>
+                    <li>社交媒体KOL合作带来45%流量</li>
+                    <li>注册流程简化（从5步减至2步）</li>
+                </ul>
+                
+                <h3 style="margin-top: 12px;">经验沉淀：</h3>
+                <ul>
+                    <li>建立KOL合作评估矩阵</li>
+                    <li>将简化流程应用到所有产品</li>
+                    <li>制定数据监控标准操作流程</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 失败案例 -->
+        <div class="slide" id="slide8">
+            <h1>复盘案例：失败项目分析</h1>
+            
+            <div class="case-study failure-case">
+                <div class="case-title">❌ 产品交付延期1个月</div>
+                <p><strong>背景</strong>：客户管理系统开发，计划3个月交付</p>
+                <p><strong>结果</strong>：实际耗时4个月，客户满意度下降</p>
+                
+                <h3 style="margin-top: 12px;">复盘发现：</h3>
+                <ul>
+                    <li>需求变更频繁（5次重大变更）</li>
+                    <li>关键开发人员中途调离</li>
+                    <li>测试阶段发现大量接口问题</li>
+                </ul>
+                
+                <h3 style="margin-top: 12px;">改进措施：</h3>
+                <ul>
+                    <li>建立需求变更控制流程（影响评估+审批）</li>
+                    <li>制定关键岗位AB角制度</li>
+                    <li>增加开发阶段接口测试环节</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 常见误区 -->
+        <div class="slide" id="slide9">
+            <h1>复盘常见误区</h1>
+            
+            <div class="highlight" style="padding: 10px;background-color: #fdecea; border-left-color: #e74c3c;">
+                <h3 style="font-size:1em;margin:5px 0">⚠️误区1：变成批斗会</h3>
+                <p style="font-size:0.85em;margin:5px 0">过度聚焦责任追究而非问题解决，导致团队成员防御心理</p>
+                <p style="font-size:0.85em;margin:5px 0"><strong>正确做法</strong>：对事不对人，关注系统而非个人</p>
+            </div>
+            
+            <div class="highlight" style="padding: 10px;background-color: #fdecea; border-left-color: #e74c3c;">
+                <h3 style="font-size:1em;margin:5px 0">⚠️误区2：流于形式</h3>
+                <p style="font-size:0.85em;margin:5px 0">走过场式讨论，缺乏深度分析和具体行动</p>
+                <p style="font-size:0.85em;margin:5px 0"><strong>正确做法</strong>：使用结构化工具，确保每个环节有产出</p>
+            </div>
+            
+            <div class="highlight" style="padding: 10px;background-color: #fdecea; border-left-color: #e74c3c;">
+                <h3 style="font-size:1em;margin:5px 0">⚠️误区3：只谈问题不谈成功</h3>
+                <p style="font-size:0.85em;margin:5px 0">忽视成功经验，错失知识沉淀机会</p>
+                <p style="font-size:0.85em;margin:5px 0"><strong>正确做法</strong>：平衡分析成功与失败因素</p>
+            </div>
+            
+            <div class="highlight" style="padding: 10px;">
+                <p style="font-size:0.85em;margin:5px 0">💡斯坦福大学研究发现：<strong>避免这些误区</strong>可使复盘效果提升<strong>60%</strong></p>
+            </div>
+        </div>
+        
+        <!-- 团队落地实施的5个关键点 -->
+        <div class="slide" id="slide10">
+            <h1 style="font-size:1.6em">团队落地实施的5个关键点</h1>
+            
+            <div class="action-item" style="margin-bottom:10px">
+                <div class="action-icon" style="font-size:1em">1️⃣</div>
+                <div>
+                    <h3 style="font-size:1em;margin:5px 0">建立固定节奏</h3>
+                    <p style="font-size:0.9em">根据项目周期设定复盘节点（如每周迭代/项目里程碑）</p>
+                </div>
+            </div>
+            
+            <div class="action-item" style="margin-bottom:10px">
+                <div class="action-icon" style="font-size:1em">2️⃣</div>
+                <div>
+                    <h3 style="font-size:1em;margin:5px 0">营造安全环境</h3>
+                    <p style="font-size:0.9em">制定"复盘公约"：不指责、不辩解、不邀功</p>
+                </div>
+            </div>
+            
+            <div class="action-item" style="margin-bottom:10px">
+                <div class="action-icon" style="font-size:1em">3️⃣</div>
+                <div>
+                    <h3 style="font-size:1em;margin:5px 0">提前准备数据</h3>
+                    <p style="font-size:0.9em">收集项目指标、用户反馈等客观依据</p>
+                </div>
+            </div>
+            
+            <div class="action-item" style="margin-bottom:10px">
+                <div class="action-icon" style="font-size:1em">4️⃣</div>
+                <div>
+                    <h3 style="font-size:1em;margin:5px 0">聚焦可改变因素</h3>
+                    <p style="font-size:0.9em">优先分析团队可控范围内的改进点</p>
+                </div>
+            </div>
+            
+            <div class="action-item" style="margin-bottom:10px">
+                <div class="action-icon" style="font-size:1em">5️⃣</div>
+                <div>
+                    <h3 style="font-size:1em;margin:5px 0">闭环跟踪</h3>
+                    <p style="font-size:0.9em">将行动项纳入工作计划，下次复盘检查进展</p>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- 团队复盘承诺书 -->
+        <div class="slide" id="slide11">
+            <h1>团队复盘承诺书</h1>
+            
+            <div class="commitment-form">
+                
+                <div class="form-group">
+                    <label for="commitment-1">我们承诺做到：</label>
+                    <textarea id="commitment-1">1. 每季度至少进行一次正式复盘
+2. 复盘前准备充分的数据和材料
+3. 保持开放心态，对事不对人</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="commitment-2">我们希望达成：</label>
+                    <textarea id="commitment-2">1. 建立持续改进的团队文化
+2. 将错误重复率降低50%
+3. 成功经验复用率达到80%</textarea>
+                </div>
+                
+                <div style="padding:12px;margin-top:12px">
+                    <p style="font-size:0.9em"><span class="icon">📌</span> 建议从<strong>小型试点</strong>开始，积累成功经验后再推广</p>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- 结束页 -->
+        <div class="slide" id="slide12">
+            <h1>开始我们的复盘之旅</h1>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="font-size: 3em; color: var(--secondary);">🚀</div>
+            </div>
+            
+            <div class="highlight">
+                <p style="text-align: center; font-size: 1.1em;">"最好的学习方式是从经验中学习，最好的改进方式是从复盘中成长。"</p>
+            </div>
+            
+        </div>
+        
+        <!-- 导航按钮 -->
+        <div class="nav-buttons">
+            <button class="btn" id="prev-btn">上一页</button>
+            <button class="btn btn-secondary" id="next-btn">下一页</button>
+            <button class="btn" id="restart-btn">首页</button>
+        </div>
+    </div>
+
+    <script>
+        // 幻灯片控制逻辑
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress-bar');
+        const totalSlides = slides.length;
+        
+        // 更新进度条
+        function updateProgress() {
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        // 显示指定幻灯片
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            updateProgress();
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+            
+            // 按钮事件
+            document.getElementById('prev-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showSlide(currentSlide - 1);
+            });
+            
+            document.getElementById('next-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showSlide(currentSlide + 1);
+            });
+            
+            document.getElementById('restart-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showSlide(0);
+            });
+            
+            // 键盘控制
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    showSlide(currentSlide + 1);
+                } else if (e.key === 'ArrowLeft') {
+                    showSlide(currentSlide - 1);
+                } else if (e.key === 'Home') {
+                    showSlide(0);
+                } else if (e.key === 'End') {
+                    showSlide(totalSlides - 1);
+                }
+            });
+            
+            // 触摸滑动 (移动端)
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+            
+            document.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+            
+            function handleSwipe() {
+                if (touchEndX < touchStartX - 20) {
+                    // 向左滑动 - 下一页
+                    showSlide(currentSlide + 1);
+                } else if (touchEndX > touchStartX + 20) {
+                    // 向右滑动 - 上一页
+                    showSlide(currentSlide - 1);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
