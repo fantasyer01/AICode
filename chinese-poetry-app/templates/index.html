@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国古诗词鉴赏</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>中国古诗词鉴赏</h1>
+        </header>
+
+        <main class="main-content">
+            <section class="search-section">
+                <form id="searchForm" class="search-form">
+                    <div class="input-group">
+                        <input type="text" id="verseInput" name="verse" 
+                               placeholder="请输入诗句，如：床前明月光" required>
+                        <button type="submit" id="searchBtn">寻诗</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="resultSection" class="result-section hidden">
+                <div class="loading hidden" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在探寻诗意...</p>
+                </div>
+
+                <div id="poetryResult" class="poetry-result"></div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>传承中华文化 · 品味诗词之美</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const verse = document.getElementById('verseInput').value.trim();
+            const resultSection = document.getElementById('resultSection');
+            const loading = document.getElementById('loading');
+            const poetryResult = document.getElementById('poetryResult');
+            
+            if (!verse) {
+                alert('请输入要查询的诗句');
+                return;
+            }
+            
+            // 显示加载状态
+            resultSection.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            poetryResult.innerHTML = '';
+            
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ verse })
+                });
+                
+                const data = await response.json();
+                
+                // 隐藏加载状态
+                loading.classList.add('hidden');
+                
+                if (data.error) {
+                    poetryResult.innerHTML = `<div class="error-message">${data.error}</div>`;
+                    return;
+                }
+                
+                // 渲染诗词结果
+                renderPoetryResult(data);
+                
+            } catch (error) {
+                loading.classList.add('hidden');
+                poetryResult.innerHTML = '<div class="error-message">查询失败，请稍后重试</div>';
+                console.error('Error:', error);
+            }
+        });
+        
+        function renderPoetryResult(data) {
+            let html = `
+                <div class="poetry-card">
+                    <div class="poetry-header">
+                        <h2>《${data.title}》</h2>
+                        <p class="poetry-meta">${data.dynasty} · ${data.author}</p>
+                        <p class="source-verse">查询诗句：<em>${data.source_verse}</em></p>
+                    </div>
+                    
+                    <div class="poetry-content">
+                        <h3>📜 完整诗词</h3>
+                        <div class="verses">
+            `;
+            
+            // 添加诗词全文和拼音
+            if (data.verses_with_pinyin) {
+                data.verses_with_pinyin.forEach(verse => {
+                    html += `
+                        <div class="verse-line">
+                            <div class="verse-text">${verse.text}</div>
+                            <div class="verse-pinyin">${verse.pinyin}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            html += `
+                        </div>
+                    </div>
+                    
+                    <div class="poetry-background">
+                        <h3>📖 创作背景</h3>
+                        <p>${data.background}</p>
+                    </div>
+            `;
+            
+            // 添加疑难字词解析
+            if (data.difficult_words && data.difficult_words.length > 0) {
+                html += `
+                    <div class="difficult-words">
+                        <h3>🔍 疑难字词解析</h3>
+                        <div class="words-grid">
+                `;
+                
+                data.difficult_words.forEach(item => {
+                    html += `
+                        <div class="word-item">
+                            <strong>${item.word}</strong>
+                            <span>${item.explanation}</span>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 添加整体鉴赏
+            html += `
+                    <div class="appreciation">
+                        <h3>🎨 整体鉴赏</h3>
+                        <p>${data.appreciation}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('poetryResult').innerHTML = html;
+        }
+        
+        // 回车键搜索
+        document.getElementById('verseInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

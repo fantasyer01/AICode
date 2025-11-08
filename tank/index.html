@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简化版坦克大战</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Intro Screen -->
+    <div id="introScreen" class="intro-screen">
+        <div class="intro-logo">🎮 TANK BATTLE 🎮</div>
+        <div class="intro-subtitle">Classic Arcade Action</div>
+        <div class="intro-tanks">
+            <div class="intro-tank"></div>
+            <div class="intro-tank enemy"></div>
+            <div class="intro-tank"></div>
+        </div>
+        <div class="intro-start" id="introStart">Press SPACE or Click to Start</div>
+    </div>
+
+    <div class="game-container">
+        <h1>坦克大战</h1>
+        <div class="game-info">
+            <div>关卡: <span id="level">1 - Level 1</span></div>
+            <div>生命: <span id="lives">3</span></div>
+            <div>敌人: <span id="enemies">10</span></div>
+            <div>得分: <span id="score">0</span></div>
+            <button id="pauseBtn">暂停</button>
+        </div>
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div class="controls">
+            <p>控制: ↑↓←→ 移动 | 空格 射击</p>
+        </div>
+        <div id="gameOver" class="game-over hidden">
+            <h2 id="gameResult">游戏结束</h2>
+            <button id="restartBtn">重新开始</button>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/bullet.js"></script>
+    <script src="js/tank.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/collision.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
