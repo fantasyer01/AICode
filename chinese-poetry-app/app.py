@@ -37,7 +37,7 @@ class PoetryAPI:
         
         # 构建优化的提示词
         prompt = f"""
-        请提供以下诗句的完整诗词信息："{verse_line}"
+        请提供以下句子的完整古诗词信息："{verse_line}"
         
         要求：
         1. 以JSON格式返回
@@ -46,9 +46,11 @@ class PoetryAPI:
            - author: 作者
            - dynasty: 朝代
            - full_text: 诗词全文，每一句诗词下方，需用括号标注其汉语拼音，拼音标注需规范，每个字的拼音单独标注，诗句中的每个字都应有拼音。（数组，每句一个元素）
+           - translation: 现代白话文译文（对诗词内容进行逐句翻译，数组，每句一个元素，与full_text对应）
            - background: 创作背景（200字左右）
            - difficult_words: 疑难字词解析（数组，每个元素包含word和explanation字段）
            - appreciation: 整体鉴赏（300字左右）
+           - celebrity_reviews: 历史名人点评（数组，每个元素包含reviewer和review字段，包含2-3条历史名人的点评）
         
         示例格式：
         {{
@@ -56,6 +58,7 @@ class PoetryAPI:
             "author": "李白",
             "dynasty": "唐代",
             "full_text": ["床前明月光（chuáng qián míng yuè guāng）", "疑是地上霜（yí shì dì shàng shuāng）", "举头望明月（jǔ tóu wàng míng yuè）", "低头思故乡（dī tóu sī gù xiāng）"],
+            "translation": ["明亮的月光洒在床前的窗户纸上", "好像地上泛起了一层霜", "抬起头来看那天窗外空中的明月", "不由得低头沉思，想起远方的家乡"],
             "background": "这首诗创作于唐玄宗开元十四年（726年），当时李白约25岁，寓居扬州旅舍。在一个月明星稀的夜晚，诗人望见秋月，思乡之情油然而生，写下了这首传诵千古、中外皆知的名诗。",
             "difficult_words": [
                 {{"word": "疑", "explanation": "好像，似乎。生动地写出了诗人睡梦初醒，恍惚中将照射在床前的清冷月光误作铺在地面的浓霜。"}},
@@ -63,6 +66,10 @@ class PoetryAPI:
                 {{"word": "思故乡", "explanation": "思念家乡。直接点明了诗歌的核心情感——乡愁。"}}
             ],
             "appreciation": "《静夜思》语言清新朴素...",
+            "celebrity_reviews": [
+                {{"reviewer": "明代胡应麟", "review": "太白诸绝句，信口而成，所谓无意于工而无不工者。"}},
+                {{"reviewer": "清代王夫之", "review": "以景寓情，浑然天成，读来如见故乡。"}}
+            ],
             "source_verse": "{verse_line}"
         }}
         
@@ -77,7 +84,7 @@ class PoetryAPI:
                     "content": prompt
                 }
             ],
-            "max_tokens": 2000,
+            "max_tokens": 8000,
             "temperature": 0.3,
             "stream": False
         }
@@ -92,7 +99,7 @@ class PoetryAPI:
                 self.base_url,
                 headers=headers,
                 json=data,
-                timeout=30
+                timeout=90
             )
             
             print(f"📡 API响应状态码: {response.status_code}")
@@ -126,7 +133,8 @@ class PoetryAPI:
                             return validated_data
                         except json.JSONDecodeError as e:
                             print(f"❌ JSON解析失败: {e}")
-                            print(f"📄 尝试解析的JSON字符串: {json_str}")
+                            if json_match:
+                                print(f"📄 尝试解析的JSON字符串: {json_match.group()}")
                     else:
                         print("❌ 未找到JSON格式内容")
                         print(f"📄 原始返回内容: {cleaned_content}")
@@ -153,11 +161,14 @@ class PoetryAPI:
         """验证并清理API返回的数据"""
         print("🔧 验证和清理数据...")
         
-        required_fields = ['title', 'author', 'dynasty', 'full_text', 'background', 'difficult_words', 'appreciation']
+        required_fields = ['title', 'author', 'dynasty', 'full_text', 'translation', 'background', 'difficult_words', 'appreciation', 'celebrity_reviews']
         
         for field in required_fields:
             if field not in data:
-                if field == 'difficult_words':
+                if field in ['difficult_words', 'celebrity_reviews']:
+                    data[field] = []
+                    print(f"⚠️  缺失字段 {field}，已设置为空列表")
+                elif field == 'translation':
                     data[field] = []
                     print(f"⚠️  缺失字段 {field}，已设置为空列表")
                 else:
@@ -167,10 +178,14 @@ class PoetryAPI:
         # 确保source_verse字段存在
         data['source_verse'] = original_verse
         
-        # 确保full_text是列表
+        # 确保full_text和translation是列表
         if isinstance(data['full_text'], str):
             data['full_text'] = [data['full_text']]
             print("🔄 将full_text从字符串转换为列表")
+        
+        if isinstance(data.get('translation'), str):
+            data['translation'] = [data['translation']]
+            print("🔄 将translation从字符串转换为列表")
         
         print(f"✅ 数据验证完成: {data['title']} - {data['author']}")
         return data
@@ -185,6 +200,7 @@ class PoetryAPI:
                 "author": "李白", 
                 "dynasty": "唐代",
                 "full_text": ["床前明月光", "疑是地上霜", "举头望明月", "低头思故乡"],
+                "translation": ["明亮的月光洒在床前的窗户纸上", "好像地上泛起了一层白霜", "抬起头来看那天窗外空中的明月", "不由得低头沉思，想起远方的家乡"],
                 "background": "这首诗创作于唐玄宗开元十四年（726年），当时李白约25岁，寓居扬州旅舍。在一个月明星稀的夜晚，诗人望见秋月，思乡之情油然而生，写下了这首传诵千古、中外皆知的名诗。",
                 "difficult_words": [
                     {"word": "疑", "explanation": "好像，似乎。生动地写出了诗人睡梦初醒，恍惚中将照射在床前的清冷月光误作铺在地面的浓霜。"},
@@ -192,6 +208,11 @@ class PoetryAPI:
                     {"word": "思故乡", "explanation": "思念家乡。直接点明了诗歌的核心情感——乡愁。"}
                 ],
                 "appreciation": "《静夜思》语言清新朴素，明白如话，内容单纯却又韵味无穷。诗人通过\"明月光\"、\"地上霜\"、\"举头\"、\"低头\"等一系列动作和景物的白描，鲜明地勾勒出一幅生动的月夜思乡图。全诗从\"疑\"到\"望\"再到\"思\"，形象地揭示了诗人的内心活动，巧妙地表达了旅居思乡的孤寂情怀。其构思细致而深曲，却又不假雕琢，浑然天成，千百年来广泛吸引着读者，成为了中华文化中思乡符号的代表。",
+                "celebrity_reviews": [
+                    {"reviewer": "明代胡应麟", "review": "太白诸绝句，信口而成，所谓无意于工而无不工者。此诗写月夜思乡，千古传诵。"},
+                    {"reviewer": "清代王夫之", "review": "以景寓情，浑然天成，读来如见故乡。通篇不着一个'思'字，而思乡之情溢于言表。"},
+                    {"reviewer": "现代郭沫若", "review": "此诗平淡自然，不事雕琢，却能打动千古读者之心，足见李白天才之高妙。"}
+                ],
                 "source_verse": "床前明月光"
             },
             "春眠不觉晓": {
@@ -199,6 +220,7 @@ class PoetryAPI:
                 "author": "孟浩然",
                 "dynasty": "唐代",
                 "full_text": ["春眠不觉晓", "处处闻啼鸟", "夜来风雨声", "花落知多少"],
+                "translation": ["春日里贪睡不知不觉天已破晓", "搅乱我酣眠的是那处处啼鸟", "昨天夜里风声雨声一直不断", "那娇美的春花不知被吹落了多少"],
                 "background": "这首诗是孟浩然隐居在鹿门山时所作，意境十分优美。诗人抓住春天的早晨刚刚醒来时的一瞬间展开描写和联想，生动地表达了诗人对春天的热爱和怜惜之情。",
                 "difficult_words": [
                     {"word": "不觉晓", "explanation": "不知道天已经亮了。形容睡得香甜，不知不觉天就亮了。"},
@@ -206,6 +228,10 @@ class PoetryAPI:
                     {"word": "花落知多少", "explanation": "不知道花被吹落了多少。表达了对春光易逝的惋惜之情。"}
                 ],
                 "appreciation": "《春晓》这首小诗，初读似觉平淡无奇，反复读之，便觉诗中别有天地。它的艺术魅力不在于华丽的辞藻，不在于奇绝的艺术手法，而在于它的韵味。整首诗的风格就像行云流水一样平易自然，然而悠远深厚，独臻妙境。千百年来，人们传诵它，探讨它，仿佛在这短短的四行诗里，蕴涵着开掘不完的艺术宝藏。",
+                "celebrity_reviews": [
+                    {"reviewer": "宋代朱熹", "review": "诗意清新自然，如春风拂面，令人心旷神怡。"},
+                    {"reviewer": "清代沈德潜", "review": "语淡而味终不薄，真可谓以少少许胜多多许。全诗自然流畅，通俗易懂，却又余味无穷。"}
+                ],
                 "source_verse": "春眠不觉晓"
             }
         }
@@ -222,11 +248,15 @@ class PoetryAPI:
                 "author": "暂缺",
                 "dynasty": "暂缺", 
                 "full_text": [verse_line],
+                "translation": ["译文获取中..."],
                 "background": "正在通过AI分析诗词创作背景...",
                 "difficult_words": [
                     {"word": "示例", "explanation": "这是示例解析，实际数据正在获取中"}
                 ],
                 "appreciation": "正在生成诗词整体鉴赏...",
+                "celebrity_reviews": [
+                    {"reviewer": "获取中", "review": "正在获取历史名人点评..."}
+                ],
                 "source_verse": verse_line
             }
 

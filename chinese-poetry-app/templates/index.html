@@ -116,6 +116,24 @@
                         </div>
                     </div>
                     
+                    <div class="poetry-translation">
+                        <h3>💬 译文</h3>
+                        <div class="translation-content">
+            `;
+            
+            // 添加译文
+            if (data.translation && data.translation.length > 0) {
+                data.translation.forEach(line => {
+                    html += `<p class="translation-line">${line}</p>`;
+                });
+            } else {
+                html += `<p class="translation-line">译文暂无</p>`;
+            }
+            
+            html += `
+                        </div>
+                    </div>
+                    
                     <div class="poetry-background">
                         <h3>📖 创作背景</h3>
                         <p>${data.background}</p>
@@ -151,6 +169,32 @@
                         <h3>🎨 整体鉴赏</h3>
                         <p>${data.appreciation}</p>
                     </div>
+            `;
+            
+            // 添加名人点评
+            if (data.celebrity_reviews && data.celebrity_reviews.length > 0) {
+                html += `
+                    <div class="celebrity-reviews">
+                        <h3>⭐ 名人点评</h3>
+                        <div class="reviews-list">
+                `;
+                
+                data.celebrity_reviews.forEach(item => {
+                    html += `
+                        <div class="review-item">
+                            <div class="reviewer-name">${item.reviewer}</div>
+                            <div class="review-text">${item.review}</div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
                 </div>
             `;
             
