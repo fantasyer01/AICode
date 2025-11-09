@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Platformer - Retro Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen">
+            <h1>SUPER PLATFORMER</h1>
+            <div class="loading-bar">
+                <div id="loading-progress"></div>
+            </div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="main-menu" class="menu hidden">
+            <h1>SUPER PLATFORMER</h1>
+            <div class="menu-buttons">
+                <button id="start-btn" class="menu-button">START GAME</button>
+                <button id="instructions-btn" class="menu-button">INSTRUCTIONS</button>
+            </div>
+            <div id="instructions-panel" class="hidden">
+                <h2>CONTROLS</h2>
+                <p>Arrow Left / A: Move Left</p>
+                <p>Arrow Right / D: Move Right</p>
+                <p>Arrow Up / W / Space: Jump</p>
+                <p>P: Pause Game</p>
+                <p>R: Restart Level</p>
+                <br>
+                <p>Jump on enemies to defeat them!</p>
+                <p>Collect coins for points!</p>
+                <p>Reach the flag to complete the level!</p>
+                <button id="back-btn" class="menu-button">BACK</button>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- HUD Overlay -->
+        <div id="hud" class="hidden">
+            <div id="score">SCORE: <span id="score-value">000000</span></div>
+            <div id="level-name">LEVEL 1-1</div>
+            <div id="lives">❤ x <span id="lives-value">3</span></div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="menu hidden">
+            <h1>PAUSED</h1>
+            <div class="menu-buttons">
+                <button id="resume-btn" class="menu-button">RESUME</button>
+                <button id="restart-btn" class="menu-button">RESTART LEVEL</button>
+                <button id="quit-btn" class="menu-button">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameover-screen" class="menu hidden">
+            <h1>GAME OVER</h1>
+            <p>Final Score: <span id="final-score">000000</span></p>
+            <div class="menu-buttons">
+                <button id="tryagain-btn" class="menu-button">TRY AGAIN</button>
+                <button id="mainmenu-btn" class="menu-button">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- Level Complete Screen -->
+        <div id="levelcomplete-screen" class="menu hidden">
+            <h1>LEVEL COMPLETE!</h1>
+            <p>Score: <span id="level-score">000000</span></p>
+            <div class="menu-buttons">
+                <button id="nextlevel-btn" class="menu-button">NEXT LEVEL</button>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="menu hidden">
+            <h1>VICTORY!</h1>
+            <p>You completed all levels!</p>
+            <p>Final Score: <span id="victory-score">000000</span></p>
+            <div class="menu-buttons">
+                <button id="victory-menu-btn" class="menu-button">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript modules -->
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
