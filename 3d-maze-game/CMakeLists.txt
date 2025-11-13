@@ -8,8 +8,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file(GLOB SOURCES "src/*.cpp")
 list(APPEND SOURCES "src/glad.c")
 
-# Add executable
-add_executable(MazeGame ${SOURCES})
+# Add executable (WIN32 flag hides console window on Windows)
+if(WIN32)
+    add_executable(MazeGame WIN32 ${SOURCES})
+else()
+    add_executable(MazeGame ${SOURCES})
+endif()
 
 # Include directories
 target_include_directories(MazeGame PRIVATE

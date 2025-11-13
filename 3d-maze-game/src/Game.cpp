@@ -37,6 +37,7 @@ bool Game::init() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);  // Disable window resizing
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);  // Disable window maximization
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);    // Start hidden to avoid white flash
     
     // Get primary monitor and its video mode for 2/3 screen size
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -71,7 +72,13 @@ bool Game::init() {
     }
     
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+    
+    // Set initial background color to menu color to avoid white flash
+    glClearColor(0.15f, 0.20f, 0.30f, 1.0f);
+    
+    // Clear the screen immediately to avoid white flash
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwSwapBuffers(window);
     
     // Set viewport to full window size
     glViewport(0, 0, windowWidth, windowHeight);
@@ -89,6 +96,14 @@ bool Game::init() {
         std::cerr << "Failed to initialize text renderer" << std::endl;
         return false;
     }
+    
+    // Render first frame with menu before showing window
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    showMenu();
+    glfwSwapBuffers(window);
+    
+    // Now show the window with the menu already rendered
+    glfwShowWindow(window);
     
     return true;
 }
