@@ -1,0 +1,149 @@
+# QUICK START GUIDE - 3D Maze Explorer
+
+## FOR USERS: How to Run
+
+Unfortunately, you need to build from source since libraries aren't included.
+
+### Step 1: Download Libraries (15 minutes)
+1. Open `LIBRARIES_SETUP.txt`
+2. Download GLFW, GLAD, and GLM from the provided links
+3. Follow the setup instructions to place them in `lib/` folder
+4. Copy `glad.c` from GLAD download to `src/glad.c`
+
+### Step 2: Install Build Tools (if not already installed)
+1. Download CMake: https://cmake.org/download/
+2. Download MinGW-w64: https://www.mingw-w64.org/ or MSYS2: https://www.msys2.org/
+
+### Step 3: Build (5 minutes)
+Open PowerShell in the project directory:
+
+```powershell
+# Create build directory
+mkdir build
+cd build
+
+# Configure
+cmake -G "MinGW Makefiles" ..
+
+# Build
+cmake --build .
+
+# Run
+.\MazeGame.exe
+```
+
+### Step 4: Play!
+- Press ENTER to start
+- W/A/S/D to move
+- Mouse to look around
+- Find the red exit marker!
+
+---
+
+## FOR DEVELOPERS: Project Overview
+
+### What Was Built
+A complete 3D first-person maze game with OpenGL, featuring:
+- Procedural maze generation (DFS algorithm)
+- 3D perspective rendering
+- 2D minimap overlay
+- Collision detection
+- Mouse + keyboard controls
+
+### File Structure
+```
+3d-maze-game/
+├── src/              # C++ source files (6 files)
+├── include/          # Header files (5 files)
+├── shaders/          # GLSL shaders (2 files)
+├── docs/             # Documentation (3 files)
+├── CMakeLists.txt    # Build config
+└── README.md         # Full documentation
+```
+
+### Key Components
+- **Maze.cpp**: DFS maze generation
+- **Player.cpp**: First-person camera and movement
+- **Collision.cpp**: Circle-AABB collision detection
+- **Renderer.cpp**: OpenGL rendering (3D + 2D minimap)
+- **Game.cpp**: Game loop and state management
+- **main.cpp**: Entry point
+
+### Documentation
+- `README.md` - Complete project overview
+- `docs/BUILD.txt` - Detailed build instructions
+- `docs/CONTROLS.txt` - Control reference
+- `docs/README.txt` - User manual
+- `LIBRARIES_SETUP.txt` - Library setup guide
+- `IMPLEMENTATION_SUMMARY.txt` - Technical summary
+
+---
+
+## IMPORTANT NOTES
+
+⚠️ **Libraries Not Included**: You MUST download GLFW, GLAD, and GLM separately (licensing reasons)
+
+⚠️ **glad.c Required**: Must copy `glad.c` from GLAD download to `src/glad.c`
+
+⚠️ **Windows Only**: Build instructions are for Windows. Can be ported to Linux/macOS.
+
+✅ **Complete Implementation**: All design requirements met (see IMPLEMENTATION_SUMMARY.txt)
+
+---
+
+## TROUBLESHOOTING
+
+**Build fails with "cannot find GLFW"**
+→ Follow LIBRARIES_SETUP.txt to download and place libraries correctly
+
+**Build fails with "cannot find glad.c"**
+→ Copy glad.c from GLAD download to src/glad.c
+
+**Runtime: "missing DLL"**
+→ Copy glfw3.dll to same folder as MazeGame.exe
+
+**Black screen when running**
+→ Update graphics drivers, ensure OpenGL 3.3 support
+
+For more help, see `docs/BUILD.txt` and `docs/README.txt`
+
+---
+
+## WHAT'S INCLUDED
+
+✅ Complete C++ source code
+✅ OpenGL shaders (GLSL)
+✅ CMake build configuration
+✅ Comprehensive documentation
+✅ Design compliance verification
+✅ Build instructions for Windows
+
+## WHAT'S NOT INCLUDED (You Must Download)
+
+❌ GLFW library (windowing)
+❌ GLAD library (OpenGL loader)
+❌ GLM library (mathematics)
+
+**Why?** These are third-party libraries with their own licenses. Download links and setup instructions provided in LIBRARIES_SETUP.txt.
+
+---
+
+## TIME ESTIMATES
+
+- Library download/setup: 15-30 minutes
+- First build: 5-10 minutes
+- Playing one maze: 5-15 minutes
+- Total to get running: ~30-45 minutes
+
+---
+
+## SUPPORT
+
+1. **Library Setup**: See LIBRARIES_SETUP.txt
+2. **Build Issues**: See docs/BUILD.txt
+3. **Gameplay Help**: See docs/CONTROLS.txt
+4. **Technical Details**: See IMPLEMENTATION_SUMMARY.txt
+
+---
+
+Have fun exploring the maze! 🎮🗺️

@@ -1,0 +1,1 @@
+-I"D:/code/AICode/3d-maze-game/include" -I"D:/code/AICode/3d-maze-game/lib/glfw/include" -I"D:/code/AICode/3d-maze-game/lib/glad/include" -I"D:/code/AICode/3d-maze-game/lib/glm"

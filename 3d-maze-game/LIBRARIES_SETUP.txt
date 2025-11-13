@@ -1,0 +1,126 @@
+# Library Setup Instructions
+
+This project requires three external libraries. Follow these instructions to set them up.
+
+## IMPORTANT: Download Required Libraries
+
+Before building this project, you MUST download and set up the following libraries:
+
+### 1. GLFW (Window Management)
+
+**Download**: https://www.glfw.org/download.html
+- Select "Windows pre-compiled binaries"
+- Download the ZIP file (64-bit recommended)
+
+**Setup**:
+1. Extract the downloaded ZIP
+2. Create folder: `3d-maze-game/lib/glfw/`
+3. Copy the following from extracted folder:
+   - `include/` folder → `lib/glfw/include/`
+   - `lib-mingw-w64/` folder → `lib/glfw/lib-mingw-w64/` (if using MinGW)
+   - OR `lib-vc2019/` folder → `lib/glfw/lib-vc2019/` (if using Visual Studio)
+
+### 2. GLAD (OpenGL Loader)
+
+**Download**: https://glad.dav1d.de/
+- Language: C/C++
+- Specification: OpenGL
+- API gl: Version 3.3 or higher
+- Profile: Core
+- Check: "Generate a loader"
+- Click "GENERATE"
+- Download the ZIP file
+
+**Setup**:
+1. Extract the downloaded ZIP
+2. Create folder: `3d-maze-game/lib/glad/`
+3. Copy `include/` folder → `lib/glad/include/`
+4. **IMPORTANT**: Copy `src/glad.c` → `3d-maze-game/src/glad.c`
+
+### 3. GLM (Mathematics Library)
+
+**Download**: https://github.com/g-truc/glm/releases
+- Download the latest release ZIP (e.g., glm-0.9.9.8.zip)
+
+**Setup**:
+1. Extract the downloaded ZIP
+2. Create folder: `3d-maze-game/lib/glm/`
+3. Copy the `glm/` folder from inside the extracted folder → `lib/glm/glm/`
+   (You should have `lib/glm/glm/glm.hpp`)
+
+## Verify Your Setup
+
+After downloading all libraries, your structure should look like:
+
+```
+3d-maze-game/
+├── lib/
+│   ├── glfw/
+│   │   ├── include/
+│   │   │   └── GLFW/
+│   │   │       └── glfw3.h
+│   │   └── lib-mingw-w64/  (or lib-vc2019/)
+│   │       └── libglfw3.a  (or glfw3.lib)
+│   ├── glad/
+│   │   └── include/
+│   │       ├── glad/
+│   │       │   └── glad.h
+│   │       └── KHR/
+│   │           └── khrplatform.h
+│   └── glm/
+│       └── glm/
+│           └── glm.hpp
+└── src/
+    ├── glad.c  (IMPORTANT: Must be here!)
+    └── (other .cpp files)
+```
+
+## Quick Check PowerShell Script
+
+Run this in PowerShell from the project root to verify:
+
+```powershell
+Write-Host "Checking library setup..."
+
+if (Test-Path "lib/glfw/include/GLFW/glfw3.h") {
+    Write-Host "✓ GLFW headers found"
+} else {
+    Write-Host "✗ GLFW headers missing" -ForegroundColor Red
+}
+
+if (Test-Path "lib/glad/include/glad/glad.h") {
+    Write-Host "✓ GLAD headers found"
+} else {
+    Write-Host "✗ GLAD headers missing" -ForegroundColor Red
+}
+
+if (Test-Path "lib/glm/glm/glm.hpp") {
+    Write-Host "✓ GLM headers found"
+} else {
+    Write-Host "✗ GLM headers missing" -ForegroundColor Red
+}
+
+if (Test-Path "src/glad.c") {
+    Write-Host "✓ glad.c source found"
+} else {
+    Write-Host "✗ glad.c source missing - REQUIRED!" -ForegroundColor Red
+}
+```
+
+## After Setup
+
+Once all libraries are in place:
+1. See `docs/BUILD.txt` for build instructions
+2. Run CMake to configure the project
+3. Build with your chosen compiler
+
+## Troubleshooting
+
+**Problem**: CMake can't find libraries
+**Solution**: Double-check folder names match exactly as shown above
+
+**Problem**: Missing glad.c error during compilation
+**Solution**: Ensure `src/glad.c` exists (copied from GLAD download)
+
+**Problem**: Linker errors about OpenGL functions
+**Solution**: Verify glad.c is included and GLAD headers are in the right location

@@ -1,0 +1,207 @@
+# 3D Maze Explorer - Controls Reference
+
+Complete keyboard and mouse control guide for all game states.
+
+## Menu Controls
+
+When you first start the game, you'll be in the menu state (indicated by a darker blue background).
+
+| Input | Action |
+|-------|--------|
+| **ENTER** | Start a new game |
+| **ESC** | Exit the application |
+
+## Gameplay Controls
+
+Once you press ENTER to start, you'll be placed at the start of the maze.
+
+### Movement Controls
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| **W** | Move Forward | Move in the direction you're facing |
+| **S** | Move Backward | Move opposite to the direction you're facing |
+| **A** | Strafe Left | Move left without changing view direction |
+| **D** | Strafe Right | Move right without changing view direction |
+
+**Movement Tips:**
+- You can press multiple keys simultaneously (e.g., W+D for diagonal movement)
+- Movement speed is constant regardless of direction
+- You cannot move through walls (collision detection active)
+- When hitting a wall at an angle, you'll slide along it smoothly
+
+### Camera Controls
+
+| Input | Action | Description |
+|-------|--------|-------------|
+| **Mouse Left/Right** | Rotate Camera (Yaw) | Look left and right horizontally |
+| **Mouse Up/Down** | Tilt Camera (Pitch) | Look up and down vertically |
+
+**Camera Tips:**
+- Mouse movement is captured during gameplay (cursor is hidden)
+- Camera pitch is limited to prevent over-rotation (±89 degrees)
+- Mouse sensitivity is set to a comfortable default
+- Smooth camera movement for better control
+
+### System Controls
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| **ESC** | Return to Menu | Pause game and show cursor, return to menu state |
+
+## Victory State Controls
+
+When you reach the exit (red marker), you enter the victory state (indicated by a greenish background).
+
+| Key | Action | Description |
+|-----|--------|-------------|
+| **N** | New Game | Generate a new maze and start fresh |
+| **M** | Menu | Return to main menu |
+| **ESC** | Exit | Close the application |
+
+## Minimap
+
+The minimap is always visible in the upper-left corner during gameplay. It's for information only and requires no controls.
+
+**Minimap Legend:**
+- **Gray/White Lines**: Maze walls
+- **Dark Background**: Walkable paths
+- **Green Square**: Your current position
+- **Red Square**: Exit location
+
+## Advanced Movement Techniques
+
+### Wall Sliding
+When you move diagonally into a wall, the collision system allows you to slide along the wall surface rather than stopping completely. This makes navigation smoother.
+
+**Example:**
+- Press W+D while facing a wall at an angle
+- You'll slide along the wall in the direction parallel to it
+
+### Quick Turns
+For fast 180-degree turns:
+1. Hold S (move backward)
+2. Quickly swipe mouse left or right
+3. Release S and press W to move in new direction
+
+### Strafing Around Corners
+To peek around corners without committing:
+1. Approach corner
+2. Use A or D to strafe sideways
+3. Use mouse to look around the corner
+4. Backpedal with S if needed
+
+## Control Behavior Notes
+
+### Mouse Capture
+- **Menu**: Cursor is visible and free
+- **Gameplay**: Cursor is hidden and captured for camera control
+- **Victory**: Cursor is visible and free
+- Pressing ESC during gameplay releases the mouse cursor
+
+### Key Repeat
+- Movement keys support key repeat (holding works as expected)
+- ENTER and ESC are single-press (no repeat action)
+
+### Input Responsiveness
+- All inputs are processed every frame for maximum responsiveness
+- Input latency is typically under 16ms (one frame at 60 FPS)
+- Movement is frame-rate independent (smooth on any FPS)
+
+## Accessibility
+
+### Alternative Controls
+Currently, the game uses fixed WASD + Mouse controls. Alternative control schemes are not yet supported, but may be added in future versions:
+- Arrow keys for movement
+- Gamepad support
+- Customizable key bindings
+
+### Mouse Sensitivity
+The default mouse sensitivity is set to 0.1. If you find it too fast or slow:
+- Adjust your mouse DPI settings in Windows
+- Or modify the source code (`Player.h`, change `mouseSensitivity` value)
+
+## Control Troubleshooting
+
+### Mouse Not Working
+
+**Symptom**: Moving mouse doesn't rotate camera
+
+**Solutions:**
+1. Ensure game window has focus (click on it)
+2. Check you're in gameplay state (not menu or victory)
+3. Verify mouse is not captured by another application
+4. Try pressing ESC then ENTER to restart game
+
+### Movement Not Working
+
+**Symptom**: Pressing WASD doesn't move player
+
+**Solutions:**
+1. Ensure game window has focus
+2. Check you're in gameplay state
+3. Verify keyboard layout is correct (US layout expected)
+4. Try clicking on the game window
+
+### Stuck in Place
+
+**Symptom**: Cannot move in any direction
+
+**Solutions:**
+1. You may be tightly wedged in a corner - try looking around and moving in different directions
+2. Press ESC to return to menu, then ENTER to restart
+3. If persistent, restart the application
+
+### Controls Feel "Sluggish"
+
+**Symptom**: Delay between input and response
+
+**Solutions:**
+1. Check system performance (Task Manager)
+2. Close background applications
+3. Ensure game is running at 60 FPS
+4. Update graphics drivers
+
+## Quick Reference Card
+
+Print or keep this handy while playing:
+
+```
+┌─────────────────────────────────────┐
+│    3D MAZE EXPLORER - CONTROLS      │
+├─────────────────────────────────────┤
+│ MENU                                │
+│   ENTER .......... Start Game       │
+│   ESC ............ Exit             │
+├─────────────────────────────────────┤
+│ GAMEPLAY                            │
+│   W .............. Forward          │
+│   S .............. Backward         │
+│   A .............. Strafe Left      │
+│   D .............. Strafe Right     │
+│   Mouse .......... Look Around      │
+│   ESC ............ Menu             │
+├─────────────────────────────────────┤
+│ VICTORY                             │
+│   N .............. New Game         │
+│   M .............. Menu             │
+│   ESC ............ Exit             │
+├─────────────────────────────────────┤
+│ MINIMAP (top-left)                  │
+│   Green .......... You              │
+│   Red ............ Exit             │
+│   White .......... Walls            │
+└─────────────────────────────────────┘
+```
+
+## Tips for Best Experience
+
+1. **Use Headphones**: Enhances immersion (if sound is added in future)
+2. **Adjust Lighting**: Play in a dimly lit room for better contrast
+3. **Full Screen**: Consider alt-tabbing to maximize window if windowed
+4. **Take Breaks**: Rest eyes every 20-30 minutes of play
+5. **Learn the Minimap**: Mastering minimap reading speeds up completion
+
+---
+
+Enjoy exploring the maze!

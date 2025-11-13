@@ -1,0 +1,341 @@
+# Building 3D Maze Explorer from Source
+
+This document provides comprehensive instructions for building the 3D Maze Explorer game from source code on Windows.
+
+## Prerequisites
+
+### Required Software
+
+1. **CMake** (version 3.10 or higher)
+   - Download from: https://cmake.org/download/
+   - During installation, select "Add CMake to system PATH"
+   - Verify installation: Open PowerShell and run `cmake --version`
+
+2. **C++ Compiler** (Choose one):
+   
+   **Option A: MinGW-w64** (Recommended for beginners)
+   - Download from: https://www.mingw-w64.org/
+   - Or use MSYS2: https://www.msys2.org/
+   - Install and add `bin` directory to PATH
+   - Verify: Run `g++ --version` in PowerShell
+   
+   **Option B: Microsoft Visual Studio** (2017 or later)
+   - Download Community Edition: https://visualstudio.microsoft.com/
+   - During installation, select "Desktop development with C++"
+   - Verify: Run `cl` in Developer Command Prompt
+
+3. **Git** (Optional, for cloning dependencies)
+   - Download from: https://git-scm.com/download/win
+   - Or download libraries manually (see below)
+
+### Required Libraries
+
+The project requires three external libraries. You have two options:
+
+#### Option 1: Download Pre-built Libraries (Easier)
+
+1. **GLFW** (Window management)
+   - Download pre-compiled binaries: https://www.glfw.org/download.html
+   - Extract to `3d-maze-game/lib/glfw/`
+   - Ensure structure: `lib/glfw/include/` and `lib/glfw/lib-mingw-w64/` (or `lib-vc2019/` for MSVC)
+
+2. **GLAD** (OpenGL function loader)
+   - Generate at: https://glad.dav1d.de/
+   - Settings: Language=C/C++, API=gl Version 3.3+, Profile=Core, Generate loader=checked
+   - Download ZIP and extract to `3d-maze-game/lib/glad/`
+   - Ensure structure: `lib/glad/include/glad/` and `lib/glad/include/KHR/`
+   - Copy `glad.c` to `3d-maze-game/src/glad.c`
+
+3. **GLM** (Mathematics library - Header only)
+   - Download from: https://github.com/g-truc/glm/releases
+   - Extract to `3d-maze-game/lib/glm/`
+   - Ensure structure: `lib/glm/glm/` (contains `glm.hpp`)
+
+#### Option 2: Clone from Git (Advanced)
+
+```powershell
+cd 3d-maze-game/lib
+
+# Clone GLFW
+git clone https://github.com/glfw/glfw.git
+cd glfw
+cmake -S . -B build
+cmake --build build
+cd ..
+
+# Clone GLM
+git clone https://github.com/g-truc/glm.git
+
+# For GLAD, use the web generator (Option 1)
+```
+
+## Directory Structure Verification
+
+Before building, ensure your project has this structure:
+
+```
+3d-maze-game/
+├── CMakeLists.txt
+├── include/
+│   ├── Collision.h
+│   ├── Game.h
+│   ├── Maze.h
+│   ├── Player.h
+│   └── Renderer.h
+├── src/
+│   ├── Collision.cpp
+│   ├── Game.cpp
+│   ├── Maze.cpp
+│   ├── Player.cpp
+│   ├── Renderer.cpp
+│   ├── main.cpp
+│   └── glad.c (from GLAD download)
+├── shaders/
+│   ├── vertex.glsl
+│   └── fragment.glsl
+├── lib/
+│   ├── glfw/
+│   │   ├── include/
+│   │   └── lib-mingw-w64/ (or lib-vc2019/)
+│   ├── glad/
+│   │   └── include/
+│   └── glm/
+│       └── glm/
+└── docs/
+    ├── README.txt
+    ├── BUILD.txt
+    └── CONTROLS.txt
+```
+
+## Build Instructions
+
+### Step 1: Open PowerShell
+
+1. Press `Win + X` and select "Windows PowerShell" or "Terminal"
+2. Navigate to the project directory:
+   ```powershell
+   cd D:\code\AICode\3d-maze-game
+   ```
+
+### Step 2: Create Build Directory
+
+```powershell
+New-Item -ItemType Directory -Force -Path "build"
+cd build
+```
+
+### Step 3: Configure with CMake
+
+**For MinGW:**
+```powershell
+cmake -G "MinGW Makefiles" ..
+```
+
+**For Visual Studio 2019:**
+```powershell
+cmake -G "Visual Studio 16 2019" -A x64 ..
+```
+
+**For Visual Studio 2022:**
+```powershell
+cmake -G "Visual Studio 17 2022" -A x64 ..
+```
+
+If CMake cannot find libraries, specify paths manually:
+```powershell
+cmake -G "MinGW Makefiles" -DGLFW_DIR="../lib/glfw" -DGLM_DIR="../lib/glm" ..
+```
+
+### Step 4: Build the Project
+
+**For MinGW:**
+```powershell
+cmake --build .
+```
+
+**For Visual Studio:**
+```powershell
+cmake --build . --config Release
+```
+
+This will compile all source files and link the executable.
+
+### Step 5: Verify Build
+
+Check that `MazeGame.exe` exists in the build directory:
+```powershell
+ls MazeGame.exe
+```
+
+For Visual Studio, it may be in `build/Release/MazeGame.exe`
+
+## Running the Game
+
+### Option 1: Run from Build Directory
+
+```powershell
+.\MazeGame.exe
+```
+
+### Option 2: Copy to Distribution Folder
+
+```powershell
+# Create distribution folder
+New-Item -ItemType Directory -Force -Path "..\dist"
+
+# Copy executable
+Copy-Item MazeGame.exe ..\dist\
+
+# Copy shaders
+Copy-Item -Recurse ..\shaders ..\dist\
+
+# Copy DLLs (if using MinGW with dynamic linking)
+Copy-Item ..\lib\glfw\lib-mingw-w64\glfw3.dll ..\dist\
+
+# Run
+cd ..\dist
+.\MazeGame.exe
+```
+
+## Troubleshooting Build Issues
+
+### CMake Cannot Find Libraries
+
+**Error**: `Could not find GLFW` or similar
+
+**Solution**:
+1. Verify library directories exist and have correct structure
+2. Use absolute paths in CMakeLists.txt or specify via -D flags:
+   ```powershell
+   cmake -DGLFW_DIR="D:/code/AICode/3d-maze-game/lib/glfw" ..
+   ```
+
+### Missing glad.c File
+
+**Error**: `cannot find glad.c` or linker errors about glad functions
+
+**Solution**:
+1. Ensure you downloaded GLAD from https://glad.dav1d.de/
+2. Copy `glad.c` from the GLAD download to `src/glad.c`
+3. Verify `CMakeLists.txt` includes glad.c in sources
+
+### Compiler Not Found
+
+**Error**: `No CMAKE_C_COMPILER could be found`
+
+**Solution**:
+1. Verify compiler installation: Run `g++ --version` or `cl` in terminal
+2. Add compiler to PATH environment variable
+3. Restart PowerShell after PATH changes
+
+### OpenGL Linking Errors
+
+**Error**: Undefined references to `glCreateShader` etc.
+
+**Solution**:
+1. Ensure `find_package(OpenGL REQUIRED)` is in CMakeLists.txt
+2. Link OpenGL library: `target_link_libraries(MazeGame OpenGL::GL)`
+3. For MinGW, may need to link `opengl32` explicitly
+
+### Missing DLL at Runtime
+
+**Error**: "The code execution cannot proceed because X.dll was not found"
+
+**Solution**:
+1. Copy required DLLs to the same directory as the executable
+2. For GLFW: Copy `glfw3.dll` from `lib/glfw/lib-mingw-w64/`
+3. For MinGW runtime: Copy `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, `libwinpthread-1.dll`
+   - Found in MinGW's `bin` directory
+
+## Modifying CMakeLists.txt for Your Setup
+
+If the default CMakeLists.txt doesn't work, modify these lines:
+
+```cmake
+# Update library paths
+target_include_directories(MazeGame PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    D:/path/to/glfw/include      # Absolute path
+    D:/path/to/glad/include
+    D:/path/to/glm
+)
+
+# Update GLFW library path
+target_link_libraries(MazeGame PRIVATE
+    OpenGL::GL
+    D:/path/to/glfw/lib-mingw-w64/libglfw3.a  # Or glfw3.lib for MSVC
+    gdi32
+    user32
+    kernel32
+)
+```
+
+## Building for Distribution
+
+To create a distributable package:
+
+1. **Build in Release mode:**
+   ```powershell
+   cmake --build . --config Release
+   ```
+
+2. **Create package structure:**
+   ```powershell
+   New-Item -ItemType Directory -Force -Path "MazeGame-Release"
+   Copy-Item Release\MazeGame.exe MazeGame-Release\
+   Copy-Item -Recurse ..\shaders MazeGame-Release\
+   Copy-Item ..\docs\README.txt MazeGame-Release\
+   Copy-Item ..\docs\CONTROLS.txt MazeGame-Release\
+   ```
+
+3. **Include required DLLs**
+
+4. **Create ZIP archive:**
+   ```powershell
+   Compress-Archive -Path MazeGame-Release -DestinationPath MazeGame-v1.0-Windows.zip
+   ```
+
+## Clean Build
+
+To clean and rebuild from scratch:
+
+```powershell
+cd build
+Remove-Item -Recurse -Force *
+cmake -G "MinGW Makefiles" ..
+cmake --build .
+```
+
+## Additional Resources
+
+- **CMake Documentation**: https://cmake.org/documentation/
+- **GLFW Documentation**: https://www.glfw.org/documentation.html
+- **OpenGL Tutorial**: https://learnopengl.com/
+- **GLM Documentation**: https://github.com/g-truc/glm/blob/master/manual.md
+
+## Build Time Estimates
+
+- **First build**: 2-5 minutes (depending on system)
+- **Incremental builds**: 10-30 seconds (only changed files)
+- **Clean build**: 2-5 minutes
+
+## Success Indicators
+
+A successful build will show:
+```
+[100%] Built target MazeGame
+```
+
+And you should see:
+- `MazeGame.exe` in build directory (or build/Release for MSVC)
+- File size approximately 500KB - 2MB
+- Execution without errors when libraries are properly linked
+
+---
+
+If you encounter issues not covered here, check that:
+1. All library paths are correct
+2. CMake version is 3.10 or higher
+3. Compiler is properly installed and in PATH
+4. glad.c is included in source files
+5. Shaders directory is copied to build output
