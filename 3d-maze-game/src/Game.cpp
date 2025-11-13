@@ -12,6 +12,7 @@ Game::Game()
       maze(nullptr),
       player(nullptr),
       renderer(nullptr),
+      textRenderer(nullptr),
       collision(nullptr),
       lastX(960.0f),
       lastY(540.0f),
@@ -79,6 +80,13 @@ bool Game::init() {
     renderer = new Renderer();
     if (!renderer->init("shaders/vertex.glsl", "shaders/fragment.glsl")) {
         std::cerr << "Failed to initialize renderer" << std::endl;
+        return false;
+    }
+    
+    // Initialize text renderer
+    textRenderer = new TextRenderer();
+    if (!textRenderer->init(renderer->getShaderProgram())) {
+        std::cerr << "Failed to initialize text renderer" << std::endl;
         return false;
     }
     
@@ -229,12 +237,10 @@ void Game::showMenu() {
     // Set background color for menu
     glClearColor(0.15f, 0.20f, 0.30f, 1.0f);
     
-    // For a simple menu without text rendering library, we'll draw colored rectangles
-    // to represent menu items
     glDisable(GL_DEPTH_TEST);
     
     if (renderer) {
-        renderer->renderMenu(selectedMenuItem, windowWidth, windowHeight);
+        renderer->renderMenu(selectedMenuItem, windowWidth, windowHeight, textRenderer);
     }
     
     glEnable(GL_DEPTH_TEST);
@@ -275,6 +281,7 @@ void Game::cleanup() {
     if (maze) delete maze;
     if (player) delete player;
     if (renderer) delete renderer;
+    if (textRenderer) delete textRenderer;
     if (collision) delete collision;
     
     if (window) {

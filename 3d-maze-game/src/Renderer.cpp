@@ -1,9 +1,38 @@
 #include "Renderer.h"
+#include "TextRenderer.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <fstream>
-#include <sstream>
 #include <iostream>
+
+// Embedded shader sources
+const char* vertexShaderSource = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+
+out vec3 FragColor;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    FragColor = aColor;
+}
+)";
+
+const char* fragmentShaderSource = R"(
+#version 330 core
+in vec3 FragColor;
+out vec4 color;
+
+void main()
+{
+    color = vec4(FragColor, 1.0);
+}
+)";
 
 Renderer::Renderer() : shaderProgram(0), VAO(0), VBO(0), minimapVAO(0), minimapVBO(0) {}
 
@@ -12,7 +41,8 @@ Renderer::~Renderer() {
 }
 
 bool Renderer::init(const char* vertexPath, const char* fragmentPath) {
-    shaderProgram = createShaderProgram(vertexPath, fragmentPath);
+    // Ignore the path parameters and use embedded shaders
+    shaderProgram = createShaderProgramFromSource(vertexShaderSource, fragmentShaderSource);
     if (shaderProgram == 0) {
         return false;
     }
@@ -26,20 +56,9 @@ bool Renderer::init(const char* vertexPath, const char* fragmentPath) {
     return true;
 }
 
-GLuint Renderer::loadShader(const char* path, GLenum type) {
-    std::ifstream file(path);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open shader file: " << path << std::endl;
-        return 0;
-    }
-    
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string code = buffer.str();
-    const char* codePtr = code.c_str();
-    
+GLuint Renderer::compileShader(const char* source, GLenum type) {
     GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &codePtr, NULL);
+    glShaderSource(shader, 1, &source, NULL);
     glCompileShader(shader);
     
     GLint success;
@@ -54,9 +73,9 @@ GLuint Renderer::loadShader(const char* path, GLenum type) {
     return shader;
 }
 
-GLuint Renderer::createShaderProgram(const char* vertexPath, const char* fragmentPath) {
-    GLuint vertexShader = loadShader(vertexPath, GL_VERTEX_SHADER);
-    GLuint fragmentShader = loadShader(fragmentPath, GL_FRAGMENT_SHADER);
+GLuint Renderer::createShaderProgramFromSource(const char* vertexSource, const char* fragmentSource) {
+    GLuint vertexShader = compileShader(vertexSource, GL_VERTEX_SHADER);
+    GLuint fragmentShader = compileShader(fragmentSource, GL_FRAGMENT_SHADER);
     
     if (vertexShader == 0 || fragmentShader == 0) {
         return 0;
@@ -359,10 +378,41 @@ void Renderer::renderMinimap(const Maze& maze, const Player& player, int width, 
     glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::renderMenu(int selectedItem, int width, int height) {
+void Renderer::renderMenu(int selectedItem, int width, int height, TextRenderer* textRenderer) {
+    // Calculate centered positions
+    float centerX = width / 2.0f;
+    float centerY = height / 2.0f;
+    
+    // Text scale and positioning
+    float textScale = 1.0f;
+    
+    // "START GAME" position (upper center)
+    float startTextY = centerY - 100.0f;
+    std::string startText = "START GAME";
+    
+    // "EXIT GAME" position (lower center)
+    float exitTextY = centerY + 50.0f;
+    std::string exitText = "EXIT GAME";
+    
+    // Calculate text width for centering (approximate)
+    float charWidth = 40.0f * textScale;
+    float spacing = 10.0f * textScale;
+    float startTextWidth = (charWidth + spacing) * startText.length();
+    float exitTextWidth = (charWidth + spacing) * exitText.length();
+    
+    // Colors based on selection
+    glm::vec3 startColor = (selectedItem == 0) ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.5f, 0.5f, 0.5f);
+    glm::vec3 exitColor = (selectedItem == 1) ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.5f, 0.5f, 0.5f);
+    
+    // Render text using TextRenderer
+    if (textRenderer) {
+        textRenderer->renderText(startText, centerX - startTextWidth / 2.0f, startTextY, textScale, startColor, width, height);
+        textRenderer->renderText(exitText, centerX - exitTextWidth / 2.0f, exitTextY, textScale, exitColor, width, height);
+    }
+    
+    // Render selection arrow
     glUseProgram(shaderProgram);
     
-    // Set up orthographic projection for 2D menu
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
@@ -375,97 +425,9 @@ void Renderer::renderMenu(int selectedItem, int width, int height) {
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
     
-    glBindVertexArray(minimapVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, minimapVBO);
-    
-    // Calculate centered positions
-    float centerX = width / 2.0f;
-    float centerY = height / 2.0f;
-    
-    // "START GAME" text position (upper center)
-    float startTextY = centerY - 100.0f;
-    
-    // "EXIT GAME" text position (lower center)  
-    float exitTextY = centerY + 50.0f;
-    
-    // Larger character boxes to look more like text
-    float boxWidth = 80.0f;
-    float boxHeight = 50.0f;
-    float boxSpacing = 15.0f;
-    
-    // Colors based on selection
-    float startR = (selectedItem == 0) ? 1.0f : 0.5f;
-    float startG = (selectedItem == 0) ? 1.0f : 0.5f;
-    float startB = (selectedItem == 0) ? 1.0f : 0.5f;
-    
-    float exitR = (selectedItem == 1) ? 1.0f : 0.5f;
-    float exitG = (selectedItem == 1) ? 1.0f : 0.5f;
-    float exitB = (selectedItem == 1) ? 1.0f : 0.5f;
-    
-    // Render "START GAME" text representation
-    // Calculate total width for centering
-    float startGameWidth = (boxWidth + boxSpacing) * 10; // "START GAME" = 10 letters
-    float startX = centerX - startGameWidth / 2.0f;
-    
-    // Draw boxes representing "START GAME" text
-    for (int i = 0; i < 10; i++) {
-        float x = startX + i * (boxWidth + boxSpacing);
-        
-        std::vector<float> boxVertices = {
-            x, startTextY, 0.0f, startR, startG, startB,
-            x + boxWidth, startTextY, 0.0f, startR, startG, startB,
-            x + boxWidth, startTextY + boxHeight, 0.0f, startR, startG, startB,
-            x, startTextY, 0.0f, startR, startG, startB,
-            x + boxWidth, startTextY + boxHeight, 0.0f, startR, startG, startB,
-            x, startTextY + boxHeight, 0.0f, startR, startG, startB,
-        };
-        
-        glBufferData(GL_ARRAY_BUFFER, boxVertices.size() * sizeof(float), boxVertices.data(), GL_DYNAMIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        
-        // Add spacing after 5th character (after "START")
-        if (i == 4) {
-            x += boxWidth; // Extra space between words
-        }
-    }
-    
-    // Render "EXIT GAME" text representation
-    float exitGameWidth = (boxWidth + boxSpacing) * 9; // "EXIT GAME" = 9 letters
-    float exitX = centerX - exitGameWidth / 2.0f;
-    
-    // Draw boxes representing "EXIT GAME" text
-    for (int i = 0; i < 9; i++) {
-        float x = exitX + i * (boxWidth + boxSpacing);
-        
-        std::vector<float> boxVertices = {
-            x, exitTextY, 0.0f, exitR, exitG, exitB,
-            x + boxWidth, exitTextY, 0.0f, exitR, exitG, exitB,
-            x + boxWidth, exitTextY + boxHeight, 0.0f, exitR, exitG, exitB,
-            x, exitTextY, 0.0f, exitR, exitG, exitB,
-            x + boxWidth, exitTextY + boxHeight, 0.0f, exitR, exitG, exitB,
-            x, exitTextY + boxHeight, 0.0f, exitR, exitG, exitB,
-        };
-        
-        glBufferData(GL_ARRAY_BUFFER, boxVertices.size() * sizeof(float), boxVertices.data(), GL_DYNAMIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        
-        // Add spacing after 4th character (after "EXIT")
-        if (i == 3) {
-            x += boxWidth; // Extra space between words
-        }
-    }
-    
-    // Add yellow selection arrow indicator
-    float indicatorY = (selectedItem == 0) ? startTextY + boxHeight / 2.0f : exitTextY + boxHeight / 2.0f;
-    float indicatorX = (selectedItem == 0) ? startX - 60.0f : exitX - 60.0f;
+    // Yellow selection arrow indicator
+    float indicatorY = (selectedItem == 0) ? startTextY + 30.0f : exitTextY + 30.0f;
+    float indicatorX = (selectedItem == 0) ? centerX - startTextWidth / 2.0f - 60.0f : centerX - exitTextWidth / 2.0f - 60.0f;
     float arrowSize = 40.0f;
     
     std::vector<float> arrowVertices = {
@@ -474,6 +436,8 @@ void Renderer::renderMenu(int selectedItem, int width, int height) {
         indicatorX, indicatorY + arrowSize/2.0f, 0.0f, 1.0f, 1.0f, 0.0f,
     };
     
+    glBindVertexArray(minimapVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, minimapVBO);
     glBufferData(GL_ARRAY_BUFFER, arrowVertices.size() * sizeof(float), arrowVertices.data(), GL_DYNAMIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);

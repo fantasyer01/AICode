@@ -76,6 +76,8 @@ void TextRenderer::renderChar(char c, float x, float y, float scale, const glm::
     std::vector<float> vertices;
     
     // Simple geometric representation of each letter
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    
     switch(toupper(c)) {
         case 'A':
             // Vertical left line
@@ -87,7 +89,6 @@ void TextRenderer::renderChar(char c, float x, float y, float scale, const glm::
                 x + thickness, y, 0.0f, color.r, color.g, color.b,
                 x, y, 0.0f, color.r, color.g, color.b,
             };
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
             glDrawArrays(GL_TRIANGLES, 0, 6);
             
@@ -128,8 +129,382 @@ void TextRenderer::renderChar(char c, float x, float y, float scale, const glm::
             glDrawArrays(GL_TRIANGLES, 0, 6);
             break;
             
-        // Add more letters as needed...
-        // For brevity, I'll create a simpler approach
+        case 'E':
+            // Vertical left line
+            vertices = {
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Top horizontal line
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y + thickness, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Middle horizontal line
+            vertices = {
+                x, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Bottom horizontal line
+            vertices = {
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
+        case 'G':
+            // Vertical left line
+            vertices = {
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Top horizontal line
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y + thickness, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Bottom horizontal line
+            vertices = {
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Vertical right line (bottom half)
+            vertices = {
+                x + w - thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Middle horizontal line (right half)
+            vertices = {
+                x + w/2, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w/2, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w/2, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
+        case 'I':
+            // Top horizontal line
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y + thickness, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Vertical center line
+            vertices = {
+                x + w/2 - thickness/2, y + h, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness/2, y + h, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness/2, y, 0.0f, color.r, color.g, color.b,
+                x + w/2 - thickness/2, y + h, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness/2, y, 0.0f, color.r, color.g, color.b,
+                x + w/2 - thickness/2, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Bottom horizontal line
+            vertices = {
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
+        case 'M':
+            // Vertical left line
+            vertices = {
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Vertical right line
+            vertices = {
+                x + w - thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Diagonal left (top-left to center)
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x + w/2, y + h/2, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w/2, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w/2 - thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Diagonal right (center to top-right)
+            vertices = {
+                x + w/2, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w/2, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
+        case 'R':
+            // Vertical left line
+            vertices = {
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Top horizontal line
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y + thickness, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Vertical right line (top half)
+            vertices = {
+                x + w - thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Middle horizontal line
+            vertices = {
+                x, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Diagonal leg
+            vertices = {
+                x + w/2, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x + w/2, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y + h, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
+        case 'S':
+            // Top horizontal line
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y + thickness, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Left vertical (top half)
+            vertices = {
+                x, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + thickness, y, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Middle horizontal line
+            vertices = {
+                x, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x, y + h/2 - thickness/2, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+                x, y + h/2 + thickness/2, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Right vertical (bottom half)
+            vertices = {
+                x + w - thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y + h/2, 0.0f, color.r, color.g, color.b,
+                x + w - thickness, y + h/2, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Bottom horizontal line
+            vertices = {
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h - thickness, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
+        case 'T':
+            // Top horizontal line
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + thickness, 0.0f, color.r, color.g, color.b,
+                x, y + thickness, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Vertical center line
+            vertices = {
+                x + w/2 - thickness/2, y + h, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness/2, y + h, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness/2, y, 0.0f, color.r, color.g, color.b,
+                x + w/2 - thickness/2, y + h, 0.0f, color.r, color.g, color.b,
+                x + w/2 + thickness/2, y, 0.0f, color.r, color.g, color.b,
+                x + w/2 - thickness/2, y, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
+        case 'X':
+            // Diagonal from top-left to bottom-right
+            vertices = {
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + thickness * 1.5f, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x, y, 0.0f, color.r, color.g, color.b,
+                x + w, y + h, 0.0f, color.r, color.g, color.b,
+                x + w - thickness * 1.5f, y + h, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
+            // Diagonal from top-right to bottom-left
+            vertices = {
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x + w - thickness * 1.5f, y, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + w, y, 0.0f, color.r, color.g, color.b,
+                x, y + h, 0.0f, color.r, color.g, color.b,
+                x + thickness * 1.5f, y + h, 0.0f, color.r, color.g, color.b,
+            };
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            break;
+            
         default:
             // Draw a simple rectangle for unknown characters
             vertices = {
@@ -140,7 +515,6 @@ void TextRenderer::renderChar(char c, float x, float y, float scale, const glm::
                 x + w, y + h, 0.0f, color.r, color.g, color.b,
                 x, y + h, 0.0f, color.r, color.g, color.b,
             };
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
             glDrawArrays(GL_TRIANGLES, 0, 6);
             break;

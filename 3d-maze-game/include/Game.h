@@ -6,6 +6,7 @@
 #include "Maze.h"
 #include "Player.h"
 #include "Collision.h"
+#include "TextRenderer.h"
 
 enum GameState {
     MENU,
@@ -38,6 +39,7 @@ private:
     Maze* maze;
     Player* player;
     Renderer* renderer;
+    TextRenderer* textRenderer;
     CollisionSystem* collision;
     
     float lastX, lastY;
