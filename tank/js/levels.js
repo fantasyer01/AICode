@@ -6,7 +6,7 @@ const TILE_TYPES = {
     WATER: 3,        // 水域
     GRASS: 4,        // 草地
     BASE_BRICK: 8,   // 基地保护砖墙
-    BASE: 9         // 基地
+    BASE: 9          // 基地
     
 };
 

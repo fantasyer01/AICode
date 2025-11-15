@@ -13,7 +13,7 @@ class Tank {
         this.active = true;
     }
 
-    move(direction, map) {
+    move(direction, map, game) {
         if (!this.active) return;
 
         const oldX = this.x;
@@ -34,7 +34,50 @@ class Tank {
         if (map && this.checkCollisionWithMap(map)) {
             this.x = oldX;
             this.y = oldY;
+            return;
         }
+        
+        // Tank collision check - block movement like walls
+        if (game && this.checkCollisionWithTanks(game)) {
+            this.x = oldX;
+            this.y = oldY;
+            return;
+        }
+    }
+    
+    checkCollisionWithTanks(game) {
+        const myRect = this.getRect();
+        
+        // Check collision with player tank
+        if (this.type === 'enemy' && game.player && game.player.active) {
+            if (Utils.checkRectCollision(myRect, game.player.getRect())) {
+                return true;
+            }
+        }
+        
+        // Check collision with enemy tanks
+        if (game.enemyTanks) {
+            for (let enemy of game.enemyTanks) {
+                if (enemy === this || !enemy.active) continue;
+                
+                if (Utils.checkRectCollision(myRect, enemy.getRect())) {
+                    return true;
+                }
+            }
+        }
+        
+        // Player also checks collision with enemies
+        if (this.type === 'player' && game.enemyTanks) {
+            for (let enemy of game.enemyTanks) {
+                if (!enemy.active) continue;
+                
+                if (Utils.checkRectCollision(myRect, enemy.getRect())) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     checkCollisionWithMap(map) {
@@ -81,29 +124,29 @@ class Tank {
         return new Bullet(this.x, this.y, this.direction, bulletSpeed, this.type);
     }
 
-    update(map, player) {
+    update(map, player, game) {
         if (!this.active) return;
 
-        // 更新子弹
+        // Update bullets
         this.bullets = this.bullets.filter(bullet => bullet.active);
         this.bullets.forEach(bullet => bullet.update());
 
-        // 敌方坦克AI
+        // Enemy tank AI
         if (this.type === 'enemy') {
-            this.updateAI(map, player);
+            this.updateAI(map, player, game);
         }
     }
 
-    updateAI(map, player) {
-        // 随机改变方向
+    updateAI(map, player, game) {
+        // Randomly change direction
         if (Math.random() < 0.02) {
             const directions = ['up', 'down', 'left', 'right'];
             this.direction = directions[Utils.random(0, 3)];
         }
 
-        this.move(this.direction, map);
+        this.move(this.direction, map, game);
 
-        // 随机射击
+        // Random shooting
         if (Math.random() < 0.02 && player && player.active) {
             const bullet = this.shoot();
             if (bullet) {
@@ -173,6 +216,11 @@ class PlayerTank extends Tank {
         this.lives--;
         if (this.lives <= 0) {
             this.active = false;
+        } else {
+            // Respawn at initial position when hit
+            this.x = CONFIG.PLAYER_INITIAL_X;
+            this.y = CONFIG.PLAYER_INITIAL_Y;
+            this.direction = 'up';
         }
         return this.lives;
     }

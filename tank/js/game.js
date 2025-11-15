@@ -180,13 +180,13 @@ class Game {
         if (this.gameState !== 'playing') return;
 
         if (this.keys['ArrowUp']) {
-            this.player.move('up', this.map);
+            this.player.move('up', this.map, this);
         } else if (this.keys['ArrowDown']) {
-            this.player.move('down', this.map);
+            this.player.move('down', this.map, this);
         } else if (this.keys['ArrowLeft']) {
-            this.player.move('left', this.map);
+            this.player.move('left', this.map, this);
         } else if (this.keys['ArrowRight']) {
-            this.player.move('right', this.map);
+            this.player.move('right', this.map, this);
         }
     }
 
@@ -203,10 +203,10 @@ class Game {
         }
 
         // Update player
-        this.player.update(this.map);
+        this.player.update(this.map, null, this);
 
         // Update enemy tanks
-        this.enemyTanks.forEach(tank => tank.update(this.map, this.player));
+        this.enemyTanks.forEach(tank => tank.update(this.map, this.player, this));
         this.enemyTanks = this.enemyTanks.filter(tank => tank.active);
 
         // Check collisions
@@ -239,6 +239,13 @@ class Game {
         this.currentLevel++;
         this.gameState = 'paused';
         
+        // Validate next level exists
+        if (!LEVELS[this.currentLevel]) {
+            console.error(`Level ${this.currentLevel} does not exist!`);
+            this.gameOver(true); // Victory - completed all levels
+            return;
+        }
+        
         // Show level transition
         const gameOverElement = document.getElementById('gameOver');
         const gameResultElement = document.getElementById('gameResult');
@@ -261,7 +268,18 @@ class Game {
 
     loadLevel(levelNumber) {
         this.map = new Map(levelNumber);
+        
+        // Preserve player lives when advancing levels
+        const currentLives = this.player ? this.player.lives : CONFIG.PLAYER_INITIAL_LIVES;
         this.player = new PlayerTank(CONFIG.PLAYER_INITIAL_X, CONFIG.PLAYER_INITIAL_Y);
+        
+        // Only reset lives if starting from level 1 or player had died
+        if (levelNumber === 1 || currentLives <= 0) {
+            this.player.lives = CONFIG.PLAYER_INITIAL_LIVES;
+        } else {
+            this.player.lives = currentLives; // Preserve lives from previous level
+        }
+        
         this.enemyTanks = [];
         
         const levelData = LEVELS[levelNumber];
@@ -339,6 +357,7 @@ class Game {
 
     restart() {
         this.currentLevel = 1;
+        
         this.loadLevel(this.currentLevel);
         this.score = 0;
         this.gameState = 'playing';
