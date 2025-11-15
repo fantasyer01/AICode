@@ -229,6 +229,7 @@ CMakeFiles/MazeGame.dir/src/Game.cpp.obj: src/Game.cpp \
   include/Maze.h \
   include/Player.h \
   include/Renderer.h \
+  include/TextRenderer.h \
   lib/glad/include/KHR/khrplatform.h \
   lib/glad/include/glad/glad.h \
   lib/glfw/include/GLFW/glfw3.h \
@@ -397,6 +398,7 @@ CMakeFiles/MazeGame.dir/src/Game.cpp.obj: src/Game.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cpp_type_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_forced.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_init_exception.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/erase_if.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception_defines.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception_ptr.h \
@@ -432,12 +434,16 @@ CMakeFiles/MazeGame.dir/src/Game.cpp.obj: src/Game.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_funcs.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_types.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_map.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_multimap.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_pair.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_tree.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_uninitialized.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_vector.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/streambuf.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/streambuf_iterator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stringfwd.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/utility.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/vector.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/version.h \
@@ -457,6 +463,7 @@ CMakeFiles/MazeGame.dir/src/Game.cpp.obj: src/Game.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/debug/assertions.h \
   D:/msys64/mingw64/include/c++/15.2.0/debug/debug.h \
   D:/msys64/mingw64/include/c++/15.2.0/exception \
+  D:/msys64/mingw64/include/c++/15.2.0/ext/aligned_buffer.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/alloc_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/atomicity.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/numeric_traits.h \
@@ -468,6 +475,7 @@ CMakeFiles/MazeGame.dir/src/Game.cpp.obj: src/Game.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/iostream \
   D:/msys64/mingw64/include/c++/15.2.0/istream \
   D:/msys64/mingw64/include/c++/15.2.0/limits \
+  D:/msys64/mingw64/include/c++/15.2.0/map \
   D:/msys64/mingw64/include/c++/15.2.0/new \
   D:/msys64/mingw64/include/c++/15.2.0/ostream \
   D:/msys64/mingw64/include/c++/15.2.0/stdexcept \
@@ -475,6 +483,7 @@ CMakeFiles/MazeGame.dir/src/Game.cpp.obj: src/Game.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/streambuf \
   D:/msys64/mingw64/include/c++/15.2.0/string \
   D:/msys64/mingw64/include/c++/15.2.0/system_error \
+  D:/msys64/mingw64/include/c++/15.2.0/tuple \
   D:/msys64/mingw64/include/c++/15.2.0/type_traits \
   D:/msys64/mingw64/include/c++/15.2.0/typeinfo \
   D:/msys64/mingw64/include/c++/15.2.0/vector \
@@ -963,6 +972,7 @@ CMakeFiles/MazeGame.dir/src/Renderer.cpp.obj: src/Renderer.cpp \
   include/Maze.h \
   include/Player.h \
   include/Renderer.h \
+  include/TextRenderer.h \
   lib/glad/include/KHR/khrplatform.h \
   lib/glad/include/glad/glad.h \
   lib/glm/glm/common.hpp \
@@ -1162,15 +1172,14 @@ CMakeFiles/MazeGame.dir/src/Renderer.cpp.obj: src/Renderer.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/bits/basic_string.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/char_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/charconv.h \
-  D:/msys64/mingw64/include/c++/15.2.0/bits/codecvt.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/concept_check.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cpp_type_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_forced.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_init_exception.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/erase_if.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception_defines.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception_ptr.h \
-  D:/msys64/mingw64/include/c++/15.2.0/bits/fstream.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/functexcept.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/functional_hash.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/hash_bytes.h \
@@ -1195,7 +1204,6 @@ CMakeFiles/MazeGame.dir/src/Renderer.cpp.obj: src/Renderer.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/bits/range_access.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/refwrap.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/requires_hosted.h \
-  D:/msys64/mingw64/include/c++/15.2.0/bits/sstream.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/std_abs.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_algobase.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_bvector.h \
@@ -1204,12 +1212,16 @@ CMakeFiles/MazeGame.dir/src/Renderer.cpp.obj: src/Renderer.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_funcs.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_types.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_map.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_multimap.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_pair.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_tree.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_uninitialized.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_vector.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/streambuf.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/streambuf_iterator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stringfwd.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/utility.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/vector.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/version.h \
@@ -1230,34 +1242,33 @@ CMakeFiles/MazeGame.dir/src/Renderer.cpp.obj: src/Renderer.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/debug/assertions.h \
   D:/msys64/mingw64/include/c++/15.2.0/debug/debug.h \
   D:/msys64/mingw64/include/c++/15.2.0/exception \
+  D:/msys64/mingw64/include/c++/15.2.0/ext/aligned_buffer.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/alloc_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/atomicity.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/numeric_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/string_conversions.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/type_traits.h \
-  D:/msys64/mingw64/include/c++/15.2.0/fstream \
   D:/msys64/mingw64/include/c++/15.2.0/initializer_list \
   D:/msys64/mingw64/include/c++/15.2.0/ios \
   D:/msys64/mingw64/include/c++/15.2.0/iosfwd \
   D:/msys64/mingw64/include/c++/15.2.0/iostream \
   D:/msys64/mingw64/include/c++/15.2.0/istream \
   D:/msys64/mingw64/include/c++/15.2.0/limits \
+  D:/msys64/mingw64/include/c++/15.2.0/map \
   D:/msys64/mingw64/include/c++/15.2.0/new \
   D:/msys64/mingw64/include/c++/15.2.0/ostream \
-  D:/msys64/mingw64/include/c++/15.2.0/sstream \
   D:/msys64/mingw64/include/c++/15.2.0/stdexcept \
   D:/msys64/mingw64/include/c++/15.2.0/stdlib.h \
   D:/msys64/mingw64/include/c++/15.2.0/streambuf \
   D:/msys64/mingw64/include/c++/15.2.0/string \
   D:/msys64/mingw64/include/c++/15.2.0/system_error \
+  D:/msys64/mingw64/include/c++/15.2.0/tuple \
   D:/msys64/mingw64/include/c++/15.2.0/type_traits \
   D:/msys64/mingw64/include/c++/15.2.0/typeinfo \
   D:/msys64/mingw64/include/c++/15.2.0/vector \
   D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
-  D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/basic_file.h \
   D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++config.h \
-  D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++io.h \
   D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++locale.h \
   D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
   D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
@@ -1919,6 +1930,7 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: src/main.cpp \
   include/Maze.h \
   include/Player.h \
   include/Renderer.h \
+  include/TextRenderer.h \
   lib/glad/include/KHR/khrplatform.h \
   lib/glad/include/glad/glad.h \
   lib/glfw/include/GLFW/glfw3.h \
@@ -2087,6 +2099,7 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: src/main.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cpp_type_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_forced.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_init_exception.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/erase_if.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception_defines.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/exception_ptr.h \
@@ -2122,12 +2135,16 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: src/main.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_funcs.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_types.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_map.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_multimap.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_pair.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/stl_tree.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_uninitialized.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stl_vector.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/streambuf.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/streambuf_iterator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/stringfwd.h \
+  D:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/utility.h \
   D:/msys64/mingw64/include/c++/15.2.0/bits/vector.tcc \
   D:/msys64/mingw64/include/c++/15.2.0/bits/version.h \
@@ -2147,6 +2164,7 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: src/main.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/debug/assertions.h \
   D:/msys64/mingw64/include/c++/15.2.0/debug/debug.h \
   D:/msys64/mingw64/include/c++/15.2.0/exception \
+  D:/msys64/mingw64/include/c++/15.2.0/ext/aligned_buffer.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/alloc_traits.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/atomicity.h \
   D:/msys64/mingw64/include/c++/15.2.0/ext/numeric_traits.h \
@@ -2158,6 +2176,7 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: src/main.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/iostream \
   D:/msys64/mingw64/include/c++/15.2.0/istream \
   D:/msys64/mingw64/include/c++/15.2.0/limits \
+  D:/msys64/mingw64/include/c++/15.2.0/map \
   D:/msys64/mingw64/include/c++/15.2.0/new \
   D:/msys64/mingw64/include/c++/15.2.0/ostream \
   D:/msys64/mingw64/include/c++/15.2.0/stdexcept \
@@ -2165,6 +2184,7 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: src/main.cpp \
   D:/msys64/mingw64/include/c++/15.2.0/streambuf \
   D:/msys64/mingw64/include/c++/15.2.0/string \
   D:/msys64/mingw64/include/c++/15.2.0/system_error \
+  D:/msys64/mingw64/include/c++/15.2.0/tuple \
   D:/msys64/mingw64/include/c++/15.2.0/type_traits \
   D:/msys64/mingw64/include/c++/15.2.0/typeinfo \
   D:/msys64/mingw64/include/c++/15.2.0/vector \
@@ -2340,8 +2360,6 @@ D:/msys64/mingw64/include/c++/15.2.0/cstdint:
 
 lib/glm/glm/detail/type_vec1.hpp:
 
-D:/msys64/mingw64/include/c++/15.2.0/sstream:
-
 lib/glm/glm/ext/scalar_constants.hpp:
 
 D:/msys64/mingw64/include/cderr.h:
@@ -2349,8 +2367,6 @@ D:/msys64/mingw64/include/cderr.h:
 D:/msys64/mingw64/include/rpcnterr.h:
 
 lib/glm/glm/detail/type_mat4x2.inl:
-
-D:/msys64/mingw64/include/c++/15.2.0/bits/fstream.tcc:
 
 lib/glm/glm/detail/type_mat2x3.hpp:
 
@@ -2415,8 +2431,6 @@ D:/msys64/mingw64/include/servprov.h:
 lib/glm/glm/ext/vector_bool2_precision.hpp:
 
 lib/glm/glm/ext/vector_bool3.hpp:
-
-D:/msys64/mingw64/include/c++/15.2.0/bits/sstream.tcc:
 
 D:/msys64/mingw64/include/psdk_inc/intrin-impl.h:
 
@@ -2514,6 +2528,8 @@ D:/msys64/mingw64/include/c++/15.2.0/clocale:
 
 lib/glm/glm/ext/matrix_float2x4_precision.hpp:
 
+D:/msys64/mingw64/include/winperf.h:
+
 lib/glm/glm/ext/matrix_float3x2.hpp:
 
 D:/msys64/mingw64/include/mmiscapi2.h:
@@ -2594,9 +2610,9 @@ lib/glm/glm/ext/vector_double2_precision.hpp:
 
 lib/glm/glm/vec4.hpp:
 
-D:/msys64/mingw64/include/sec_api/stdio_s.h:
-
 D:/msys64/mingw64/include/c++/15.2.0/bits/stl_map.h:
+
+D:/msys64/mingw64/include/sec_api/stdio_s.h:
 
 D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/emmintrin.h:
 
@@ -2658,8 +2674,6 @@ lib/glm/glm/ext/vector_int4.hpp:
 
 D:/msys64/mingw64/include/c++/15.2.0/iosfwd:
 
-D:/msys64/mingw64/include/c++/15.2.0/fstream:
-
 lib/glm/glm/ext/vector_int4_sized.hpp:
 
 D:/msys64/mingw64/include/_mingw_stat64.h:
@@ -2682,9 +2696,9 @@ lib/glm/glm/ext/vector_uint4.hpp:
 
 lib/glfw/include/GLFW/glfw3.h:
 
-D:/msys64/mingw64/include/winnt.h:
-
 lib/glm/glm/ext/vector_uint4_sized.hpp:
+
+D:/msys64/mingw64/include/winnt.h:
 
 lib/glm/glm/fwd.hpp:
 
@@ -2762,8 +2776,6 @@ D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/tbmintrin.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/bits/algorithmfwd.h:
 
-D:/msys64/mingw64/include/c++/15.2.0/bits/codecvt.h:
-
 D:/msys64/mingw64/include/c++/15.2.0/bits/allocator.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/cstring:
@@ -2832,9 +2844,9 @@ D:/msys64/mingw64/include/c++/15.2.0/bits/stl_uninitialized.h:
 
 D:/msys64/mingw64/include/namespaceapi.h:
 
-D:/msys64/mingw64/include/corecrt_wctype.h:
-
 D:/msys64/mingw64/include/c++/15.2.0/bits/stl_multimap.h:
+
+D:/msys64/mingw64/include/corecrt_wctype.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/bits/stl_vector.h:
 
@@ -2851,6 +2863,8 @@ D:/msys64/mingw64/include/errno.h:
 D:/msys64/mingw64/include/c++/15.2.0/cassert:
 
 D:/msys64/mingw64/include/c++/15.2.0/cmath:
+
+D:/msys64/mingw64/include/winreg.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/cstdlib:
 
@@ -2960,6 +2974,8 @@ include/Player.h:
 
 include/Renderer.h:
 
+include/TextRenderer.h:
+
 D:/msys64/mingw64/include/wincontypes.h:
 
 lib/glad/include/glad/glad.h:
@@ -2982,9 +2998,9 @@ lib/glm/glm/ext/matrix_projection.inl:
 
 lib/glm/glm/ext/matrix_transform.hpp:
 
-D:/msys64/mingw64/include/winnls.h:
-
 lib/glm/glm/ext/scalar_constants.inl:
+
+D:/msys64/mingw64/include/winnls.h:
 
 D:/msys64/mingw64/include/dpapi.h:
 
@@ -3014,6 +3030,10 @@ D:/msys64/mingw64/include/virtdisk.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_init_exception.h:
 
+lib/glm/glm/gtc/quaternion.inl:
+
+D:/msys64/mingw64/include/c++/15.2.0/bits/erase_if.h:
+
 D:/msys64/mingw64/include/c++/15.2.0/bits/istream.tcc:
 
 D:/msys64/mingw64/include/c++/15.2.0/bits/locale_classes.h:
@@ -3038,9 +3058,15 @@ D:/msys64/mingw64/include/c++/15.2.0/bits/ostream.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/bits/ostream_insert.h:
 
+D:/msys64/mingw64/include/c++/15.2.0/bits/stl_tree.h:
+
 D:/msys64/mingw64/include/c++/15.2.0/bits/streambuf.tcc:
 
 D:/msys64/mingw64/include/c++/15.2.0/bits/stringfwd.h:
+
+D:/msys64/mingw64/include/sdkddkver.h:
+
+D:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/cctype:
 
@@ -3054,11 +3080,15 @@ D:/msys64/mingw64/include/c++/15.2.0/cwctype:
 
 lib/glm/glm/ext/vector_bool1_precision.hpp:
 
+D:/msys64/mingw64/include/c++/15.2.0/ext/aligned_buffer.h:
+
 D:/msys64/mingw64/include/c++/15.2.0/ios:
 
 D:/msys64/mingw64/include/c++/15.2.0/iostream:
 
 D:/msys64/mingw64/include/c++/15.2.0/istream:
+
+D:/msys64/mingw64/include/c++/15.2.0/map:
 
 D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/atomic_word.h:
 
@@ -3073,6 +3103,10 @@ D:/msys64/mingw64/include/c++/15.2.0/stdexcept:
 D:/msys64/mingw64/include/c++/15.2.0/streambuf:
 
 D:/msys64/mingw64/include/c++/15.2.0/string:
+
+D:/msys64/mingw64/include/c++/15.2.0/tuple:
+
+D:/msys64/mingw64/include/minwinbase.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++locale.h:
 
@@ -3126,10 +3160,6 @@ D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/usermsrintrin.h:
 
 D:/msys64/mingw64/include/c++/15.2.0/bits/stl_stack.h:
 
-D:/msys64/mingw64/include/sdkddkver.h:
-
-D:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator.h:
-
 D:/msys64/mingw64/include/c++/15.2.0/stack:
 
 src/Player.cpp:
@@ -3182,29 +3212,9 @@ D:/msys64/mingw64/include/utilapiset.h:
 
 lib/glm/glm/gtc/quaternion.hpp:
 
-D:/msys64/mingw64/include/c++/15.2.0/bits/erase_if.h:
-
-lib/glm/glm/gtc/quaternion.inl:
-
-D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/basic_file.h:
-
-D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++io.h:
-
 D:/msys64/mingw64/include/sec_api/string_s.h:
 
 src/TextRenderer.cpp:
-
-include/TextRenderer.h:
-
-D:/msys64/mingw64/include/c++/15.2.0/bits/stl_tree.h:
-
-D:/msys64/mingw64/include/c++/15.2.0/ext/aligned_buffer.h:
-
-D:/msys64/mingw64/include/c++/15.2.0/map:
-
-D:/msys64/mingw64/include/c++/15.2.0/tuple:
-
-D:/msys64/mingw64/include/minwinbase.h:
 
 D:/msys64/mingw64/include/rpcndr.h:
 
@@ -3335,10 +3345,6 @@ D:/msys64/mingw64/include/wincrypt.h:
 D:/msys64/mingw64/include/windef.h:
 
 D:/msys64/mingw64/include/winefs.h:
-
-D:/msys64/mingw64/include/winperf.h:
-
-D:/msys64/mingw64/include/winreg.h:
 
 D:/msys64/mingw64/include/winscard.h:
 

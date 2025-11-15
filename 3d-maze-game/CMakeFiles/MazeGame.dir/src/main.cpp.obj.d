@@ -232,12 +232,10 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: \
  D:/code/AICode/3d-maze-game/lib/glm/glm/gtc/matrix_transform.inl \
  D:/code/AICode/3d-maze-game/lib/glfw/include/GLFW/glfw3.h \
  D:/code/AICode/3d-maze-game/include/Collision.h \
- D:/msys64/mingw64/include/c++/15.2.0/iostream \
- D:/msys64/mingw64/include/c++/15.2.0/ostream \
- D:/msys64/mingw64/include/c++/15.2.0/bits/ostream.h \
- D:/msys64/mingw64/include/c++/15.2.0/ios \
- D:/msys64/mingw64/include/c++/15.2.0/iosfwd \
+ D:/code/AICode/3d-maze-game/include/TextRenderer.h \
+ D:/msys64/mingw64/include/c++/15.2.0/string \
  D:/msys64/mingw64/include/c++/15.2.0/bits/stringfwd.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/char_traits.h \
  D:/msys64/mingw64/include/c++/15.2.0/bits/postypes.h \
  D:/msys64/mingw64/include/c++/15.2.0/cwchar \
  D:/msys64/mingw64/include/wchar.h \
@@ -247,19 +245,39 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: \
  D:/msys64/mingw64/include/_mingw_stat64.h \
  D:/msys64/mingw64/include/swprintf.inl \
  D:/msys64/mingw64/include/sec_api/wchar_s.h \
- D:/msys64/mingw64/include/c++/15.2.0/exception \
- D:/msys64/mingw64/include/c++/15.2.0/bits/exception_ptr.h \
- D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_init_exception.h \
- D:/msys64/mingw64/include/c++/15.2.0/typeinfo \
- D:/msys64/mingw64/include/c++/15.2.0/bits/nested_exception.h \
- D:/msys64/mingw64/include/c++/15.2.0/bits/char_traits.h \
  D:/msys64/mingw64/include/c++/15.2.0/bits/localefwd.h \
  D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++locale.h \
  D:/msys64/mingw64/include/c++/15.2.0/clocale \
  D:/msys64/mingw64/include/locale.h D:/msys64/mingw64/include/stdio.h \
  D:/msys64/mingw64/include/sec_api/stdio_s.h \
+ D:/msys64/mingw64/include/c++/15.2.0/iosfwd \
  D:/msys64/mingw64/include/c++/15.2.0/cctype \
  D:/msys64/mingw64/include/ctype.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/ostream_insert.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_forced.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/basic_string.h \
+ D:/msys64/mingw64/include/c++/15.2.0/ext/string_conversions.h \
+ D:/msys64/mingw64/include/c++/15.2.0/cstdio \
+ D:/msys64/mingw64/include/c++/15.2.0/cerrno \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/charconv.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/basic_string.tcc \
+ D:/msys64/mingw64/include/c++/15.2.0/map \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/stl_tree.h \
+ D:/msys64/mingw64/include/c++/15.2.0/ext/aligned_buffer.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/stl_map.h \
+ D:/msys64/mingw64/include/c++/15.2.0/tuple \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/stl_multimap.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/erase_if.h \
+ D:/msys64/mingw64/include/c++/15.2.0/iostream \
+ D:/msys64/mingw64/include/c++/15.2.0/ostream \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/ostream.h \
+ D:/msys64/mingw64/include/c++/15.2.0/ios \
+ D:/msys64/mingw64/include/c++/15.2.0/exception \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/exception_ptr.h \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_init_exception.h \
+ D:/msys64/mingw64/include/c++/15.2.0/typeinfo \
+ D:/msys64/mingw64/include/c++/15.2.0/bits/nested_exception.h \
  D:/msys64/mingw64/include/c++/15.2.0/bits/ios_base.h \
  D:/msys64/mingw64/include/c++/15.2.0/ext/atomicity.h \
  D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/gthr.h \
@@ -279,15 +297,6 @@ CMakeFiles/MazeGame.dir/src/main.cpp.obj: \
  D:/msys64/mingw64/include/pthread_unistd.h \
  D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
  D:/msys64/mingw64/include/c++/15.2.0/bits/locale_classes.h \
- D:/msys64/mingw64/include/c++/15.2.0/string \
- D:/msys64/mingw64/include/c++/15.2.0/bits/ostream_insert.h \
- D:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_forced.h \
- D:/msys64/mingw64/include/c++/15.2.0/bits/basic_string.h \
- D:/msys64/mingw64/include/c++/15.2.0/ext/string_conversions.h \
- D:/msys64/mingw64/include/c++/15.2.0/cstdio \
- D:/msys64/mingw64/include/c++/15.2.0/cerrno \
- D:/msys64/mingw64/include/c++/15.2.0/bits/charconv.h \
- D:/msys64/mingw64/include/c++/15.2.0/bits/basic_string.tcc \
  D:/msys64/mingw64/include/c++/15.2.0/bits/locale_classes.tcc \
  D:/msys64/mingw64/include/c++/15.2.0/system_error \
  D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/error_constants.h \
