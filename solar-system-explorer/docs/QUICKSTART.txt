@@ -1,0 +1,67 @@
+# Solar System Explorer - Quick Start Guide
+
+## How to Run
+
+1. Open a terminal in the project directory
+2. Navigate to the build folder:
+   ```
+   cd build
+   ```
+3. Run the executable:
+   ```
+   SolarSystemExplorer.exe
+   ```
+
+## What to Expect
+
+When you launch Solar System Explorer, you'll see:
+- A 3D solar system with the Sun at the center
+- Eight planets orbiting at different speeds and distances
+- A beautiful starfield background
+- Your spacecraft floating in space
+
+## Getting Started
+
+1. **Move Around**: Use W/A/S/D keys to fly your spacecraft
+   - W: Forward
+   - S: Backward
+   - A: Left
+   - D: Right
+
+2. **Look Around**: Move your mouse to rotate the camera view
+
+3. **Explore Planets**: Fly close to any planet to trigger an information panel
+   - The panel appears automatically when you're near a planet
+   - It shows educational facts about that celestial body
+   - Move away and the panel will fade out
+
+## Tips for Exploration
+
+- Start by flying toward the bright Sun at the center
+- Outer planets (Jupiter, Saturn, Uranus, Neptune) are larger and slower
+- Inner planets (Mercury, Venus, Earth, Mars) are smaller and faster
+- Take your time near each planet to read the information
+- Use mouse to look around and appreciate the orbital motion
+
+## Troubleshooting
+
+**Can't see anything**: Make sure you're not too close to the Sun. Back away using the S key.
+
+**Movement feels too fast/slow**: The base speed is calibrated for exploration. You can modify it in the code if needed.
+
+**Application won't start**: Ensure your graphics drivers support OpenGL 3.3 or higher.
+
+## Exit
+
+Press ESC at any time to exit the application.
+
+## Educational Goals
+
+By exploring the solar system, you'll learn:
+- The names and order of planets from the Sun
+- Relative sizes of planets
+- How planets orbit at different speeds
+- Key facts about each celestial body
+- The structure of our solar system
+
+Enjoy your journey through space!

@@ -1,0 +1,93 @@
+{
+    "planets": {
+        "Sun": {
+            "name": "Sun",
+            "facts": [
+                "Star at the center of our solar system",
+                "Surface temperature: 5,500 degrees Celsius",
+                "Contains 99.86% of solar system mass",
+                "Provides light and heat to all planets"
+            ]
+        },
+        "Mercury": {
+            "name": "Mercury",
+            "facts": [
+                "Closest planet to the Sun",
+                "Diameter: 4,879 km (0.38x Earth)",
+                "Orbital period: 88 Earth days",
+                "No atmosphere or moons",
+                "Temperature varies from -180C to 430C"
+            ]
+        },
+        "Venus": {
+            "name": "Venus",
+            "facts": [
+                "Second planet from the Sun",
+                "Diameter: 12,104 km (0.95x Earth)",
+                "Orbital period: 225 Earth days",
+                "Hottest planet (470C)",
+                "Thick toxic atmosphere"
+            ]
+        },
+        "Earth": {
+            "name": "Earth",
+            "facts": [
+                "Third planet from the Sun",
+                "Diameter: 12,742 km",
+                "Orbital period: 365 days",
+                "Only known planet with life",
+                "71% covered by water"
+            ]
+        },
+        "Mars": {
+            "name": "Mars",
+            "facts": [
+                "Fourth planet, the Red Planet",
+                "Diameter: 6,779 km (0.53x Earth)",
+                "Orbital period: 687 Earth days",
+                "Has two small moons",
+                "Home to largest volcano in solar system"
+            ]
+        },
+        "Jupiter": {
+            "name": "Jupiter",
+            "facts": [
+                "Fifth planet, largest in solar system",
+                "Diameter: 139,820 km (11x Earth)",
+                "Orbital period: 12 Earth years",
+                "Has 95 known moons",
+                "Famous Great Red Spot storm"
+            ]
+        },
+        "Saturn": {
+            "name": "Saturn",
+            "facts": [
+                "Sixth planet with spectacular rings",
+                "Diameter: 116,460 km (9x Earth)",
+                "Orbital period: 29 Earth years",
+                "Has 146 known moons",
+                "Rings made of ice and rock"
+            ]
+        },
+        "Uranus": {
+            "name": "Uranus",
+            "facts": [
+                "Seventh planet, ice giant",
+                "Diameter: 50,724 km (4x Earth)",
+                "Orbital period: 84 Earth years",
+                "Rotates on its side",
+                "Has 27 known moons"
+            ]
+        },
+        "Neptune": {
+            "name": "Neptune",
+            "facts": [
+                "Eighth planet, farthest from Sun",
+                "Diameter: 49,244 km (3.9x Earth)",
+                "Orbital period: 165 Earth years",
+                "Strongest winds in solar system",
+                "Has 14 known moons"
+            ]
+        }
+    }
+}

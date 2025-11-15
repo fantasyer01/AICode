@@ -1,0 +1,27 @@
+# Solar System Explorer - Controls
+
+## Movement
+
+- **W** - Move spacecraft forward
+- **S** - Move spacecraft backward
+- **A** - Strafe left (move left while maintaining view direction)
+- **D** - Strafe right (move right while maintaining view direction)
+
+## Camera
+
+- **Mouse Movement** - Rotate camera view
+  - Move mouse left/right to look horizontally
+  - Move mouse up/down to look vertically
+
+## System
+
+- **ESC** - Exit the application
+
+## Tips
+
+- Fly close to planets to see information about them
+- A semi-transparent panel will appear when you're near a planet
+- The panel fades in smoothly as you approach and fades out when you leave
+- Move slowly near planets to read the information
+- The Sun is at the center - all planets orbit around it
+- Outer planets move more slowly than inner planets
