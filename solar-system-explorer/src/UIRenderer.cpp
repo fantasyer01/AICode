@@ -13,10 +13,26 @@
 UIRenderer::UIRenderer() 
     : VAO(0), VBO(0), panelVAO(0), panelVBO(0),
       textShader(0), panelShader(0),
-      fadeAlpha(0.0f), fadingIn(false), currentLanguage(Language::ENGLISH) {
+      fadeAlpha(0.0f), fadingIn(false), currentLanguage(Language::ENGLISH),
+      freetypeInitialized(false), ft(nullptr), face(nullptr) {
 }
 
 UIRenderer::~UIRenderer() {
+    // Clean up character textures
+    for (auto& pair : characters) {
+        glDeleteTextures(1, &pair.second.textureID);
+    }
+    for (auto& pair : chineseCharacters) {
+        glDeleteTextures(1, &pair.second.textureID);
+    }
+    
+    // Clean up FreeType
+    if (freetypeInitialized) {
+        if (face) FT_Done_Face(face);
+        if (ft) FT_Done_FreeType(ft);
+    }
+    
+    // Clean up OpenGL resources
     if (VAO) glDeleteVertexArrays(1, &VAO);
     if (VBO) glDeleteBuffers(1, &VBO);
     if (panelVAO) glDeleteVertexArrays(1, &panelVAO);
@@ -30,23 +46,24 @@ bool UIRenderer::initialize(int screenWidth, int screenHeight) {
     loadPlanetData();
     
     // Initialize FreeType
-    FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
         std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
         return false;
     }
     
     // Load font - Use Microsoft YaHei for Chinese and English support
-    FT_Face face;
     if (FT_New_Face(ft, "C:/Windows/Fonts/msyh.ttc", 0, &face)) {
         std::cerr << "ERROR::FREETYPE: Failed to load Microsoft YaHei font" << std::endl;
         std::cerr << "Trying fallback font SimHei..." << std::endl;
         // Fallback to SimHei if YaHei not available
         if (FT_New_Face(ft, "C:/Windows/Fonts/simhei.ttf", 0, &face)) {
             std::cerr << "ERROR::FREETYPE: Failed to load fallback font" << std::endl;
+            FT_Done_FreeType(ft);
             return false;
         }
     }
+    
+    freetypeInitialized = true;
     
     // Set font size
     FT_Set_Pixel_Sizes(face, 0, 24);
@@ -54,7 +71,7 @@ bool UIRenderer::initialize(int screenWidth, int screenHeight) {
     // Disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
-    // Load ASCII characters (0-128)
+    // Load ASCII characters (0-128) only
     for (unsigned char c = 0; c < 128; c++) {
         // Load character glyph
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
@@ -94,46 +111,7 @@ bool UIRenderer::initialize(int screenWidth, int screenHeight) {
         characters.insert(std::pair<char, Character>(c, character));
     }
     
-    // Load common Chinese characters for planet info
-    std::wstring chineseChars = L"太阳系漫游者水金地火木土天王海星选择语言设置开始游戏退出英文中距离行第近直径千米已知唯生命质量表面温度占有大气颗卫红色风暴环美丽冰巨个大小是最本上";
-    for (wchar_t wc : chineseChars) {
-        if (FT_Load_Char(face, wc, FT_LOAD_RENDER)) {
-            std::wcerr << L"ERROR::FREETYPE: Failed to load Chinese Glyph " << wc << std::endl;
-            continue;
-        }
-        
-        GLuint texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RED,
-            face->glyph->bitmap.width,
-            face->glyph->bitmap.rows,
-            0,
-            GL_RED,
-            GL_UNSIGNED_BYTE,
-            face->glyph->bitmap.buffer
-        );
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        
-        Character character = {
-            texture,
-            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            static_cast<unsigned int>(face->glyph->advance.x)
-        };
-        chineseCharacters.insert(std::pair<wchar_t, Character>(wc, character));
-    }
-    
-    // Clean up FreeType
-    FT_Done_Face(face);
-    FT_Done_FreeType(ft);
+    // Note: Chinese characters will be loaded on-demand when needed
     
     // Initialize shaders for UI rendering
     textShader = loadTextShader();
@@ -428,10 +406,19 @@ void UIRenderer::renderText(const std::string& text, float x, float y, float sca
             ch = characters[static_cast<char>(wc)];
             found = true;
         }
-        // Check if it's a Chinese character
+        // Check if it's a Chinese character (already loaded)
         else if (chineseCharacters.find(wc) != chineseCharacters.end()) {
             ch = chineseCharacters[wc];
             found = true;
+        }
+        // Load on-demand if not found
+        else if (wc >= 128) {
+            ch = loadCharacter(wc);
+            if (ch.textureID != 0) {
+                // Cache the loaded character
+                chineseCharacters[wc] = ch;
+                found = true;
+            }
         }
         
         if (!found) {
@@ -632,4 +619,50 @@ GLuint UIRenderer::loadPanelShader() {
     glDeleteShader(fragment);
     
     return program;
+}
+
+Character UIRenderer::loadCharacter(wchar_t wc) {
+    // Check if FreeType is initialized
+    if (!freetypeInitialized || !face) {
+        std::cerr << "ERROR: FreeType not initialized for on-demand loading" << std::endl;
+        return Character{0, glm::ivec2(0, 0), glm::ivec2(0, 0), 0};
+    }
+    
+    // Load character glyph
+    if (FT_Load_Char(face, wc, FT_LOAD_RENDER)) {
+        std::wcerr << L"ERROR::FREETYPE: Failed to load character on-demand: " << wc << std::endl;
+        return Character{0, glm::ivec2(0, 0), glm::ivec2(0, 0), 0};
+    }
+    
+    // Generate texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RED,
+        face->glyph->bitmap.width,
+        face->glyph->bitmap.rows,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        face->glyph->bitmap.buffer
+    );
+    
+    // Set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    // Create and return character
+    Character character = {
+        texture,
+        glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+        glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+        static_cast<unsigned int>(face->glyph->advance.x)
+    };
+    
+    return character;
 }

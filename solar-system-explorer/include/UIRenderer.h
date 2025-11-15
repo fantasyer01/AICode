@@ -37,6 +37,11 @@ private:
     std::map<char, Character> characters;
     std::map<wchar_t, Character> chineseCharacters; // For Chinese character support
     
+    // FreeType objects for on-demand glyph loading
+    FT_Library ft;
+    FT_Face face;
+    bool freetypeInitialized;
+    
     std::string currentPlanet;
     float fadeAlpha;
     bool fadingIn;
@@ -56,6 +61,9 @@ private:
     void renderPanel(float x, float y, float width, float height, float alpha, int screenWidth, int screenHeight);
     GLuint loadTextShader();
     GLuint loadPanelShader();
+    
+    // On-demand character loading
+    Character loadCharacter(wchar_t wc);
 };
 
 #endif // UIRENDERER_H

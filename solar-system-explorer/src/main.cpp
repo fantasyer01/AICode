@@ -85,6 +85,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);  // Start hidden to prevent white flash
 
     // Get primary monitor and video mode
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -133,9 +134,6 @@ int main() {
     std::cout << "Window created successfully (" << windowWidth << "x" << windowHeight << ")" << std::endl;
     logFile << "Window created successfully" << std::endl;
     logFile.flush();
-
-    // Position window at center
-    glfwSetWindowPos(window, mode->width / 4, mode->height / 4);
     
     logFile << "Setting up callbacks..." << std::endl;
     logFile.flush();
@@ -157,14 +155,6 @@ int main() {
     }
     std::cout << "GLAD initialized successfully" << std::endl;
     logFile << "GLAD initialized successfully" << std::endl;
-    logFile.flush();
-    
-    // Immediately set black background and clear to prevent white flash
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glfwSwapBuffers(window);
-    
-    logFile << "Initial clear done" << std::endl;
     logFile.flush();
     
     // Now set up callbacks
@@ -258,6 +248,18 @@ int main() {
     logFile.close();
 
     std::cout << "Solar System Explorer - Main Menu" << std::endl;
+    
+    // Render first frame (menu) before showing window to prevent white flash
+    glClearColor(0.0f, 0.0f, 0.05f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    menuRenderer.render(windowWidth, windowHeight);
+    glfwSwapBuffers(window);
+    
+    // Position window at center before showing
+    glfwSetWindowPos(window, mode->width / 4, mode->height / 4);
+    
+    // Now show the window with menu already rendered
+    glfwShowWindow(window);
 
     // Game loop
     while (!glfwWindowShouldClose(window)) {
