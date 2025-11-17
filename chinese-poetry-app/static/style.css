@@ -101,6 +101,74 @@ body {
     background: var(--accent-color);
 }
 
+/* 流式模式开关 */
+.stream-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.toggle-label {
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider:hover {
+    background-color: var(--secondary-color);
+}
+
+input:checked + .slider:hover {
+    background-color: var(--accent-color);
+}
+
 /* 结果区域 */
 .result-section {
     flex: 1;
@@ -283,6 +351,107 @@ body {
     font-style: italic;
 }
 
+/* Markdown内容样式 */
+.markdown-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    line-height: 1.8;
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;  /* 隐藏横向滚动条 */
+    word-wrap: break-word;  /* 长单词换行 */
+    overflow-wrap: break-word;  /* CSS3标准属性 */
+    word-break: break-all;  /* 强制任意位置换行 */
+    white-space: normal;  /* 确保正常换行 */
+}
+
+/* 全局强制所有元素换行 */
+.markdown-content * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    white-space: normal;
+    max-width: 100%;
+}
+
+.markdown-content h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 1rem;
+}
+
+.markdown-content h2 {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.markdown-content p {
+    margin-bottom: 1rem;
+    text-align: justify;
+    white-space: pre-wrap;  /* 保留换行符但自动换行 */
+    word-wrap: break-word;  /* 长单词换行 */
+    overflow-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
+}
+
+.markdown-content strong {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.markdown-content ul, .markdown-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.markdown-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.8;
+    word-wrap: break-word;  /* 确保列表项也能换行 */
+    white-space: normal;  /* 允许正常换行 */
+    overflow-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
+}
+
+.markdown-content code {
+    background: var(--light-color);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+
+.markdown-content pre {
+    background: var(--light-color);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    border-left: 3px solid var(--primary-color);
+}
+
+.markdown-content blockquote {
+    border-left: 4px solid var(--secondary-color);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #666;
+    font-style: italic;
+}
+
 /* 错误消息 */
 .error-message {
     background: #fee;
@@ -327,6 +496,34 @@ body {
     .verse-text {
         font-size: 1.1rem;
     }
+    
+    /* 流式模式Markdown内容响应式 */
+    .markdown-content {
+        padding: 1rem;
+        max-height: 60vh;
+        font-size: 0.95rem;
+    }
+    
+    .markdown-content h1 {
+        font-size: 1.6rem;
+    }
+    
+    .markdown-content h2 {
+        font-size: 1.2rem;
+        margin-top: 1rem;
+    }
+    
+    .markdown-content ul, .markdown-content ol {
+        margin-left: 1rem;
+    }
+    
+    .stream-toggle {
+        margin-top: 0.8rem;
+    }
+    
+    .toggle-label {
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -340,5 +537,46 @@ body {
     
     .poetry-header h2 {
         font-size: 1.5rem;
+    }
+    
+    /* 流式模式移动设备优化 */
+    .markdown-content {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        max-height: 55vh;
+    }
+    
+    .markdown-content h1 {
+        font-size: 1.4rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    .markdown-content h2 {
+        font-size: 1.1rem;
+        margin-top: 0.8rem;
+        margin-bottom: 0.6rem;
+    }
+    
+    .markdown-content p {
+        font-size: 0.9rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .markdown-content li {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .markdown-content ul, .markdown-content ol {
+        margin-left: 0.8rem;
+    }
+    
+    .stream-toggle {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .toggle-label {
+        font-size: 0.85rem;
     }
 }

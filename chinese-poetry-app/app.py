@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response, stream_with_context
 import requests
 import json
 import re
@@ -24,10 +24,12 @@ class PoetryAPI:
         self.api_key = app.config.get('DEEPSEEK_API_KEY')
         self.base_url = "https://api.deepseek.com/v1/chat/completions"
         
-    def query_poetry(self, verse_line):
+    def query_poetry(self, verse_line, stream_mode=False):
         """查询诗词信息 - 使用最新的DeepSeek API格式"""
         if not self.api_key or self.api_key == "your_deepseek_api_key_here":
             print("⚠️  API密钥未配置，使用备用数据")
+            if stream_mode:
+                return self.get_fallback_markdown(verse_line)
             return self.get_fallback_data(verse_line)
             
         headers = {
@@ -36,7 +38,43 @@ class PoetryAPI:
         }
         
         # 构建优化的提示词
-        prompt = f"""
+        if stream_mode:
+            prompt = f"""
+        请提供以下句子的完整古诗词信息："{verse_line}"
+        
+        要求：
+        1. 必须包含以下所有部分，不能省略：
+           《诗词标题》
+           作者: 作者名·朝代
+           
+           📜 完整诗词
+           （必须包含每一句诗词，每句独立一行，括号标注拼音）
+           
+           💬 译文
+           （必须对每一句诗词进行白话文翻译，与原文一一对应）
+           
+           📖 创作背景
+           （详细描述300字左右，包括创作时间、地点、背景事件）
+           
+           🔍 疑难字词解析
+           字词1: 详细解释
+           字词2: 详细解释
+           （至少包含3-5个重要字词）
+           
+           🎨 整体鉴赏
+           （必须包含300字以上的详细鉴赏，分析艺术手法、情感表达、主题思想）
+           
+           ⭐ 名人点评
+           点评人1: 具体点评内容
+           点评人2: 具体点评内容
+           （必须包含2-3条历史名人点评）
+        
+        注意：
+        - 必须完整输出所有部分，不要省略或简化
+        - 每个部分都要有实质内容，不能只是标题
+        """
+        else:
+            prompt = f"""
         请提供以下句子的完整古诗词信息："{verse_line}"
         
         要求：
@@ -84,9 +122,9 @@ class PoetryAPI:
                     "content": prompt
                 }
             ],
-            "max_tokens": 8000,
+            "max_tokens": 8000,  
             "temperature": 0.3,
-            "stream": False
+            "stream": stream_mode
         }
         
         try:
@@ -95,12 +133,24 @@ class PoetryAPI:
             print(f"📤 请求头: Authorization: Bearer ***{self.api_key[-4:] if len(self.api_key) > 4 else '***'}")
             print(f"📦 请求体: {json.dumps(data, ensure_ascii=False, indent=2)}")
             
-            response = requests.post(
-                self.base_url,
-                headers=headers,
-                json=data,
-                timeout=90
-            )
+            if stream_mode:
+                # 流式模式
+                response = requests.post(
+                    self.base_url,
+                    headers=headers,
+                    json=data,
+                    timeout=60,
+                    stream=True
+                )
+                return self._handle_stream_response(response, verse_line)
+            else:
+                # 非流式模式
+                response = requests.post(
+                    self.base_url,
+                    headers=headers,
+                    json=data,
+                    timeout=90
+                )
             
             print(f"📡 API响应状态码: {response.status_code}")
             
@@ -155,6 +205,8 @@ class PoetryAPI:
         
         # 如果API调用失败，返回备用数据
         print("🔄 使用备用数据")
+        if stream_mode:
+            return self.get_fallback_markdown(verse_line)
         return self.get_fallback_data(verse_line)
     
     def validate_poetry_data(self, data, original_verse):
@@ -259,6 +311,138 @@ class PoetryAPI:
                 ],
                 "source_verse": verse_line
             }
+    
+    def _handle_stream_response(self, response, verse_line):
+        """处理流式响应"""
+        print(f"📡 流式API响应状态码: {response.status_code}")
+        
+        if response.status_code != 200:
+            print(f"❌ API请求失败: {response.status_code}")
+            return self.get_fallback_markdown(verse_line)
+        
+        def generate():
+            try:
+                for line in response.iter_lines():
+                    if line:
+                        line_str = line.decode('utf-8')
+                        if line_str.startswith('data: '):
+                            data_str = line_str[6:]
+                            if data_str.strip() == '[DONE]':
+                                break
+                            try:
+                                chunk_data = json.loads(data_str)
+                                if 'choices' in chunk_data and len(chunk_data['choices']) > 0:
+                                    delta = chunk_data['choices'][0].get('delta', {})
+                                    content = delta.get('content', '')
+                                    if content:
+                                        yield f"data: {json.dumps({'content': content}, ensure_ascii=False)}\n\n"
+                            except json.JSONDecodeError:
+                                continue
+            except Exception as e:
+                print(f"❌ 流式处理错误: {e}")
+                yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
+        
+        return generate()
+    
+    def get_fallback_markdown(self, verse_line):
+        """备用Markdown数据 - 当API不可用时使用"""
+        print(f"🔄 使用备用Markdown数据 for: {verse_line}")
+        
+        fallback_markdown = {
+            "床前明月光": """
+# 《静夜思》
+**作者**: 李白 · 唐代
+
+## 📜 完整诗词
+床前明月光（chuáng qián míng yuè guāng）  
+疑是地上霜（yí shì dì shàng shuāng）  
+举头望明月（jǔ tóu wàng míng yuè）  
+低头思故乡（dī tóu sī gù xiāng）
+
+## 💬 译文
+明亮的月光洒在床前的窗户纸上  
+好像地上泛起了一层白霜  
+抬起头来看那天窗外空中的明月  
+不由得低头沉思，想起远方的家乡
+
+## 📖 创作背景
+这首诗创作于唐玄宗开元十四年（726年），当时李白约25岁，寓居扬州旅舍。在一个月明星稀的夜晚，诗人望见秋月，思乡之情油然而生，写下了这首传诵千古、中外皆知的名诗。
+
+## 🔍 疑难字词解析
+- **疑**: 好像，似乎。生动地写出了诗人睡梦初醒，恍惚中将照射在床前的清冷月光误作铺在地面的浓霜。
+- **举头**: 抬头。一个简单的动作，真切地描绘出诗人被月光吸引，不自觉地向窗外望去的神态。
+- **思故乡**: 思念家乡。直接点明了诗歌的核心情感——乡愁。
+
+## 🎨 整体鉴赏
+《静夜思》语言清新朴素，明白如话，内容单纯却又韵味无穷。诗人通过"明月光"、"地上霜"、"举头"、"低头"等一系列动作和景物的白描，鲜明地勾勒出一幅生动的月夜思乡图。全诗从"疑"到"望"再到"思"，形象地揭示了诗人的内心活动，巧妙地表达了旅居思乡的孤寂情怀。其构思细致而深曲，却又不假雕琢，浑然天成，千百年来广泛吸引着读者，成为了中华文化中思乡符号的代表。
+
+## ⭐ 名人点评
+- **明代胡应麟**: 太白诸绝句，信口而成，所谓无意于工而无不工者。此诗写月夜思乡，千古传诵。
+- **清代王夫之**: 以景寓情，浑然天成，读来如见故乡。通篇不着一个'思'字，而思乡之情溢于言表。
+- **现代郭沫若**: 此诗平淡自然，不事雕琢，却能打动千古读者之心，足见李白天才之高妙。
+""",
+            "春眠不觉晓": """
+# 《春晓》
+**作者**: 孟浩然 · 唐代
+
+## 📜 完整诗词
+春眠不觉晓（chūn mián bù jué xiǎo）  
+处处闻啼鸟（chù chù wén tí niǎo）  
+夜来风雨声（yè lái fēng yǔ shēng）  
+花落知多少（huā luò zhī duō shǎo）
+
+## 💬 译文
+春日里贪睡不知不觉天已破晓  
+搅乱我酣眠的是那处处啼鸟  
+昨天夜里风声雨声一直不断  
+那娇美的春花不知被吹落了多少
+
+## 📖 创作背景
+这首诗是孟浩然隐居在鹿门山时所作，意境十分优美。诗人抓住春天的早晨刚刚醒来时的一瞬间展开描写和联想，生动地表达了诗人对春天的热爱和怜惜之情。
+
+## 🔍 疑难字词解析
+- **不觉晓**: 不知道天已经亮了。形容睡得香甜，不知不觉天就亮了。
+- **闻啼鸟**: 听到鸟的鸣叫声。表现出春天早晨的生机勃勃。
+- **花落知多少**: 不知道花被吹落了多少。表达了对春光易逝的惋惜之情。
+
+## 🎨 整体鉴赏
+《春晓》这首小诗，初读似觉平淡无奇，反复读之，便觉诗中别有天地。它的艺术魅力不在于华丽的辞藻，不在于奇绝的艺术手法，而在于它的韵味。整首诗的风格就像行云流水一样平易自然，然而悠远深厚，独臻妙境。千百年来，人们传诵它，探讨它，仿佛在这短短的四行诗里，蕴涵着开掘不完的艺术宝藏。
+
+## ⭐ 名人点评
+- **宋代朱熹**: 诗意清新自然，如春风拂面，令人心旷神怡。
+- **清代沈德潜**: 语淡而味终不薄，真可谓以少少许胜多多许。全诗自然流畅，通俗易懂，却又余味无穷。
+"""
+        }
+        
+        markdown_content = fallback_markdown.get(verse_line, f"""
+# 《诗词查询结果》
+**作者**: 暂缺 · 暂缺
+
+## 📜 完整诗词
+{verse_line}
+
+## 💬 译文
+译文获取中...
+
+## 📖 创作背景
+正在通过AI分析诗词创作背景...
+
+## 🔍 疑难字词解析
+- **示例**: 这是示例解析，实际数据正在获取中
+
+## 🎨 整体鉴赏
+正在生成诗词整体鉴赏...
+
+## ⭐ 名人点评
+- **获取中**: 正在获取历史名人点评...
+""")
+        
+        def generate():
+            # 模拟流式输出
+            for char in markdown_content:
+                yield f"data: {json.dumps({'content': char}, ensure_ascii=False)}\n\n"
+        
+        return generate()
 
 def add_pinyin_to_verse(verse):
     """为诗句添加拼音"""
@@ -314,6 +498,30 @@ def search_poetry():
     print(f"✅ 返回诗词数据: {poetry_data['title']} - {poetry_data['author']}")
     
     return jsonify(poetry_data)
+
+@app.route('/search_stream', methods=['POST'])
+def search_poetry_stream():
+    """流式搜索诗词"""
+    verse_line = request.form.get('verse', '').strip()
+    
+    if not verse_line:
+        print("❌ 空查询请求")
+        return jsonify({'error': '请输入诗句'})
+    
+    print(f"📨 收到流式查询请求: {verse_line}")
+    
+    # 调用API流式查询
+    api = PoetryAPI()
+    stream_generator = api.query_poetry(verse_line, stream_mode=True)
+    
+    return Response(
+        stream_with_context(stream_generator),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no'
+        }
+    )
 
 @app.route('/test')
 def test():

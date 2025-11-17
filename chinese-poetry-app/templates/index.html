@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>中国古诗词鉴赏</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Markdown-it for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,6 +21,13 @@
                         <input type="text" id="verseInput" name="verse" 
                                placeholder="请输入诗句，如：床前明月光" required>
                         <button type="submit" id="searchBtn">寻诗</button>
+                    </div>
+                    <div class="stream-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="streamMode" {{ 'checked' if config.get('DEFAULT_STREAM_MODE', False) else '' }}>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">实时显示</span>
                     </div>
                 </form>
             </section>
@@ -39,10 +48,13 @@
     </div>
 
     <script>
+        let currentEventSource = null;
+        
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const verse = document.getElementById('verseInput').value.trim();
+            const streamMode = document.getElementById('streamMode').checked;
             const resultSection = document.getElementById('resultSection');
             const loading = document.getElementById('loading');
             const poetryResult = document.getElementById('poetryResult');
@@ -52,11 +64,27 @@
                 return;
             }
             
+            // 关闭之前的流式连接
+            if (currentEventSource) {
+                currentEventSource.close();
+                currentEventSource = null;
+            }
+            
             // 显示加载状态
             resultSection.classList.remove('hidden');
             loading.classList.remove('hidden');
             poetryResult.innerHTML = '';
             
+            if (streamMode) {
+                // 流式模式
+                handleStreamMode(verse, loading, poetryResult);
+            } else {
+                // 普通模式
+                handleNormalMode(verse, loading, poetryResult);
+            }
+        });
+        
+        async function handleNormalMode(verse, loading, poetryResult) {
             try {
                 const response = await fetch('/search', {
                     method: 'POST',
@@ -84,7 +112,65 @@
                 poetryResult.innerHTML = '<div class="error-message">查询失败，请稍后重试</div>';
                 console.error('Error:', error);
             }
-        });
+        }
+        
+        function handleStreamMode(verse, loading, poetryResult) {
+            loading.classList.add('hidden');
+            poetryResult.innerHTML = '<div class="markdown-content" id="streamContent"></div>';
+            
+            const streamContent = document.getElementById('streamContent');
+            let markdownText = '';
+            
+            fetch('/search_stream', {
+                method: 'POST',
+                body: new URLSearchParams({ verse })
+            }).then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                function readStream() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            console.log('流式传输完成');
+                            return;
+                        }
+                        
+                        const chunk = decoder.decode(value, { stream: true });
+                        const lines = chunk.split('\n');
+                        
+                        lines.forEach(line => {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const jsonData = JSON.parse(line.substring(6));
+                                    if (jsonData.content) {
+                                        markdownText += jsonData.content;
+                                        // 实时渲染Markdown
+                                        streamContent.innerHTML = marked.parse(markdownText);
+                                        // 自动滚动到底部
+                                        streamContent.scrollTop = streamContent.scrollHeight;
+                                    }
+                                    if (jsonData.error) {
+                                        console.error('Stream error:', jsonData.error);
+                                    }
+                                } catch (e) {
+                                    // 忽略解析错误
+                                }
+                            }
+                        });
+                        
+                        readStream();
+                    }).catch(error => {
+                        console.error('流式读取错误:', error);
+                        streamContent.innerHTML += '<div class="error-message">流式传输错误</div>';
+                    });
+                }
+                
+                readStream();
+            }).catch(error => {
+                console.error('流式请求错误:', error);
+                streamContent.innerHTML = '<div class="error-message">流式请求失败</div>';
+            });
+        }
         
         function renderPoetryResult(data) {
             let html = `

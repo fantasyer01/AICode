@@ -9,5 +9,8 @@ SECRET_KEY = "your_secret_key_here"
 # 拼音功能配置
 ENABLE_PINYIN = False  # 是否启用拼音功能，True-启用，False-禁用
 
+# 流式返回配置
+DEFAULT_STREAM_MODE = True  # 是否默认启用流式返回，True-启用，False-禁用
+
 # 其他配置
 DEBUG = True
