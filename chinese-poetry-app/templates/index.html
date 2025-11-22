@@ -120,11 +120,17 @@
             
             const streamContent = document.getElementById('streamContent');
             let markdownText = '';
+            let buffer = '';  // 添加缓冲区处理不完整的数据行
             
             fetch('/search_stream', {
                 method: 'POST',
                 body: new URLSearchParams({ verse })
             }).then(response => {
+                // 检查响应状态
+                if (!response.ok) {
+                    throw new Error(`HTTP错误: ${response.status}`);
+                }
+                
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 
@@ -132,11 +138,19 @@
                     reader.read().then(({ done, value }) => {
                         if (done) {
                             console.log('流式传输完成');
+                            // 处理缓冲区中剩余的数据
+                            if (buffer.trim()) {
+                                console.warn('缓冲区中有未处理数据:', buffer);
+                            }
                             return;
                         }
                         
                         const chunk = decoder.decode(value, { stream: true });
-                        const lines = chunk.split('\n');
+                        buffer += chunk;  // 添加到缓冲区
+                        
+                        // 按行分割，保留最后一个不完整的行
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';  // 保存最后一个可能不完整的行
                         
                         lines.forEach(line => {
                             if (line.startsWith('data: ')) {
@@ -150,10 +164,11 @@
                                         streamContent.scrollTop = streamContent.scrollHeight;
                                     }
                                     if (jsonData.error) {
-                                        console.error('Stream error:', jsonData.error);
+                                        console.error('流式错误:', jsonData.error);
+                                        streamContent.innerHTML += `<div class="error-message">错误: ${jsonData.error}</div>`;
                                     }
                                 } catch (e) {
-                                    // 忽略解析错误
+                                    console.warn('JSON解析失败，跳过此行:', line, e);
                                 }
                             }
                         });
@@ -161,14 +176,14 @@
                         readStream();
                     }).catch(error => {
                         console.error('流式读取错误:', error);
-                        streamContent.innerHTML += '<div class="error-message">流式传输错误</div>';
+                        streamContent.innerHTML += `<div class="error-message">流式传输错误: ${error.message}</div>`;
                     });
                 }
                 
                 readStream();
             }).catch(error => {
                 console.error('流式请求错误:', error);
-                streamContent.innerHTML = '<div class="error-message">流式请求失败</div>';
+                streamContent.innerHTML = `<div class="error-message">流式请求失败: ${error.message}</div>`;
             });
         }
         

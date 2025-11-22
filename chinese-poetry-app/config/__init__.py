@@ -1,0 +1,23 @@
+"""Configuration package"""
+
+from .constants import (
+    DEEPSEEK_API_KEY,
+    SECRET_KEY,
+    ENABLE_PINYIN,
+    DEFAULT_STREAM_MODE,
+    IS_OUTPUT_STREAM_LOG,
+    DEBUG,
+    STREAM_PROMPT_TEMPLATE,
+    JSON_PROMPT_TEMPLATE
+)
+
+__all__ = [
+    'DEEPSEEK_API_KEY',
+    'SECRET_KEY',
+    'ENABLE_PINYIN',
+    'DEFAULT_STREAM_MODE',
+    'IS_OUTPUT_STREAM_LOG',
+    'DEBUG',
+    'STREAM_PROMPT_TEMPLATE',
+    'JSON_PROMPT_TEMPLATE'
+]
