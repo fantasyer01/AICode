@@ -31,7 +31,7 @@ public class ConfigurableLlmClient implements LlmClient {
 
     public ConfigurableLlmClient(
             List<LlmProvider> providers,
-            @Value("${llm.provider:openai}") String providerName
+            @Value("${llm.provider:deepseek}") String providerName
     ) {
         this.activeProviderKey = normalizeName(providerName);
 

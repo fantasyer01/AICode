@@ -92,10 +92,14 @@ public class StoryService {
         
         // Create Story entity
         Story story = new Story();
+        story.setId(UUID.randomUUID());
         story.setDateMonth(month);
         story.setDateDay(day);
         story.setTitle(llmResponse.getTitle());
+        story.setIntroduction(llmResponse.getIntroduction());
         story.setContent(formatContent(llmResponse.getSections()));
+        story.setEpilogue(llmResponse.getEpilogue());
+        story.setReferences(llmResponse.getReferences());
         story.setStatus(Story.StoryStatus.PUBLISHED);
         
         // Save metadata
@@ -106,10 +110,10 @@ public class StoryService {
         }
         
         // Save story
-        story = storyRepository.save(story);
+        // story = storyRepository.save(story);
         
         // Save images
-        saveImages(story.getId(), llmResponse.getImageDescriptions());
+        // saveImages(story.getId(), llmResponse.getImageDescriptions());
         
         logger.info("Story generated and saved: id={}, title={}", story.getId(), story.getTitle());
         
@@ -161,7 +165,10 @@ public class StoryService {
         dto.setStoryId(story.getId());
         dto.setDate(new StoryDto.DateDto(story.getDateMonth(), story.getDateDay()));
         dto.setTitle(story.getTitle());
+        dto.setIntroduction(story.getIntroduction());
         dto.setContent(story.getContent());
+        dto.setEpilogue(story.getEpilogue());
+        dto.setReferences(story.getReferences());
         dto.setGeneratedAt(story.getCreatedAt());
         dto.setCached(cached);
         

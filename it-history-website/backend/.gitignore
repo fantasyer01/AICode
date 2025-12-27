@@ -19,3 +19,6 @@ mvnw.cmd
 .settings/
 .classpath
 .project
+
+# Log files directory
+logs/

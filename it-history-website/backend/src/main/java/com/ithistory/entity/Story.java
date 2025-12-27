@@ -29,8 +29,17 @@ public class Story {
     @Column(name = "title", length = 200, nullable = false)
     private String title;
     
+    @Column(name = "introduction", columnDefinition = "TEXT")
+    private String introduction;
+    
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
+    
+    @Column(name = "epilogue", columnDefinition = "TEXT")
+    private String epilogue;
+    
+    @Column(name = "references", columnDefinition = "TEXT")
+    private String references;
     
     @Column(name = "metadata", columnDefinition = "TEXT")
     private String metadata;

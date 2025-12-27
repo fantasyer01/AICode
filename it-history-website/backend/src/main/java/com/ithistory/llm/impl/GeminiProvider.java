@@ -28,30 +28,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * LLM provider implementation for DeepSeek models.
+ * LLM provider implementation for Google Gemini Pro models.
  *
- * This provider is wired into the generic LLM client via its provider name
- * ("deepseek"), and uses the same story prompt configuration as other
- * providers.
+ * Uses Google's Gemini API which has a different request/response format
+ * compared to OpenAI-compatible APIs.
  */
 @Component
-public class DeepSeekProvider implements LlmProvider {
+public class GeminiProvider implements LlmProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeepSeekProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(GeminiProvider.class);
 
-    @Value("${llm.deepseek.api-key:}")
+    @Value("${llm.gemini.api-key:}")
     private String apiKey;
 
-    @Value("${llm.deepseek.model:deepseek-chat}")
+    @Value("${llm.gemini.model:gemini-pro}")
     private String model;
 
-    @Value("${llm.deepseek.endpoint:https://api.deepseek.com/chat/completions}")
+    @Value("${llm.gemini.endpoint:https://generativelanguage.googleapis.com/v1beta/models}")
     private String endpoint;
 
-    @Value("${llm.deepseek.max-tokens:2000}")
+    @Value("${llm.gemini.max-tokens:2000}")
     private Integer maxTokens;
 
-    @Value("${llm.deepseek.temperature:0.7}")
+    @Value("${llm.gemini.temperature:0.7}")
     private Double temperature;
 
     private final CloseableHttpClient httpClient;
@@ -60,7 +59,7 @@ public class DeepSeekProvider implements LlmProvider {
     @Autowired
     private StoryPromptConfig storyPromptConfig;
 
-    public DeepSeekProvider() {
+    public GeminiProvider() {
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(10);
         connectionManager.setDefaultMaxPerRoute(5);
@@ -74,7 +73,7 @@ public class DeepSeekProvider implements LlmProvider {
     @Override
     public LlmResponse generateStory(LlmRequest request) throws LlmException {
         if (apiKey == null || apiKey.isEmpty()) {
-            logger.warn("DeepSeek API key not configured, using mock response");
+            logger.warn("Google Gemini API key not configured, using mock response");
             return generateMockResponse(request);
         }
 
@@ -83,14 +82,16 @@ public class DeepSeekProvider implements LlmProvider {
             String userMessage = storyPromptConfig.buildUserMessage(request);
             String requestBody = buildRequestBody(systemPrompt, userMessage);
 
-            // Log request details
-            logger.info("[DeepSeek] Sending request for date: {}/{}", request.getMonth(), request.getDay());
-            logger.debug("[DeepSeek] Request endpoint: {}", endpoint);
-            logger.debug("[DeepSeek] Request body: {}", requestBody);
+            // Gemini uses API key in URL, not Authorization header
+            String fullEndpoint = String.format("%s/%s:generateContent?key=%s", endpoint, model, apiKey);
 
-            HttpPost httpPost = new HttpPost(endpoint);
+            // Log request details (mask API key in URL)
+            logger.info("[Gemini] Sending request for date: {}/{}", request.getMonth(), request.getDay());
+            logger.debug("[Gemini] Request endpoint: {}", endpoint + "/" + model + ":generateContent");
+            logger.debug("[Gemini] Request body: {}", requestBody);
+            
+            HttpPost httpPost = new HttpPost(fullEndpoint);
             httpPost.setHeader("Content-Type", "application/json");
-            httpPost.setHeader("Authorization", "Bearer " + apiKey);
             httpPost.setEntity(new StringEntity(requestBody, StandardCharsets.UTF_8));
 
             try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
@@ -98,50 +99,57 @@ public class DeepSeekProvider implements LlmProvider {
                 String responseBody = new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8);
 
                 // Log response details
-                logger.info("[DeepSeek] Response status code: {}", statusCode);
-                logger.debug("[DeepSeek] Response body: {}", responseBody);
+                logger.info("[Gemini] Response status code: {}", statusCode);
+                logger.debug("[Gemini] Response body: {}", responseBody);
 
                 if (statusCode == 200) {
                     LlmResponse llmResponse = parseResponse(responseBody);
-                    logger.info("[DeepSeek] Successfully generated story with {} sections", 
+                    logger.info("[Gemini] Successfully generated story with {} sections", 
                             llmResponse.getSections() != null ? llmResponse.getSections().size() : 0);
                     return llmResponse;
                 } else {
-                    logger.error("[DeepSeek] API error - Status: {}, Body: {}", statusCode, responseBody);
-                    throw new LlmException("DeepSeek API returned error: " + statusCode + " - " + responseBody);
+                    logger.error("[Gemini] API error - Status: {}, Body: {}", statusCode, responseBody);
+                    throw new LlmException("Google Gemini API returned error: " + statusCode + " - " + responseBody);
                 }
             }
         } catch (IOException e) {
-            logger.error("[DeepSeek] Failed to call API", e);
-            throw new LlmException("Failed to call DeepSeek API", e);
+            logger.error("[Gemini] Failed to call API", e);
+            throw new LlmException("Failed to call Google Gemini API", e);
         }
     }
 
     private String buildRequestBody(String systemPrompt, String userMessage) throws IOException {
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("model", model);
-        requestMap.put("max_tokens", maxTokens);
-        requestMap.put("temperature", temperature);
 
-        Map<String, String> responseFormat = new HashMap<>();
-        responseFormat.put("type", "json_object");
-        requestMap.put("response_format", responseFormat);
+        // Gemini uses "systemInstruction" for system-level instructions
+        Map<String, Object> systemInstruction = new HashMap<>();
+        List<Map<String, String>> systemParts = new ArrayList<>();
+        Map<String, String> systemPart = new HashMap<>();
+        systemPart.put("text", systemPrompt);
+        systemParts.add(systemPart);
+        systemInstruction.put("parts", systemParts);
+        requestMap.put("systemInstruction", systemInstruction);
 
-        List<Map<String, String>> messages = new ArrayList<>();
+        // Gemini uses "contents" array with "parts" for user messages
+        List<Map<String, Object>> contents = new ArrayList<>();
+        Map<String, Object> content = new HashMap<>();
         
-        // System message with role and instructions
-        Map<String, String> systemMessage = new HashMap<>();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", systemPrompt);
-        messages.add(systemMessage);
+        List<Map<String, String>> parts = new ArrayList<>();
+        Map<String, String> part = new HashMap<>();
+        part.put("text", userMessage);
+        parts.add(part);
+        
+        content.put("parts", parts);
+        contents.add(content);
+        
+        requestMap.put("contents", contents);
 
-        // User message with the specific date
-        Map<String, String> userMsg = new HashMap<>();
-        userMsg.put("role", "user");
-        userMsg.put("content", userMessage);
-        messages.add(userMsg);
-
-        requestMap.put("messages", messages);
+        // Generation config
+        Map<String, Object> generationConfig = new HashMap<>();
+        generationConfig.put("temperature", temperature);
+        generationConfig.put("maxOutputTokens", maxTokens);
+        generationConfig.put("responseMimeType", "application/json");
+        requestMap.put("generationConfig", generationConfig);
 
         return objectMapper.writeValueAsString(requestMap);
     }
@@ -150,22 +158,33 @@ public class DeepSeekProvider implements LlmProvider {
         String content = "";
         try {
             JsonNode root = objectMapper.readTree(responseBody);
-            content = root.path("choices").get(0).path("message").path("content").asText();
             
-            // Log the raw content for debugging
-            logger.debug("DeepSeek raw content: {}", content);
-            
+            // Gemini response structure: candidates[0].content.parts[0].text
+            JsonNode candidates = root.path("candidates");
+            if (candidates.isArray() && candidates.size() > 0) {
+                JsonNode parts = candidates.get(0).path("content").path("parts");
+                if (parts.isArray() && parts.size() > 0) {
+                    content = parts.get(0).path("text").asText();
+                }
+            }
+
+            if (content.isEmpty()) {
+                throw new LlmException("Empty content received from Gemini");
+            }
+
+            logger.debug("Gemini raw content: {}", content);
+
             // Try parsing as structured JSON
             try {
                 return objectMapper.readValue(content, LlmResponse.class);
             } catch (Exception parseException) {
+                logger.warn("Gemini returned JSON but structure doesn't match LlmResponse: {}", parseException.getMessage());
                 logger.debug("Content that failed to parse: {}", content);
-                logger.warn("DeepSeek returned JSON but structure doesn't match LlmResponse: {}", parseException.getMessage());
                 return buildPlainTextResponse(content);
             }
         } catch (Exception e) {
-            logger.error("Failed to extract content from DeepSeek response", e);
-            throw new LlmException("Failed to parse DeepSeek response: " + e.getMessage(), e);
+            logger.error("Failed to extract content from Gemini response", e);
+            throw new LlmException("Failed to parse Gemini response: " + e.getMessage(), e);
         }
     }
 
@@ -175,8 +194,6 @@ public class DeepSeekProvider implements LlmProvider {
      */
     private LlmResponse buildPlainTextResponse(String content) {
         LlmResponse response = new LlmResponse();
-
-        // Simple generic title - date/title is already handled separately in StoryService / Story entity
         response.setTitle("IT History Story");
 
         List<LlmResponse.Section> sections = new ArrayList<>();
@@ -186,7 +203,6 @@ public class DeepSeekProvider implements LlmProvider {
         sections.add(section);
 
         response.setSections(sections);
-        // imageDescriptions can stay null/empty; frontend already handles that
         return response;
     }
 
@@ -255,6 +271,6 @@ public class DeepSeekProvider implements LlmProvider {
 
     @Override
     public String getProviderName() {
-        return "deepseek";
+        return "gemini";
     }
 }

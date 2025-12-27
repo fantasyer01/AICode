@@ -114,6 +114,25 @@
   font-size: 1.1rem;
 }
 
+.story-introduction {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf4 100%);
+  border-left: 4px solid #667eea;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  border-radius: 8px;
+}
+
+.introduction-text {
+  color: #555;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  font-style: italic;
+}
+
+.introduction-text p {
+  margin-bottom: 0.75rem;
+}
+
 .story-image-container {
   margin: 2rem 0;
 }
@@ -155,6 +174,74 @@
   gap: 2rem;
 }
 
+.story-epilogue {
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  border-left: 4px solid #ffa726;
+  padding: 2rem;
+  margin: 3rem 0 2rem 0;
+  border-radius: 8px;
+}
+
+.epilogue-heading {
+  color: #f57c00;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.epilogue-text {
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.epilogue-text p {
+  margin-bottom: 0.75rem;
+}
+
+.story-references {
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  border-left: 4px solid #9c27b0;
+  padding: 2rem;
+  margin: 2rem 0;
+  border-radius: 8px;
+}
+
+.references-heading {
+  color: #7b1fa2;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.references-heading::before {
+  content: "📚";
+  font-size: 1.3rem;
+}
+
+.references-text {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.references-text p {
+  margin-bottom: 0.5rem;
+}
+
+.references-text ul,
+.references-text ol {
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.references-text li {
+  margin-bottom: 0.5rem;
+}
+
 .story-footer {
   border-top: 2px solid #e0e0e0;
   padding-top: 2rem;
@@ -187,6 +274,24 @@
   
   .story-text h2 {
     font-size: 1.5rem;
+  }
+  
+  .story-introduction,
+  .story-epilogue,
+  .story-references {
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+  }
+  
+  .introduction-text,
+  .epilogue-text,
+  .references-text {
+    font-size: 1rem;
+  }
+  
+  .epilogue-heading,
+  .references-heading {
+    font-size: 1.3rem;
   }
   
   .story-meta {

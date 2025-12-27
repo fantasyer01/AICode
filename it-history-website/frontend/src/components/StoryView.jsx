@@ -34,6 +34,12 @@ function StoryView({ month, day, onBack }) {
     return `${monthNames[month - 1]} ${day}`;
   };
 
+  const formatTextWithLineBreaks = (text) => {
+    if (!text) return '';
+    // Replace \n with <br> tags for proper line breaks
+    return text.replace(/\n/g, '<br>');
+  };
+
   if (loading) {
     return (
       <div className="story-view">
@@ -81,6 +87,15 @@ function StoryView({ month, day, onBack }) {
           )}
         </header>
 
+        {story.introduction && (
+          <div className="story-introduction">
+            <div 
+              className="introduction-text" 
+              dangerouslySetInnerHTML={{ __html: story.introduction }}
+            />
+          </div>
+        )}
+
         <div className="story-content">
           {story.images && story.images.length > 0 && (
             <div className="story-image-container">
@@ -117,6 +132,26 @@ function StoryView({ month, day, onBack }) {
             </div>
           )}
         </div>
+
+        {story.epilogue && (
+          <div className="story-epilogue">
+            <h2 className="epilogue-heading">故事尾声</h2>
+            <div 
+              className="epilogue-text" 
+              dangerouslySetInnerHTML={{ __html: formatTextWithLineBreaks(story.epilogue) }}
+            />
+          </div>
+        )}
+
+        {story.references && (
+          <div className="story-references">
+            <h2 className="references-heading">参考资料</h2>
+            <div 
+              className="references-text" 
+              dangerouslySetInnerHTML={{ __html: formatTextWithLineBreaks(story.references) }}
+            />
+          </div>
+        )}
 
         <footer className="story-footer">
           <div className="story-meta">

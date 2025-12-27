@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Year;
 import java.util.List;
 
 @RestController
@@ -55,7 +54,6 @@ public class StoryController {
             response.setDatesWithStories(datesWithStories);
             
             return ResponseEntity.ok(response);
-            
         } catch (Exception e) {
             logger.error("Error getting calendar data", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -80,7 +78,6 @@ public class StoryController {
         try {
             StoryDto story = storyService.getStory(month, day, refresh);
             return ResponseEntity.ok(story);
-            
         } catch (IllegalArgumentException e) {
             logger.warn("Invalid date: {}/{}", month, day);
             return ResponseEntity.badRequest()

@@ -11,7 +11,10 @@ public class StoryDto {
     private UUID storyId;
     private DateDto date;
     private String title;
+    private String introduction;
     private String content;
+    private String epilogue;
+    private String references;
     private List<ImageDto> images;
     private LocalDateTime generatedAt;
     private Boolean cached;
