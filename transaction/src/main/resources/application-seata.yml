@@ -1,0 +1,26 @@
+# Seata Configuration Profile (Optional - for distributed transaction demos)
+# Use this profile when Seata server is available: --spring.profiles.active=mysql,seata
+
+seata:
+  enabled: true
+  application-id: transaction-training
+  tx-service-group: default_tx_group
+  
+  # Registry configuration
+  registry:
+    type: file
+    file:
+      name: file.conf
+  
+  # Configuration center
+  config:
+    type: file
+    file:
+      name: file.conf
+  
+  # Service configuration
+  service:
+    vgroup-mapping:
+      default_tx_group: default
+    grouplist:
+      default: 127.0.0.1:8091

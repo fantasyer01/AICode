@@ -1,0 +1,22 @@
+# Oracle Profile
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521:ORCL
+    username: txdemo_user
+    password: txdemo_pass
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: TxDemoHikariPool-Oracle
+  
+  jpa:
+    database-platform: org.hibernate.dialect.Oracle12cDialect
+    hibernate:
+      ddl-auto: none
+  
+  flyway:
+    locations: classpath:db/migration/oracle
