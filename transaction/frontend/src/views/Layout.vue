@@ -35,6 +35,8 @@
             <el-menu-item index="/spring/propagation">Propagation Behaviors</el-menu-item>
             <el-menu-item index="/spring/isolation">Isolation Levels</el-menu-item>
             <el-menu-item index="/spring/rollback">Rollback Rules</el-menu-item>
+            <el-menu-item index="/spring/programmatic">Programmatic Transaction</el-menu-item>
+            <el-menu-item index="/spring/batch">Batch Transaction</el-menu-item>
           </el-sub-menu>
 
           <el-sub-menu index="distributed">

@@ -2,6 +2,9 @@ spring:
   application:
     name: transaction-training
   
+  profiles:
+    active: mysql  # Default to MySQL profile
+  
   # Disable Seata auto-configuration for standalone demo
   autoconfigure:
     exclude:
@@ -21,6 +24,13 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration/{vendor}
+  
+  # Spring Batch Configuration
+  batch:
+    job:
+      enabled: false  # Disable automatic job execution at startup
+    jdbc:
+      initialize-schema: always  # Auto-create Spring Batch metadata tables
   
   # Server Configuration
 server:

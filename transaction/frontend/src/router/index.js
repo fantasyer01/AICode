@@ -32,6 +32,18 @@ const routes = [
         meta: { title: 'Rollback Rules' }
       },
       {
+        path: 'spring/programmatic',
+        name: 'SpringProgrammatic',
+        component: () => import('@/views/spring/ProgrammaticDemo.vue'),
+        meta: { title: 'Programmatic Transaction' }
+      },
+      {
+        path: 'spring/batch',
+        name: 'SpringBatch',
+        component: () => import('@/views/spring/BatchTransactionDemo.vue'),
+        meta: { title: 'Batch Transaction' }
+      },
+      {
         path: 'distributed/seata',
         name: 'DistributedSeata',
         component: () => import('@/views/distributed/SeataDemo.vue'),

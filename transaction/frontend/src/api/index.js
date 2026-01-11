@@ -87,6 +87,15 @@ export const springDemoAPI = {
   // Timeout demo
   demonstrateTimeout() {
     return request.post('/demo/spring/timeout')
+  },
+  
+  // Batch transaction demos
+  demonstrateBatchSuccess() {
+    return request.post('/demo/spring/batch/success')
+  },
+  
+  demonstrateBatchRollback() {
+    return request.post('/demo/spring/batch/rollback')
   }
 }
 
