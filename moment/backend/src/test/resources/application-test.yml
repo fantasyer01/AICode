@@ -1,0 +1,43 @@
+# Test Profile Configuration
+
+spring:
+  # Use H2 in-memory database for tests
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  
+  # JPA/Hibernate configuration for tests
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+  
+  # Disable SQL initialization for tests
+  sql:
+    init:
+      mode: never
+
+# CORS configuration for tests
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+    max-age: 3600
+
+# Disable Swagger in tests
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+# Minimal logging for tests
+logging:
+  level:
+    root: WARN
+    com.portfolio.showcase: INFO

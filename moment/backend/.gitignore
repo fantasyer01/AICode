@@ -1,0 +1,68 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# IDE - Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# IDE - VS Code
+.vscode/
+
+# IDE - NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# Local environment files
+application-local.yml
+application-local.properties
+
+# Build artifacts
+*.jar
+*.war
+*.ear
+*.class
+
+# Package Files
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Node.js (should not be in Java project)
+node_modules/
+package-lock.json

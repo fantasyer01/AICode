@@ -1,0 +1,49 @@
+# Development Profile Configuration
+
+spring:
+  # Database configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/portfolio?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: portfolio
+    password: portfolio
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+  
+  # JPA/Hibernate configuration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    defer-datasource-initialization: true
+  
+  # Initialize database with data.sql (runs after Hibernate schema creation)
+  sql:
+    init:
+      mode: never
+
+# CORS configuration for development
+app:
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001
+    max-age: 3600
+
+# Logging configuration for development
+logging:
+  level:
+    root: INFO
+    com.portfolio.showcase: DEBUG
+    com.portfolio.showcase.controller: DEBUG
+    com.portfolio.showcase.service: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

@@ -1,0 +1,48 @@
+# Application Configuration
+# Default settings used across all profiles
+
+spring:
+  application:
+    name: portfolio-showcase-backend
+  
+  # Default profile
+  profiles:
+    active: dev
+  
+  # Jackson JSON configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+    time-zone: UTC
+
+# Server configuration
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# OpenAPI/Swagger configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+  info:
+    title: Portfolio Showcase API
+    description: REST API for AI Portfolio Showcase application
+    version: 1.0.0

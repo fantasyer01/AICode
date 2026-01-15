@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 20% 99%;
+    --foreground: 240 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+    --primary: 262 83% 68%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 180 45% 85%;
+    --secondary-foreground: 180 45% 25%;
+    --muted: 240 15% 95%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 340 75% 85%;
+    --accent-foreground: 340 75% 30%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 15% 90%;
+    --input: 240 15% 90%;
+    --ring: 262 83% 68%;
+    --radius: 0.75rem;
+    
+    /* Custom portfolio colors */
+    --lavender: 262 83% 68%;
+    --lavender-light: 262 83% 92%;
+    --mint: 168 60% 70%;
+    --mint-light: 168 60% 92%;
+    --rose: 340 75% 75%;
+    --rose-light: 340 75% 92%;
+    --sky: 200 85% 70%;
+    --sky-light: 200 85% 92%;
+    --peach: 25 90% 80%;
+    --peach-light: 25 90% 93%;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px hsl(240 10% 15% / 0.04);
+    --shadow-md: 0 4px 12px hsl(240 10% 15% / 0.06);
+    --shadow-lg: 0 12px 40px hsl(240 10% 15% / 0.08);
+    --shadow-glow: 0 0 40px hsl(262 83% 68% / 0.15);
+    --shadow-card-hover: 0 20px 50px hsl(240 10% 15% / 0.1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--lavender)), hsl(var(--rose)));
+  }
+  
+  .bg-gradient-hero {
+    background: linear-gradient(135deg, hsl(262 83% 97%), hsl(200 85% 97%), hsl(340 75% 97%));
+  }
+  
+  .bg-gradient-card {
+    background: linear-gradient(180deg, hsl(0 0% 100%), hsl(240 20% 99%));
+  }
+  
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl;
+  }
+  
+  .card-elevated {
+    box-shadow: var(--shadow-md);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-elevated:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-4px);
+  }
+}
