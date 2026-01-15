@@ -100,6 +100,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .color(project.getColor())
                 .link(project.getLink())
                 .github(project.getGithub())
+                .imageUrl(project.getImageUrl())
                 .build();
     }
 }

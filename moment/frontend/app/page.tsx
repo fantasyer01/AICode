@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import { 
   Grid3X3, 
   Clock, 
@@ -280,10 +281,20 @@ function ProjectCard({ project, cardColors }: { project: Project; cardColors: st
     >
       <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <div className={cn(
-          "h-36 flex items-center justify-center transition-colors",
+          "h-36 flex items-center justify-center transition-colors relative overflow-hidden",
           cardColors[colorIndex]
         )}>
-          <Sparkles className="w-10 h-10 text-foreground/30" />
+          {project.imageUrl ? (
+            <Image
+              src={`/images/projects/${project.imageUrl}`}
+              alt={project.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <Sparkles className="w-10 h-10 text-foreground/30" />
+          )}
         </div>
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
@@ -437,10 +448,20 @@ function MasonryView({ projects, cardColors }: { projects: Project[]; cardColors
               heights[index % heights.length]
             )}>
               <div className={cn(
-                "h-1/2 flex items-center justify-center",
+                "h-1/2 flex items-center justify-center relative overflow-hidden",
                 cardColors[colorIndex]
               )}>
-                <Sparkles className="w-10 h-10 text-foreground/30" />
+                {project.imageUrl ? (
+                  <Image
+                    src={`/images/projects/${project.imageUrl}`}
+                    alt={project.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                ) : (
+                  <Sparkles className="w-10 h-10 text-foreground/30" />
+                )}
               </div>
               <CardHeader className="pb-2 py-3">
                 <CardTitle className="text-sm font-medium">{project.title}</CardTitle>

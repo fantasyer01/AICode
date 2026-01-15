@@ -50,4 +50,7 @@ public class ProjectResponseDto {
 
     @Schema(description = "Optional link to GitHub repository", example = "https://github.com/user/project")
     private String github;
+
+    @Schema(description = "Image filename for the project", example = "project-ai-chat.jpg")
+    private String imageUrl;
 }

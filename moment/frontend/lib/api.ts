@@ -11,6 +11,7 @@ export interface Project {
   color: string
   link?: string
   github?: string
+  imageUrl?: string
 }
 
 export async function fetchProjects(category?: string): Promise<Project[]> {
