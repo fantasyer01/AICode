@@ -1,5 +1,6 @@
 package com.portfolio.showcase.service;
 
+import com.portfolio.showcase.dto.ProjectCreateDto;
 import com.portfolio.showcase.dto.ProjectResponseDto;
 import com.portfolio.showcase.entity.Project;
 import com.portfolio.showcase.entity.ProjectCategory;
@@ -80,6 +81,45 @@ public class ProjectServiceImpl implements ProjectService {
         log.info("Retrieved project: {} (id: {})", project.getTitle(), id);
         
         return mapToDto(project);
+    }
+
+    @Override
+    @Transactional
+    public ProjectResponseDto createProject(ProjectCreateDto createDto) {
+        log.debug("Creating new project with title: {}", createDto.getTitle());
+        
+        // Validate and convert category
+        if (!ProjectCategory.isValid(createDto.getCategory())) {
+            log.warn("Invalid category provided: {}", createDto.getCategory());
+            throw new IllegalArgumentException(
+                "Invalid category: " + createDto.getCategory() + ". Valid values are: web, mobile, ai, data"
+            );
+        }
+
+        ProjectCategory category = ProjectCategory.fromValue(createDto.getCategory());
+        
+        // Extract year from date (YYYY-MM format)
+        int year = Integer.parseInt(createDto.getDate().substring(0, 4));
+        
+        // Build and save the project entity
+        Project project = Project.builder()
+                .title(createDto.getTitle())
+                .description(createDto.getDescription())
+                .category(category)
+                .date(createDto.getDate())
+                .year(year)
+                .tools(createDto.getTools())
+                .color(createDto.getColor())
+                .link(createDto.getLink())
+                .github(createDto.getGithub())
+                .imageUrl(createDto.getImageUrl())
+                .build();
+        
+        Project savedProject = projectRepository.save(project);
+        
+        log.info("Successfully created project: {} (id: {})", savedProject.getTitle(), savedProject.getId());
+        
+        return mapToDto(savedProject);
     }
 
     /**

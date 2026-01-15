@@ -1,6 +1,7 @@
 package com.portfolio.showcase.controller;
 
 import com.portfolio.showcase.dto.ErrorResponseDto;
+import com.portfolio.showcase.dto.ProjectCreateDto;
 import com.portfolio.showcase.dto.ProjectResponseDto;
 import com.portfolio.showcase.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,10 +12,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -141,6 +144,52 @@ public class ProjectController {
         
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(CACHE_MAX_AGE_SECONDS, TimeUnit.SECONDS).cachePublic())
+                .body(project);
+    }
+
+    /**
+     * Create a new project.
+     *
+     * @param createDto the project creation data
+     * @return the created project
+     */
+    @PostMapping
+    @Operation(
+        summary = "Create a new project",
+        description = "Creates a new project with the provided information."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Project successfully created",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ProjectResponseDto.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponseDto.class)
+            )
+        )
+    })
+    public ResponseEntity<ProjectResponseDto> createProject(
+            @Valid @RequestBody ProjectCreateDto createDto
+    ) {
+        log.info("POST /api/projects - creating project: {}", createDto.getTitle());
+        
+        long startTime = System.currentTimeMillis();
+        ProjectResponseDto project = projectService.createProject(createDto);
+        long duration = System.currentTimeMillis() - startTime;
+        
+        log.info("POST /api/projects - created project '{}' (id: {}) in {}ms", 
+                project.getTitle(), project.getId(), duration);
+        
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(project);
     }
 }

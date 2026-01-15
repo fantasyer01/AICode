@@ -1,5 +1,6 @@
 package com.portfolio.showcase.service;
 
+import com.portfolio.showcase.dto.ProjectCreateDto;
 import com.portfolio.showcase.dto.ProjectResponseDto;
 
 import java.util.List;
@@ -33,4 +34,13 @@ public interface ProjectService {
      * @throws com.portfolio.showcase.exception.ResourceNotFoundException if project not found
      */
     ProjectResponseDto getProjectById(Long id);
+
+    /**
+     * Creates a new project.
+     *
+     * @param createDto the project creation data
+     * @return the created project as a DTO
+     * @throws IllegalArgumentException if category is invalid
+     */
+    ProjectResponseDto createProject(ProjectCreateDto createDto);
 }

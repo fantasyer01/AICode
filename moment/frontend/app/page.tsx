@@ -11,12 +11,14 @@ import {
   ExternalLink, 
   Filter,
   Layers,
-  Palette
+  Palette,
+  Plus
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { fetchProjects, type Project } from '@/lib/api'
+import { AddProjectDialog } from '@/components/AddProjectDialog'
 
 // Types
 type ViewMode = 'grid' | 'timeline' | 'masonry'
@@ -192,12 +194,14 @@ function Navigation({
   viewMode, 
   setViewMode,
   currentTheme,
-  setTheme
+  setTheme,
+  onAddProject
 }: { 
   viewMode: ViewMode
   setViewMode: (mode: ViewMode) => void
   currentTheme: ThemeStyle
   setTheme: (theme: ThemeStyle) => void
+  onAddProject: () => void
 }) {
   return (
     <motion.header 
@@ -234,8 +238,19 @@ function Navigation({
             ))}
           </div>
           
-          {/* Theme Selector */}
-          <ThemeSelector currentTheme={currentTheme} setTheme={setTheme} />
+          {/* Add Project and Theme Selector */}
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onAddProject}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Add</span>
+            </Button>
+            <ThemeSelector currentTheme={currentTheme} setTheme={setTheme} />
+          </div>
         </div>
       </nav>
     </motion.header>
@@ -502,9 +517,14 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
   // Fetch projects when category changes
   useEffect(() => {
+    loadProjects()
+  }, [selectedCategory])
+
+  const loadProjects = () => {
     setIsLoading(true)
     setError(null)
     
@@ -517,7 +537,7 @@ export default function Home() {
         setError(err.message || 'Failed to load projects')
         setIsLoading(false)
       })
-  }, [selectedCategory])
+  }
 
   const theme = themes[currentTheme]
   
@@ -547,6 +567,7 @@ export default function Home() {
         setViewMode={setViewMode}
         currentTheme={currentTheme}
         setTheme={setCurrentTheme}
+        onAddProject={() => setIsAddDialogOpen(true)}
       />
       
       <section className="pb-8 px-4">
@@ -600,6 +621,13 @@ export default function Home() {
           </AnimatePresence>
         </div>
       </section>
+      
+      {/* Add Project Dialog */}
+      <AddProjectDialog 
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSuccess={loadProjects}
+      />
       
       {/* Minimal Footer */}
       <footer className="py-6 px-4 text-center">
