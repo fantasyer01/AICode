@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Documentation
+*.md
+
+# Environment files (use build args instead)
+.env
+.env.local
+.env.development
+.env.production
+
+# Test files
+coverage/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts

@@ -9,6 +9,24 @@
 -- Apply changes
 -- FLUSH PRIVILEGES;
 
+CREATE TABLE projects (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    date VARCHAR(7) NOT NULL,
+    year INT NOT NULL,
+    tools JSON NOT NULL,
+    color VARCHAR(10) NOT NULL,
+    link VARCHAR(500),
+    github VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_project_category (category),
+    INDEX idx_project_year (year)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 -- Sample test data for the Portfolio Showcase application
 -- This data matches the frontend mock data
 
