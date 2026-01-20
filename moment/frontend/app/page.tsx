@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { 
@@ -12,13 +12,16 @@ import {
   Filter,
   Layers,
   Palette,
-  Plus
+  Plus,
+  Globe
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { fetchProjects, type Project } from '@/lib/api'
 import { AddProjectDialog } from '@/components/AddProjectDialog'
+import { I18nProvider, useI18n } from '@/lib/i18n-context'
+import type { Language } from '@/lib/translations'
 
 // Types
 type ViewMode = 'grid' | 'timeline' | 'masonry'
@@ -123,10 +126,12 @@ const itemVariants = {
 // Components
 function ThemeSelector({ 
   currentTheme, 
-  setTheme 
+  setTheme,
+  themeNames
 }: { 
   currentTheme: ThemeStyle
   setTheme: (theme: ThemeStyle) => void
+  themeNames: Record<ThemeStyle, string>
 }) {
   const [isOpen, setIsOpen] = useState(false)
   
@@ -148,7 +153,7 @@ function ThemeSelector({
         className="gap-2"
       >
         <Palette className="w-4 h-4" />
-        <span className="hidden sm:inline">{themes[currentTheme].name}</span>
+        <span className="hidden sm:inline">{themeNames[currentTheme]}</span>
       </Button>
       
       <AnimatePresence>
@@ -179,7 +184,73 @@ function ThemeSelector({
                   )}
                 >
                   <div className={cn("w-5 h-5 rounded-full", themePreviewColors[theme])} />
-                  <span>{themes[theme].name}</span>
+                  <span>{themeNames[theme]}</span>
+                </button>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function LanguageSelector({ 
+  language, 
+  setLanguage,
+  languageLabels
+}: { 
+  language: Language
+  setLanguage: (lang: Language) => void
+  languageLabels: { en: string; zh: string }
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  
+  const languages: { code: Language; label: string }[] = [
+    { code: 'en', label: languageLabels.en },
+    { code: 'zh', label: languageLabels.zh }
+  ]
+  
+  return (
+    <div className="relative">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setIsOpen(!isOpen)}
+        className="gap-2"
+      >
+        <Globe className="w-4 h-4" />
+        <span className="hidden sm:inline">{languages.find(l => l.code === language)?.label}</span>
+      </Button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={() => setIsOpen(false)} 
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -8 }}
+              className="absolute right-0 top-full mt-2 z-50 bg-card border border-border rounded-xl shadow-lg p-2 min-w-[120px]"
+            >
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => {
+                    setLanguage(lang.code)
+                    setIsOpen(false)
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                    language === lang.code 
+                      ? "bg-accent text-accent-foreground" 
+                      : "hover:bg-muted"
+                  )}
+                >
+                  <span>{lang.label}</span>
                 </button>
               ))}
             </motion.div>
@@ -195,13 +266,24 @@ function Navigation({
   setViewMode,
   currentTheme,
   setTheme,
-  onAddProject
+  onAddProject,
+  language,
+  setLanguage,
+  translations
 }: { 
   viewMode: ViewMode
   setViewMode: (mode: ViewMode) => void
   currentTheme: ThemeStyle
   setTheme: (theme: ThemeStyle) => void
   onAddProject: () => void
+  language: Language
+  setLanguage: (lang: Language) => void
+  translations: {
+    title: string
+    add: string
+    themeNames: Record<ThemeStyle, string>
+    languageLabels: { en: string; zh: string }
+  }
 }) {
   return (
     <motion.header 
@@ -216,7 +298,7 @@ function Navigation({
             whileHover={{ scale: 1.02 }}
           >
             <Sparkles className="w-5 h-5 text-primary" />
-            <span className="font-semibold text-foreground hidden sm:inline">AI Portfolio</span>
+            <span className="font-semibold text-foreground hidden sm:inline">{translations.title}</span>
           </motion.div>
 
           {/* View Mode Toggle */}
@@ -238,7 +320,7 @@ function Navigation({
             ))}
           </div>
           
-          {/* Add Project and Theme Selector */}
+          {/* Add Project, Theme Selector, and Language Selector */}
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
@@ -247,9 +329,18 @@ function Navigation({
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add</span>
+              <span className="hidden sm:inline">{translations.add}</span>
             </Button>
-            <ThemeSelector currentTheme={currentTheme} setTheme={setTheme} />
+            <ThemeSelector 
+              currentTheme={currentTheme} 
+              setTheme={setTheme} 
+              themeNames={translations.themeNames}
+            />
+            <LanguageSelector 
+              language={language} 
+              setLanguage={setLanguage}
+              languageLabels={translations.languageLabels}
+            />
           </div>
         </div>
       </nav>
@@ -259,10 +350,12 @@ function Navigation({
 
 function FilterBar({ 
   selectedCategory, 
-  setSelectedCategory 
+  setSelectedCategory,
+  categoryLabels
 }: { 
   selectedCategory: Category
   setSelectedCategory: (cat: Category) => void
+  categoryLabels: Record<Category, string>
 }) {
   return (
     <motion.div 
@@ -278,14 +371,22 @@ function FilterBar({
           size="sm"
           onClick={() => setSelectedCategory(cat.value)}
         >
-          {cat.label}
+          {categoryLabels[cat.value]}
         </Button>
       ))}
     </motion.div>
   )
 }
 
-function ProjectCard({ project, cardColors }: { project: Project; cardColors: string[] }) {
+function ProjectCard({ 
+  project, 
+  cardColors,
+  buttonLabels 
+}: { 
+  project: Project
+  cardColors: string[]
+  buttonLabels: { code: string; demo: string }
+}) {
   const colorIndex = parseInt(project.color) % cardColors.length
   
   return (
@@ -294,9 +395,11 @@ function ProjectCard({ project, cardColors }: { project: Project; cardColors: st
       layout
       className="group"
     >
-      <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <Card 
+        className="overflow-hidden h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+      >
         <div className={cn(
-          "h-36 flex items-center justify-center transition-colors relative overflow-hidden",
+          "h-44 flex items-center justify-center transition-colors relative overflow-hidden",
           cardColors[colorIndex]
         )}>
           {project.imageUrl ? (
@@ -304,48 +407,67 @@ function ProjectCard({ project, cardColors }: { project: Project; cardColors: st
               src={`/images/projects/${project.imageUrl}`}
               alt={project.title}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
             <Sparkles className="w-10 h-10 text-foreground/30" />
           )}
         </div>
-        <CardHeader className="pb-2">
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-base">{project.title}</CardTitle>
-            <span className="text-xs text-muted-foreground shrink-0">
+        <CardHeader className="p-4 pb-2">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <CardTitle className="text-base font-bold leading-tight line-clamp-1">{project.title}</CardTitle>
+            <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">
               {project.date}
             </span>
           </div>
-          <CardDescription className="line-clamp-2 text-sm">
+          <CardDescription className="line-clamp-2 text-xs leading-relaxed min-h-[2.5rem]">
             {project.description}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="p-4 pt-0 space-y-3">
           <div className="flex flex-wrap gap-1">
-            {project.tools.map((tool) => (
+            {project.tools.slice(0, 4).map((tool) => (
               <span 
                 key={tool}
-                className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded"
+                className="text-[10px] bg-primary/5 text-primary border border-primary/10 px-1.5 py-0.5 rounded-md"
               >
                 {tool}
               </span>
             ))}
+            {project.tools.length > 4 && (
+              <span className="text-[10px] text-muted-foreground self-center ml-1">
+                +{project.tools.length - 4}
+              </span>
+            )}
           </div>
-          <div className="flex gap-2">
-            {project.github && (
-              <Button variant="ghost" size="sm" className="gap-1.5 h-8">
-                <Github className="w-3.5 h-3.5" />
-                Code
-              </Button>
-            )}
-            {project.link && (
-              <Button variant="ghost" size="sm" className="gap-1.5 h-8">
-                <ExternalLink className="w-3.5 h-3.5" />
-                Demo
-              </Button>
-            )}
+          <div className="flex gap-2 pt-1">
+            <a 
+              href={project.github || "#"} 
+              target={project.github ? "_blank" : undefined}
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }), 
+                "flex-1 gap-1.5 h-8 text-[11px] font-medium",
+                !project.github && "opacity-40 cursor-not-allowed pointer-events-none"
+              )}
+            >
+              <Github className="w-3.5 h-3.5" />
+              {buttonLabels.code}
+            </a>
+            <a 
+              href={project.link || "#"} 
+              target={project.link ? "_blank" : undefined}
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }), 
+                "flex-1 gap-1.5 h-8 text-[11px] font-medium",
+                !project.link && "opacity-40 cursor-not-allowed pointer-events-none"
+              )}
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              {buttonLabels.demo}
+            </a>
           </div>
         </CardContent>
       </Card>
@@ -353,7 +475,15 @@ function ProjectCard({ project, cardColors }: { project: Project; cardColors: st
   )
 }
 
-function GridView({ projects, cardColors }: { projects: Project[]; cardColors: string[] }) {
+function GridView({ 
+  projects, 
+  cardColors,
+  buttonLabels 
+}: { 
+  projects: Project[]
+  cardColors: string[]
+  buttonLabels: { code: string; demo: string }
+}) {
   return (
     <motion.div
       variants={containerVariants}
@@ -362,13 +492,26 @@ function GridView({ projects, cardColors }: { projects: Project[]; cardColors: s
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
     >
       {projects.map((project) => (
-        <ProjectCard key={project.id} project={project} cardColors={cardColors} />
+        <ProjectCard 
+          key={project.id} 
+          project={project} 
+          cardColors={cardColors}
+          buttonLabels={buttonLabels}
+        />
       ))}
     </motion.div>
   )
 }
 
-function TimelineView({ projects, cardColors }: { projects: Project[]; cardColors: string[] }) {
+function TimelineView({ 
+  projects, 
+  cardColors,
+  buttonLabels 
+}: { 
+  projects: Project[]
+  cardColors: string[] 
+  buttonLabels: { code: string; demo: string }
+}) {
   const sortedProjects = [...projects].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   )
@@ -417,15 +560,45 @@ function TimelineView({ projects, cardColors }: { projects: Project[]; cardColor
                         <CardDescription className="text-sm">{project.description}</CardDescription>
                       </CardHeader>
                       <CardContent className="pt-0 pb-4">
-                        <div className="flex flex-wrap gap-1">
-                          {project.tools.map((tool) => (
-                            <span 
-                              key={tool}
-                              className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded"
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex flex-wrap gap-1">
+                            {project.tools.map((tool) => (
+                              <span 
+                                key={tool}
+                                className="text-[10px] bg-primary/5 text-primary border border-primary/10 px-1.5 py-0.5 rounded"
+                              >
+                                {tool}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <a 
+                              href={project.github || "#"} 
+                              target={project.github ? "_blank" : undefined}
+                              rel="noopener noreferrer"
+                              className={cn(
+                                buttonVariants({ variant: "ghost", size: "sm" }), 
+                                "gap-1.5 h-7 text-[10px] px-2",
+                                !project.github && "opacity-30 cursor-not-allowed pointer-events-none"
+                              )}
                             >
-                              {tool}
-                            </span>
-                          ))}
+                              <Github className="w-3 h-3" />
+                              {buttonLabels.code}
+                            </a>
+                            <a 
+                              href={project.link || "#"} 
+                              target={project.link ? "_blank" : undefined}
+                              rel="noopener noreferrer"
+                              className={cn(
+                                buttonVariants({ variant: "ghost", size: "sm" }), 
+                                "gap-1.5 h-7 text-[10px] px-2",
+                                !project.link && "opacity-30 cursor-not-allowed pointer-events-none"
+                              )}
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              {buttonLabels.demo}
+                            </a>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -509,8 +682,10 @@ function MasonryView({ projects, cardColors }: { projects: Project[]; cardColors
   )
 }
 
+
 // Main Page Component
-export default function Home() {
+function HomeContent() {
+  const { language, setLanguage, t } = useI18n()
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [selectedCategory, setSelectedCategory] = useState<Category>('all')
   const [currentTheme, setCurrentTheme] = useState<ThemeStyle>('pastel')
@@ -548,15 +723,40 @@ export default function Home() {
     document.documentElement.style.setProperty('--accent', theme.colors.accent)
   }, [theme])
 
+  // Prepare category labels for FilterBar
+  const categoryLabels: Record<Category, string> = {
+    all: t.categories.all,
+    web: t.categories.web,
+    mobile: t.categories.mobile,
+    ai: t.categories.ai,
+    data: t.categories.data
+  }
+
+  // Prepare theme names for ThemeSelector
+  const themeNames: Record<ThemeStyle, string> = {
+    pastel: t.themes.pastel,
+    ocean: t.themes.ocean,
+    sunset: t.themes.sunset,
+    forest: t.themes.forest,
+    midnight: t.themes.midnight,
+    candy: t.themes.candy
+  }
+
+  // Button labels for project cards
+  const buttonLabels = {
+    code: t.project.code,
+    demo: t.project.demo
+  }
+
   const renderView = () => {
     const cardColors = theme.colors.cardColors
     switch (viewMode) {
       case 'timeline':
-        return <TimelineView projects={projects} cardColors={cardColors} />
+        return <TimelineView projects={projects} cardColors={cardColors} buttonLabels={buttonLabels} />
       case 'masonry':
         return <MasonryView projects={projects} cardColors={cardColors} />
       default:
-        return <GridView projects={projects} cardColors={cardColors} />
+        return <GridView projects={projects} cardColors={cardColors} buttonLabels={buttonLabels} />
     }
   }
 
@@ -568,6 +768,14 @@ export default function Home() {
         currentTheme={currentTheme}
         setTheme={setCurrentTheme}
         onAddProject={() => setIsAddDialogOpen(true)}
+        language={language}
+        setLanguage={setLanguage}
+        translations={{
+          title: t.navigation.title,
+          add: t.navigation.add,
+          themeNames,
+          languageLabels: t.language
+        }}
       />
       
       <section className="pb-8 px-4">
@@ -579,13 +787,14 @@ export default function Home() {
             className="text-center mb-8"
           >
             <p className="text-muted-foreground max-w-xl mx-auto">
-              A curated selection of projects built using AI programming assistants.
+              {t.content.description}
             </p>
           </motion.div>
           
           <FilterBar 
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
+            categoryLabels={categoryLabels}
           />
           
           <AnimatePresence mode="wait">
@@ -600,19 +809,19 @@ export default function Home() {
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center">
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground">Loading projects...</p>
+                    <p className="text-muted-foreground">{t.content.loading}</p>
                   </div>
                 </div>
               ) : error ? (
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center">
-                    <p className="text-destructive mb-2">{error}</p>
-                    <p className="text-muted-foreground text-sm">Please ensure the backend server is running.</p>
+                    <p className="text-destructive mb-2">{t.content.error}</p>
+                    <p className="text-muted-foreground text-sm">{t.content.errorHint}</p>
                   </div>
                 </div>
               ) : projects.length === 0 ? (
                 <div className="flex items-center justify-center py-20">
-                  <p className="text-muted-foreground">No projects found.</p>
+                  <p className="text-muted-foreground">{t.content.noProjects}</p>
                 </div>
               ) : (
                 renderView()
@@ -632,9 +841,17 @@ export default function Home() {
       {/* Minimal Footer */}
       <footer className="py-6 px-4 text-center">
         <p className="text-sm text-muted-foreground">
-          Crafted with AI assistance
+          {t.content.footer}
         </p>
       </footer>
     </main>
+  )
+}
+
+export default function Home() {
+  return (
+    <I18nProvider>
+      <HomeContent />
+    </I18nProvider>
   )
 }
