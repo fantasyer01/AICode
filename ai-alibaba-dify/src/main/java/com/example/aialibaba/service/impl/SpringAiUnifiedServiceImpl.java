@@ -26,18 +26,12 @@ public class SpringAiUnifiedServiceImpl implements AiModelService {
 
     private final ChatModel chatModel;
     
-    // Model mapping configuration
-    @Value("${ai-models.dashscope.temperature:0.7}")
-    private Double dashscopeTemperature;
+    // Common AI model parameters
+    @Value("${ai-models.api.temperature:0.7}")
+    private Double temperature;
     
-    @Value("${ai-models.dashscope.max-tokens:1000}")
-    private Integer dashscopeMaxTokens;
-    
-    @Value("${ai-models.deepseek.temperature:0.7}")
-    private Double deepseekTemperature;
-    
-    @Value("${ai-models.deepseek.max-tokens:1000}")
-    private Integer deepseekMaxTokens;
+    @Value("${ai-models.api.max-tokens:1000}")
+    private Integer maxTokens;
     
     // Model code to provider mapping
     private static final Map<String, String> MODEL_PROVIDER_MAP = new HashMap<>();
@@ -116,25 +110,19 @@ public class SpringAiUnifiedServiceImpl implements AiModelService {
     }
     
     /**
-     * Get temperature setting for provider
+     * Get temperature setting - now using common configuration
      */
     private Double getTemperatureForProvider(String provider) {
-        if ("deepseek".equals(provider)) {
-            return deepseekTemperature;
-        } else {
-            return dashscopeTemperature;
-        }
+        // All providers now use the same common temperature setting
+        return temperature;
     }
     
     /**
-     * Get max tokens setting for provider
+     * Get max tokens setting - now using common configuration
      */
     private Integer getMaxTokensForProvider(String provider) {
-        if ("deepseek".equals(provider)) {
-            return deepseekMaxTokens;
-        } else {
-            return dashscopeMaxTokens;
-        }
+        // All providers now use the same common max tokens setting
+        return maxTokens;
     }
     
     /**
