@@ -1,0 +1,61 @@
+# Development Environment Configuration
+# Override default values for development
+
+# Server Configuration
+server:
+  port: 8080
+
+# Spring AI Alibaba Configuration
+spring:
+  ai:
+    dashscope:
+      api-key: sk-5d0de06011ca4705af7a8a6f16efd096  # Replace with your actual DashScope API key
+      chat:
+        options:
+          model: qwen-plus
+    deepseek:
+      api-key: sk-007cd17745724ca0857e1e79b9e2d32b  # Replace with your actual DeepSeek API key
+      chat:
+        options:
+          model: deepseek-chat
+
+# Dify Configuration for Development
+# Note: In production, these should be set via environment variables
+dify:
+  api:
+    base-url: https://api.dify.ai/v1
+  apps:
+    default:
+      api-key: app-rdYsBUw9XKOB17KCddfEV6ur  # Replace with your actual Dify API key
+      app-id: b0bcac67-da42-42df-905c-2489e70cfa9a  # Your Dify App ID from the URL
+    customer-service:
+      api-key: ${DIFY_API_KEY_CS:app-customer-service-dev-key}
+      app-id: ${DIFY_APP_ID_CS:customer-service-dev-app-id}
+    tech-support:
+      api-key: ${DIFY_API_KEY_TS:app-tech-support-dev-key}
+      app-id: ${DIFY_APP_ID_TS:tech-support-dev-app-id}
+  timeout:
+    connect: 5000
+    read: 120000
+  retry:
+    max-attempts: 3
+
+# Logging Configuration for Development
+logging:
+  level:
+    com.example.aialibaba: DEBUG
+    org.springframework.web: DEBUG
+    org.apache.http.wire: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# H2 Database for Development (if needed)
+# spring:
+#   datasource:
+#     url: jdbc:h2:mem:testdb
+#     driver-class-name: org.h2.Driver
+#     username: sa
+#     password: password
+#   h2:
+#     console:
+#       enabled: true

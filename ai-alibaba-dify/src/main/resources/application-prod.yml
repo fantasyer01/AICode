@@ -1,0 +1,59 @@
+# Production Environment Configuration
+
+# Server Configuration
+server:
+  port: 8080
+  compression:
+    enabled: true
+  error:
+    include-message: never
+    include-binding-errors: never
+
+# Dify Configuration for Production
+dify:
+  api:
+    base-url: https://api.dify.ai/v1
+    key: ${DIFY_API_KEY}  # Must be set as environment variable
+  app:
+    id: ${DIFY_APP_ID}    # Must be set as environment variable
+  timeout:
+    connect: 5000
+    read: 30000
+  retry:
+    max-attempts: 3
+
+# Logging Configuration for Production
+logging:
+  level:
+    com.example.aialibaba: INFO
+    org.springframework.web: WARN
+    org.apache.http: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId}] - %msg%n"
+  file:
+    name: logs/application.log
+    max-size: 10MB
+    max-history: 30
+    total-size-cap: 1GB
+
+# Management Endpoints Security
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      cors:
+        allowed-origins: "*"
+        allowed-methods: GET
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: ADMIN
+
+# SpringDoc OpenAPI Configuration for Production
+springdoc:
+  swagger-ui:
+    enabled: false  # Disable Swagger UI in production
+  api-docs:
+    enabled: false  # Disable API docs in production

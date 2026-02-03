@@ -1,0 +1,107 @@
+# Application Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Spring Application Configuration
+spring:
+  application:
+    name: ai-alibaba-dify
+  profiles:
+    active: dev
+  http:
+    connect-timeout: 5000
+    read-timeout: 60000
+    max-retry-attempts: 3
+  ai:
+    dashscope:
+      api-key: sk-5d0de06011ca4705af7a8a6f16efd096
+      chat:
+        options:
+          model: qwen-plus
+    deepseek:
+      api-key: sk-007cd17745724ca0857e1e79b9e2d32b
+      chat:
+        options:
+          model: deepseek-chat
+    
+# Dify Configuration
+dify:
+  api:
+    base-url: https://api.dify.ai/v1
+    temperature: 0.7
+    max-tokens: 1000
+    timeout:
+      connect: 5000
+      read: 60000
+    retry:
+      max-attempts: 3
+  apps:
+    default:
+      api-key: app-rdYsBUw9XKOB17KCddfEV6ur
+      app-id: b0bcac67-da42-42df-905c-2489e70cfa9a
+    customer-service:
+      api-key: ${DIFY_API_KEY_CS:app-customer-service-key}
+      app-id: ${DIFY_APP_ID_CS:customer-service-app-id}
+    tech-support:
+      api-key: ${DIFY_API_KEY_TS:app-tech-support-key}
+      app-id: ${DIFY_APP_ID_TS:tech-support-app-id}
+
+# AI Models Configuration
+ai-models:
+  available:
+    - name: "Qwen-Plus"
+      code: "qwen-plus"
+      provider: "dashscope"
+      description: "通义千问增强版"
+    - name: "DeepSeek"
+      code: "deepseek-chat"
+      provider: "deepseek"
+      description: "DeepSeek深度求索模型"
+  
+  # Model-specific default parameters
+  dashscope:
+    temperature: 0.7
+    max-tokens: 1000
+  
+  deepseek:
+    temperature: 0.7
+    max-tokens: 1000
+
+# Enterprise WeChat (WeCom) Configuration
+wecom:
+  bot:
+    token: ${WECOM_BOT_TOKEN:}
+    encoding-aes-key: ${WECOM_BOT_AES_KEY:}
+    corp-id: ${WECOM_CORP_ID:}
+
+# Logging Configuration
+logging:
+  level:
+    com.example.aialibaba: DEBUG
+    org.springframework.web: INFO
+    org.apache.http: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId}] - %msg%n"
+
+# Management Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  packages-to-scan: com.example.aialibaba.controller

@@ -1,0 +1,49 @@
+# Test Environment Configuration
+
+# Server Configuration
+server:
+  port: 0  # Random port for testing
+
+# Dify Configuration for Testing
+dify:
+  api:
+    base-url: https://api.dify.ai/v1
+    key: app-Z0olxJHg2T4br6KmpE901NHl
+  app:
+    id: test-dify-app-id
+  timeout:
+    connect: 2000
+    read: 5000
+  retry:
+    max-attempts: 1
+
+# Logging Configuration for Testing
+logging:
+  level:
+    com.example.aialibaba: DEBUG
+    org.springframework.web: WARN
+    org.apache.http: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# H2 Database for Testing
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: false
+
+# Disable Swagger for Tests
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
