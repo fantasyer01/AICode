@@ -80,6 +80,27 @@
             font-style: italic;
             color: #666;
         }
+        
+        /* Streaming indicator styles */
+        .streaming-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #2196f3;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .typing-indicator {
+            display: inline-block;
+            margin-left: 5px;
+        }
         .error {
             color: #d32f2f;
             background-color: #ffebee;
@@ -146,7 +167,8 @@
             <strong>ℹ️ Information:</strong>
             <ul>
                 <li>This is a demo interface for the Spring AI Alibaba Dify integration</li>
-                <li>Backend API: <code>http://localhost:8080/api/v1/chat/send</code></li>
+                <li>Regular API: <code>http://localhost:8080/api/v1/chat/send</code></li>
+                <li>Streaming API: <code>http://localhost:8080/api/v1/stream/chat</code></li>
                 <li>Health check: <code>http://localhost:8080/api/v1/chat/health</code></li>
             </ul>
         </div>
@@ -220,38 +242,13 @@
                     requestData.modelCode = serviceValue;
                     requestData.modelProvider = serviceValue.includes('qwen') ? 'dashscope' : 'deepseek';
                     requestData.serviceType = 'spring-ai';
+                    // Use blocking mode for models
+                    await sendBlockingRequest(requestData);
                 } else if (serviceType === 'app') {
                     requestData.appCode = serviceValue;
                     requestData.serviceType = 'dify';
-                }
-                
-                // Send request to backend
-                const response = await fetch('/api/v1/chat/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const responseData = await response.json();
-                
-                if (responseData.status === 'success') {
-                    // Add AI response to chat
-                    addMessage(responseData.answer, 'ai');
-                    const selectedText = serviceSelect.options[serviceSelect.selectedIndex].text;
-                    statusDiv.textContent = `Service: ${selectedText} | Last: ${new Date().toLocaleTimeString()}`;
-                    
-                    // Store conversation ID for continuity
-                    if (responseData.conversationId) {
-                        conversationId = responseData.conversationId;
-                    }
-                } else {
-                    showError(`Error: ${responseData.errorMessage || 'Unknown error'}`);
+                    // Use streaming mode for Dify apps
+                    await sendStreamingRequest(requestData);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -265,6 +262,201 @@
             }
         }
         
+        async function sendBlockingRequest(requestData) {
+            // Send request to backend
+            const response = await fetch('/api/v1/chat/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const responseData = await response.json();
+            
+            if (responseData.status === 'success') {
+                // Add AI response to chat
+                addMessage(responseData.answer, 'ai');
+                const selectedText = serviceSelect.options[serviceSelect.selectedIndex].text;
+                statusDiv.textContent = `Service: ${selectedText} | Last: ${new Date().toLocaleTimeString()}`;
+                
+                // Store conversation ID for continuity
+                if (responseData.conversationId) {
+                    conversationId = responseData.conversationId;
+                }
+            } else {
+                showError(`Error: ${responseData.errorMessage || 'Unknown error'}`);
+            }
+        }
+        
+        async function sendStreamingRequest(requestData) {
+            try {
+                console.log('=== Starting Streaming Request ===' );
+                console.log('Request data:', requestData);
+                
+                // Use fetch with ReadableStream for SSE
+                const response = await fetch('/api/v1/stream/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/event-stream'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                if (!response.body) {
+                    throw new Error('Streaming not supported by browser');
+                }
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let accumulatedResponse = '';
+                let aiMessageElement = null;
+                let buffer = ''; // Buffer for incomplete SSE messages
+                let chunkCount = 0;
+                
+                updateStatusWithIndicator('Streaming response...', true);
+                console.log('Starting to read streaming response...');
+                
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        
+                        if (done) {
+                            console.log('Stream reading completed, total chunks:', chunkCount);
+                            break;
+                        }
+                        
+                        chunkCount++;
+                        // Decode chunk and add to buffer
+                        const chunk = decoder.decode(value, { stream: true });
+                        console.log(`Chunk #${chunkCount}, length: ${chunk.length}, raw:`, chunk);
+                        buffer += chunk;
+                        
+                        // Process complete SSE messages (separated by double newline)
+                        // Using a more robust split that handles \r\n and different line endings
+                        const messages = buffer.split(/\r?\n\r?\n/);
+                        console.log(`Buffer contains ${messages.length} potential messages`);
+                        
+                        // Keep the last incomplete message in buffer
+                        buffer = messages.pop() || '';
+                        console.log(`Remaining buffer length: ${buffer.length}`);
+                        
+                        for (const message of messages) {
+                            if (!message.trim()) {
+                                console.log('Skipping empty message');
+                                continue;
+                            }
+                            
+                            console.log('Processing message:', message);
+                            const lines = message.split(/\r?\n/);
+                            let eventName = 'message';
+                            let eventData = null;
+                            
+                            for (let line of lines) {
+                                line = line.trim();
+                                if (!line) continue;
+                                
+                                if (line.startsWith('event:')) {
+                                    eventName = line.substring(6).trim();
+                                    console.log('Event name:', eventName);
+                                } else if (line.startsWith('data:')) {
+                                    const dataStr = line.substring(5).trim();
+                                    console.log('Data string:', dataStr);
+                                    if (dataStr && dataStr !== '[DONE]') {
+                                        try {
+                                            eventData = JSON.parse(dataStr);
+                                            console.log('Parsed event data:', eventData);
+                                        } catch (e) {
+                                            console.warn('Failed to parse SSE data:', dataStr, e);
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (eventData) {
+                                console.log('Processing SSE event:', eventName, eventData);
+                                
+                                // Handle different event types from Dify
+                                // Check both the SSE event name and the 'event' field in the data
+                                // Dify sends events like 'ping', 'message', 'agent_message', etc.
+                                if (eventName === 'message' || eventData.event === 'message' || 
+                                    eventName === 'agent_message' || eventData.event === 'agent_message' ||
+                                    eventData.event === 'ping' || eventData.event === 'agent_thought') {
+                                    
+                                    // Extract answer from the event (Dify streams text in 'answer' field)
+                                    let textToAdd = eventData.answer || '';
+                                    console.log('Event type:', eventData.event, '| Text to add:', textToAdd);
+                                    
+                                    if (textToAdd) {
+                                        accumulatedResponse += textToAdd;
+                                        console.log('Accumulated response so far:', accumulatedResponse);
+                                        
+                                        // Create or update AI message element
+                                        if (!aiMessageElement) {
+                                            console.log('Creating new AI message element');
+                                            aiMessageElement = document.createElement('div');
+                                            aiMessageElement.className = 'message ai-message';
+                                            chatContainer.appendChild(aiMessageElement);
+                                        }
+                                        
+                                        aiMessageElement.textContent = accumulatedResponse;
+                                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                                        
+                                        console.log('✅ Updated UI with text chunk:', textToAdd);
+                                    } else {
+                                        console.log('No text content in answer field for event:', eventData.event);
+                                    }
+                                }
+                                
+                                // Handle end events
+                                if (eventName === 'end' || eventData.event === 'message_end' || 
+                                    eventData.status === 'completed') {
+                                    console.log('Received end event');
+                                    const selectedText = serviceSelect.options[serviceSelect.selectedIndex].text;
+                                    statusDiv.textContent = `Service: ${selectedText} | Last: ${new Date().toLocaleTimeString()}`;
+                                    
+                                    // Store conversation ID if provided
+                                    if (eventData.conversation_id) {
+                                        conversationId = eventData.conversation_id;
+                                        console.log('Stored conversation ID:', conversationId);
+                                    }
+                                }
+                            } else {
+                                console.warn('No event data parsed from message');
+                            }
+                        }
+                    }
+                } finally {
+                    reader.releaseLock();
+                }
+                
+                console.log('Final accumulated response:', accumulatedResponse);
+                if (!accumulatedResponse && !aiMessageElement) {
+                    showError('No response received from streaming connection');
+                    console.error('❌ No response accumulated');
+                } else if (!accumulatedResponse) {
+                    console.warn('Stream completed but no text content was received');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error in streaming request:', error);
+                console.error('Full error stack:', error.stack);
+                showError(`Streaming failed: ${error.message}`);
+            }
+        }
+        
         function addMessage(text, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}-message`;
@@ -273,6 +465,16 @@
             
             // Scroll to bottom
             chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function updateStatusWithIndicator(message, isStreaming = false) {
+            statusDiv.textContent = message;
+            if (isStreaming) {
+                const indicator = document.createElement('span');
+                indicator.className = 'streaming-indicator';
+                indicator.title = 'Streaming in progress';
+                statusDiv.appendChild(indicator);
+            }
         }
         
         function showError(message) {

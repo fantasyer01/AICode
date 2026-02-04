@@ -23,8 +23,8 @@ public class RestWebConfig {
         
         // Configure timeouts
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(Duration.ofMillis(httpConfig.getConnectTimeoutMs()));
-        factory.setReadTimeout(Duration.ofMillis(httpConfig.getReadTimeoutMs()));
+        factory.setConnectTimeout(Duration.ofMillis(httpConfig.getConnectTimeout()));
+        factory.setReadTimeout(Duration.ofMillis(httpConfig.getReadTimeout()));
         
         restTemplate.setRequestFactory(factory);
         return restTemplate;

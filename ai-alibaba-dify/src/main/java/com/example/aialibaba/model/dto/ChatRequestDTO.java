@@ -41,8 +41,6 @@ public class ChatRequestDTO {
     @Schema(description = "Dynamic input variables for Dify")
     private Map<String, Object> inputs = new HashMap<>();
     
-
-
     // AI Model type selection: "dify" or "spring-ai"
     @Builder.Default
     @Schema(description = "Service type to use: 'dify' or 'spring-ai'", defaultValue = "dify")

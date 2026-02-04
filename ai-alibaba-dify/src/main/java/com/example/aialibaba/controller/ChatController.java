@@ -3,6 +3,8 @@ package com.example.aialibaba.controller;
 import com.example.aialibaba.model.dto.ChatRequestDTO;
 import com.example.aialibaba.model.dto.ChatResponseDTO;
 import com.example.aialibaba.service.ChatService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,10 +33,20 @@ public class ChatController {
     }
     
     /**
-     * Send a message and get response
+     * Send a message and get response (blocking mode)
+     * For streaming responses, use POST /api/v1/stream/chat instead
      */
     @PostMapping("/send")
-    @Operation(summary = "Send chat message", description = "Sends a message to the configured AI service (Dify or Spring AI)")
+    @Operation(
+        summary = "Send chat message (blocking)", 
+        description = "Sends a message to the configured AI service and waits for complete response. " +
+                     "For streaming responses, use POST /api/v1/stream/chat"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successful response"),
+        @ApiResponse(responseCode = "400", description = "Invalid request"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<ChatResponseDTO> sendMessage(
             @Valid @RequestBody ChatRequestDTO request) {
         
@@ -82,7 +94,7 @@ public class ChatController {
     }
     
     /**
-     * Get service information
+     * Get service information including streaming capabilities
      */
     @GetMapping("/info")
     public ResponseEntity<Map<String, Object>> getServiceInfo() {
@@ -91,6 +103,14 @@ public class ChatController {
         info.put("version", "1.0.0");
         info.put("status", "operational");
         info.put("timestamp", System.currentTimeMillis());
+        
+        // Add streaming support information
+        Map<String, Object> streaming = new HashMap<>();
+        streaming.put("supported", true);
+        streaming.put("endpoint", "/api/v1/stream/chat");
+        streaming.put("format", "Server-Sent Events (SSE)");
+        streaming.put("modes", new String[]{"blocking", "streaming"});
+        info.put("streaming", streaming);
         
         logger.debug("Service info requested");
         return ResponseEntity.ok(info);

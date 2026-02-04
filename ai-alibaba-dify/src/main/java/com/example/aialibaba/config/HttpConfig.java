@@ -16,18 +16,6 @@ public class HttpConfig {
     private int connectTimeout = 5000;
     private int readTimeout = 60000;
     private int maxRetryAttempts = 3;
+    private int sseIdleTimeout = 60000;
     
-    /**
-     * Get connect timeout in milliseconds
-     */
-    public int getConnectTimeoutMs() {
-        return connectTimeout;
-    }
-    
-    /**
-     * Get read timeout in milliseconds
-     */
-    public int getReadTimeoutMs() {
-        return readTimeout;
-    }
 }

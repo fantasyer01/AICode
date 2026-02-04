@@ -22,6 +22,7 @@ public class DifyConfig {
         private String baseUrl = "https://api.dify.ai/v1";
         private Double temperature = 0.7;
         private Integer maxTokens = 1000;
+        private String responseMode = "streaming"; // "blocking" or "streaming"
     }
 
     @Data
@@ -43,4 +44,5 @@ public class DifyConfig {
     public String getCompletionEndpoint() {
         return api.getBaseUrl() + "/completion-messages";
     }
+    
 }
