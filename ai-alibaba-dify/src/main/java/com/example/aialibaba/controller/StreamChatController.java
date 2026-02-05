@@ -2,7 +2,6 @@ package com.example.aialibaba.controller;
 
 import com.example.aialibaba.model.dto.ChatRequestDTO;
 import com.example.aialibaba.service.ChatService;
-import com.example.aialibaba.service.impl.DifyChatServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
  * REST controller for streaming chat operations with Server-Sent Events
+ * Routes through UnifiedChatServiceImpl for consistent service routing
  */
 @RestController
 @RequestMapping("/api/v1/stream")
@@ -23,10 +23,10 @@ public class StreamChatController {
     
     private static final Logger logger = LoggerFactory.getLogger(StreamChatController.class);
     
-    private final DifyChatServiceImpl difyChatService;
+    private final ChatService chatService;
     
-    public StreamChatController(DifyChatServiceImpl difyChatService) {
-        this.difyChatService = difyChatService;
+    public StreamChatController(ChatService chatService) {
+        this.chatService = chatService;
     }
     
     /**
@@ -35,7 +35,7 @@ public class StreamChatController {
     @PostMapping(path = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(
         summary = "Stream chat message", 
-        description = "Streams a message response from Dify using Server-Sent Events (SSE)"
+        description = "Streams a message response using Server-Sent Events (SSE)"
     )
     public SseEmitter streamMessage(
             @Parameter(description = "Chat request with streaming enabled") 
@@ -44,8 +44,7 @@ public class StreamChatController {
         logger.info("Received streaming chat request from user: {}", request.getUserId());
         
         try {
-            // Streaming mode is handled by the service implementation
-            SseEmitter emitter = difyChatService.streamMessage(request);
+            SseEmitter emitter = chatService.streamMessage(request);
             
             emitter.onCompletion(() -> 
                 logger.info("SSE stream completed for user: {}", request.getUserId()));
@@ -61,7 +60,7 @@ public class StreamChatController {
             
         } catch (Exception e) {
             logger.error("Error initiating streaming for user: {}", request.getUserId(), e);
-            SseEmitter emitter = new SseEmitter(0L); // No timeout
+            SseEmitter emitter = new SseEmitter(0L);
             emitter.completeWithError(e);
             return emitter;
         }
@@ -83,8 +82,7 @@ public class StreamChatController {
                    request.getUserId(), request.getConversationId());
         
         try {
-            // Streaming mode is handled by the service implementation
-            SseEmitter emitter = difyChatService.streamMessageWithConversation(request);
+            SseEmitter emitter = chatService.streamMessageWithConversation(request);
             
             emitter.onCompletion(() -> 
                 logger.info("SSE conversation stream completed for user: {}", request.getUserId()));
@@ -100,7 +98,7 @@ public class StreamChatController {
             
         } catch (Exception e) {
             logger.error("Error initiating streaming conversation for user: {}", request.getUserId(), e);
-            SseEmitter emitter = new SseEmitter(0L); // No timeout
+            SseEmitter emitter = new SseEmitter(0L);
             emitter.completeWithError(e);
             return emitter;
         }

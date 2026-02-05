@@ -39,7 +39,7 @@ dify:
       api-key: app-rdYsBUw9XKOB17KCddfEV6ur
       app-id: b0bcac67-da42-42df-905c-2489e70cfa9a
     customer-service:
-      api-key: ${DIFY_API_KEY_CS:app-customer-service-key}
+      api-key: app-6WeBDQ4k7keBbmHDXAb06nlf
       app-id: ${DIFY_APP_ID_CS:customer-service-app-id}
     tech-support:
       api-key: ${DIFY_API_KEY_TS:app-tech-support-key}

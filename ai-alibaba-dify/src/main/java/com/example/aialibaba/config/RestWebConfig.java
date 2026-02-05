@@ -1,32 +1,29 @@
 package com.example.aialibaba.config;
 
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Web configuration for REST template and HTTP clients
+ * Web configuration for HTTP clients
  */
 @Configuration
 public class RestWebConfig {
     
     /**
-     * Configure RestTemplate with timeout settings from HttpConfig
+     * Configure OkHttpClient with timeout settings from HttpConfig
      */
     @Bean
-    public RestTemplate restTemplate(HttpConfig httpConfig) {
-        RestTemplate restTemplate = new RestTemplate();
-        
-        // Configure timeouts
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(Duration.ofMillis(httpConfig.getConnectTimeout()));
-        factory.setReadTimeout(Duration.ofMillis(httpConfig.getReadTimeout()));
-        
-        restTemplate.setRequestFactory(factory);
-        return restTemplate;
+    public OkHttpClient okHttpClient(HttpConfig httpConfig) {
+        return new OkHttpClient.Builder()
+            .connectTimeout(httpConfig.getConnectTimeout(), TimeUnit.MILLISECONDS)
+            .readTimeout(httpConfig.getReadTimeout(), TimeUnit.MILLISECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectionPool(new ConnectionPool(5, 5, TimeUnit.MINUTES))
+            .retryOnConnectionFailure(true)
+            .build();
     }
 }

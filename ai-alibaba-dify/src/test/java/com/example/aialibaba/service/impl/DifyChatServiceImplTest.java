@@ -3,18 +3,16 @@ package com.example.aialibaba.service.impl;
 import com.example.aialibaba.config.DifyConfig;
 import com.example.aialibaba.exception.ServiceException;
 import com.example.aialibaba.model.dto.ChatRequestDTO;
+import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -23,12 +21,11 @@ import static org.mockito.Mockito.*;
 class DifyChatServiceImplTest {
 
     @Mock
-    private RestTemplate restTemplate;
+    private OkHttpClient okHttpClient;
 
     @Mock
     private DifyConfig difyConfig;
 
-    @InjectMocks
     private DifyChatServiceImpl chatService;
 
     @BeforeEach
@@ -42,8 +39,16 @@ class DifyChatServiceImplTest {
         appConfig.setAppId("test-app-id");
         apps.put("default", appConfig);
         
+        DifyConfig.ApiConfig apiConfig = new DifyConfig.ApiConfig();
+        apiConfig.setResponseMode("blocking");
+        apiConfig.setTemperature(0.7);
+        apiConfig.setMaxTokens(1000);
+        
         when(difyConfig.getApps()).thenReturn(apps);
+        when(difyConfig.getApi()).thenReturn(apiConfig);
         when(difyConfig.getChatEndpoint()).thenReturn("https://api.dify.ai/v1/chat-messages");
+        
+        chatService = new DifyChatServiceImpl(okHttpClient, difyConfig);
     }
 
     @Test
@@ -101,31 +106,37 @@ class DifyChatServiceImplTest {
     }
 
     @Test
-    void testSendMessage_ValidRequest_ShouldReturnResponse() {
+    void testSendMessage_MissingAppConfig_ShouldThrowException() {
         // Given
         ChatRequestDTO request = ChatRequestDTO.builder()
                 .message("Hello")
                 .userId("user1")
+                .appCode("non-existent")
                 .build();
         
         // When & Then
-        assertThrows(Exception.class, () -> {
+        ServiceException exception = assertThrows(ServiceException.class, () -> {
             chatService.sendMessage(request);
-        }, "Should throw exception due to missing mock setup");
+        });
+        
+        assertEquals("APP_CONFIG_NOT_FOUND", exception.getErrorCode());
     }
 
     @Test
-    void testSendMessageWithConversation_ShouldCallSendMessage() {
+    void testSendMessageWithConversation_ShouldDelegateToSendMessage() {
         // Given
         ChatRequestDTO request = ChatRequestDTO.builder()
                 .message("Hello")
                 .userId("user1")
                 .conversationId("conv-123")
+                .appCode("non-existent")
                 .build();
         
-        // When
-        assertThrows(Exception.class, () -> {
+        // When & Then - Should throw same exception as sendMessage
+        ServiceException exception = assertThrows(ServiceException.class, () -> {
             chatService.sendMessageWithConversation(request);
         });
+        
+        assertEquals("APP_CONFIG_NOT_FOUND", exception.getErrorCode());
     }
 }

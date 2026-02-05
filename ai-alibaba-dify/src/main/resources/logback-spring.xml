@@ -21,20 +21,6 @@
         </encoder>
     </appender>
 
-    <!-- File Appender for Audit Logs -->
-    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/audit.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/audit.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>5MB</maxFileSize>
-            <maxHistory>60</maxHistory>
-            <totalSizeCap>500MB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{userId:-anonymous}] [%X{requestId}] - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <!-- File Appender for Error Logs -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/error.log</file>
@@ -54,6 +40,20 @@
         </encoder>
     </appender>
 
+        <!-- File Appender for AI Monitoring Logs -->
+    <appender name="AI_MONITOR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/ai-monitor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/ai-monitor.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <!-- Async Appenders for Performance -->
     <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="CONSOLE" />
@@ -67,28 +67,14 @@
         <discardingThreshold>0</discardingThreshold>
     </appender>
 
-    <appender name="ASYNC_AUDIT" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="AUDIT" />
-        <queueSize>256</queueSize>
+    <appender name="ASYNC_AI_MONITOR" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="AI_MONITOR" />
+        <queueSize>512</queueSize>
         <discardingThreshold>0</discardingThreshold>
     </appender>
 
     <!-- Logger Configuration -->
     
-    <!-- File Appender for AI Monitoring Logs -->
-    <appender name="AI_MONITOR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/ai-monitor.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/ai-monitor.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>10MB</maxFileSize>
-            <maxHistory>90</maxHistory>
-            <totalSizeCap>2GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{userId}] [%X{requestId}] - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <!-- Root Logger -->
     <root level="INFO">
         <appender-ref ref="ASYNC_CONSOLE" />
@@ -98,19 +84,13 @@
 
     <!-- AI Monitoring Logger -->
     <logger name="com.example.aialibaba.monitor" level="INFO" additivity="false">
-        <appender-ref ref="AI_MONITOR" />
+        <appender-ref ref="ASYNC_AI_MONITOR" />
     </logger>
 
     <!-- Application Package Logger -->
     <logger name="com.example.aialibaba" level="DEBUG" additivity="false">
         <appender-ref ref="ASYNC_CONSOLE" />
         <appender-ref ref="ASYNC_FILE" />
-        <appender-ref ref="ERROR_FILE" />
-    </logger>
-
-    <!-- Audit Logger -->
-    <logger name="com.example.aialibaba.audit" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_AUDIT" />
         <appender-ref ref="ERROR_FILE" />
     </logger>
 

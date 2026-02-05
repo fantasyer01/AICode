@@ -18,8 +18,7 @@ public class AiMonitoringAspect {
 
     private static final Logger monitorLogger = LoggerFactory.getLogger("com.example.aialibaba.monitor");
 
-    @Around("execution(* com.example.aialibaba.service.ChatService.sendMessage(..)) || " +
-            "execution(* com.example.aialibaba.service.AiModelService.sendMessage(..))")
+    @Around("execution(* com.example.aialibaba.service.ChatService.sendMessage(..))")
     public Object monitorAiCall(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         Object[] args = joinPoint.getArgs();

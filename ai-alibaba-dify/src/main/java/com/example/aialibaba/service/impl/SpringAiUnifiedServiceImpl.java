@@ -4,7 +4,7 @@ import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.example.aialibaba.exception.ServiceException;
 import com.example.aialibaba.model.dto.ChatRequestDTO;
 import com.example.aialibaba.model.dto.ChatResponseDTO;
-import com.example.aialibaba.service.AiModelService;
+import com.example.aialibaba.service.ChatService;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -12,28 +12,28 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Unified implementation of AiModelService using Spring AI Alibaba
+ * Unified implementation of ChatService using Spring AI Alibaba
  * Supports multiple AI models through dynamic model switching
+ * Note: Streaming is not supported for direct AI model access
  */
 @Service("springAiUnifiedService")
-public class SpringAiUnifiedServiceImpl implements AiModelService {
+public class SpringAiUnifiedServiceImpl implements ChatService {
 
     private final ChatModel chatModel;
     
-    // Common AI model parameters
     @Value("${ai-models.api.temperature:0.7}")
     private Double temperature;
     
     @Value("${ai-models.api.max-tokens:1000}")
     private Integer maxTokens;
     
-    // Model code to provider mapping
     private static final Map<String, String> MODEL_PROVIDER_MAP = new HashMap<>();
     
     static {
@@ -54,80 +54,89 @@ public class SpringAiUnifiedServiceImpl implements AiModelService {
 
     @Override
     public ChatResponseDTO sendMessage(ChatRequestDTO request) {
+        validateRequest(request);
+        
         if (chatModel == null) {
             throw new ServiceException("AI_SERVICE_NOT_CONFIGURED", 
                 "Spring AI service is not configured. Please check your configuration.");
         }
         
         try {
-            // Determine the model to use
             String modelCode = getModelCode(request);
             
-            // Build prompt with dynamic options
             UserMessage userMessage = new UserMessage(request.getMessage());
             Prompt prompt = new Prompt(userMessage, buildChatOptions(modelCode));
             
-            // Call the model
             ChatResponse aiResponse = chatModel.call(prompt);
             
-            // Convert to response DTO
             return convertToChatResponseDTO(aiResponse, request.getUserId());
             
+        } catch (ServiceException e) {
+            throw e;
         } catch (Exception e) {
             throw new ServiceException("SPRING_AI_ERROR", "Failed to communicate with AI service", e);
         }
     }
     
-    /**
-     * Get model code from request or determine based on provider
-     */
+    @Override
+    public ChatResponseDTO sendMessageWithConversation(ChatRequestDTO request) {
+        return sendMessage(request);
+    }
+    
+    @Override
+    public SseEmitter streamMessage(ChatRequestDTO request) {
+        throw new ServiceException("STREAMING_NOT_SUPPORTED", 
+            "Streaming is not supported for Spring AI direct access");
+    }
+    
+    @Override
+    public SseEmitter streamMessageWithConversation(ChatRequestDTO request) {
+        return streamMessage(request);
+    }
+    
+    @Override
+    public void validateRequest(ChatRequestDTO request) {
+        if (request == null) {
+            throw new ServiceException("INVALID_REQUEST", "Request cannot be null");
+        }
+        if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
+            throw new ServiceException("EMPTY_MESSAGE", "Message content cannot be empty");
+        }
+        if (request.getUserId() == null || request.getUserId().trim().isEmpty()) {
+            throw new ServiceException("MISSING_USER_ID", "User ID is required");
+        }
+    }
+    
     private String getModelCode(ChatRequestDTO request) {
         if (request.getModelCode() != null && !request.getModelCode().isEmpty()) {
             return request.getModelCode();
         }
         
-        // Fallback logic based on provider
         String provider = request.getModelProvider();
         if ("deepseek".equalsIgnoreCase(provider)) {
             return "deepseek-chat";
         } else {
-            return "qwen-plus"; // Default to DashScope
+            return "qwen-plus";
         }
     }
     
-    /**
-     * Build chat options based on model
-     */
     private DashScopeChatOptions buildChatOptions(String modelCode) {
         String provider = MODEL_PROVIDER_MAP.getOrDefault(modelCode, "dashscope");
         
-        // For now, we'll use DashScopeChatOptions for all models since we're using DashScope ChatModel
-        // In the future, we could extend this to support other model providers
         return DashScopeChatOptions.builder()
             .withModel(modelCode)
             .withTemperature(getTemperatureForProvider(provider))
             .build();
     }
     
-    /**
-     * Get temperature setting - now using common configuration
-     */
     private Double getTemperatureForProvider(String provider) {
-        // All providers now use the same common temperature setting
         return temperature;
     }
     
-    /**
-     * Get max tokens setting - now using common configuration
-     */
     private Integer getMaxTokensForProvider(String provider) {
-        // All providers now use the same common max tokens setting
         return maxTokens;
     }
     
-    /**
-     * Convert Spring AI ChatResponse to ChatResponseDTO
-     */
     private ChatResponseDTO convertToChatResponseDTO(ChatResponse aiResponse, String userId) {
         ChatResponseDTO response = new ChatResponseDTO();
         response.setMessageId(UUID.randomUUID().toString());
@@ -135,7 +144,6 @@ public class SpringAiUnifiedServiceImpl implements AiModelService {
         response.setStatus("success");
         response.setAnswer(aiResponse.getResult().getOutput().getText());
         
-        // Extract usage information if available
         if (aiResponse.getMetadata() != null && aiResponse.getMetadata().getUsage() != null) {
             ChatResponseDTO.Usage usage = new ChatResponseDTO.Usage();
             var usageMetadata = aiResponse.getMetadata().getUsage();

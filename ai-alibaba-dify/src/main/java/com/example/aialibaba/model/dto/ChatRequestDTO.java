@@ -32,6 +32,11 @@ public class ChatRequestDTO {
     @Schema(description = "Conversation ID for continuing a chat", example = "conv_456")
     private String conversationId;
     
+    // AI Model type selection: "dify" or "spring-ai"
+    @Builder.Default
+    @Schema(description = "Service type to use: 'dify' or 'spring-ai'", defaultValue = "dify")
+    private String serviceType = "dify";
+    
     // Dify application specific parameters
     @Schema(description = "Application code defined in config", example = "customer-service")
     private String appCode; 
@@ -40,12 +45,7 @@ public class ChatRequestDTO {
     @Builder.Default
     @Schema(description = "Dynamic input variables for Dify")
     private Map<String, Object> inputs = new HashMap<>();
-    
-    // AI Model type selection: "dify" or "spring-ai"
-    @Builder.Default
-    @Schema(description = "Service type to use: 'dify' or 'spring-ai'", defaultValue = "dify")
-    private String serviceType = "dify";
-    
+
     // Specific AI Model selection
     @Schema(description = "Selected AI model code", example = "qwen-plus")
     private String modelCode;

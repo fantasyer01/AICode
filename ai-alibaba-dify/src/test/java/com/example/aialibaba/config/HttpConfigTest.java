@@ -30,10 +30,10 @@ public class HttpConfigTest {
     @Test
     public void testHttpTimeoutMethods() {
         System.out.println("=== HttpConfig Timeout Methods ===");
-        System.out.println("connectTimeoutMs: " + httpConfig.getConnectTimeoutMs());
-        System.out.println("readTimeoutMs: " + httpConfig.getReadTimeoutMs());
+        System.out.println("connectTimeoutMs: " + httpConfig.getConnectTimeout());
+        System.out.println("readTimeoutMs: " + httpConfig.getReadTimeout());
         
-        assertEquals(5000, httpConfig.getConnectTimeoutMs());
-        assertEquals(60000, httpConfig.getReadTimeoutMs());
+        assertEquals(5000, httpConfig.getConnectTimeout());
+        assertEquals(60000, httpConfig.getReadTimeout());
     }
 }
