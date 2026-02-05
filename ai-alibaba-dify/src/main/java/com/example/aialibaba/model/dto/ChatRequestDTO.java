@@ -32,9 +32,9 @@ public class ChatRequestDTO {
     @Schema(description = "Conversation ID for continuing a chat", example = "conv_456")
     private String conversationId;
     
-    // AI Model type selection: "dify" or "spring-ai"
+    // AI Model type selection: "dify" or "model"
     @Builder.Default
-    @Schema(description = "Service type to use: 'dify' or 'spring-ai'", defaultValue = "dify")
+    @Schema(description = "Service type to use: 'dify' or 'model'", defaultValue = "dify")
     private String serviceType = "dify";
     
     // Dify application specific parameters
@@ -49,7 +49,4 @@ public class ChatRequestDTO {
     // Specific AI Model selection
     @Schema(description = "Selected AI model code", example = "qwen-plus")
     private String modelCode;
-    
-    @Schema(description = "AI model provider", example = "dashscope")
-    private String modelProvider;
 }

@@ -15,7 +15,11 @@ public class HttpConfig {
     
     private int connectTimeout = 5000;
     private int readTimeout = 60000;
+    private int writeTimeout = 30000;
     private int maxRetryAttempts = 3;
     private int sseIdleTimeout = 60000;
+    private int connectionPoolSize = 5;
+    private int connectionPoolKeepAlive = 5;
+    private boolean retryOnConnectionFailure = true;
     
 }

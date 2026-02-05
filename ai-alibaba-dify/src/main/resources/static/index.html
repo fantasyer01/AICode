@@ -161,6 +161,13 @@
                     </optgroup>
                 </select>
             </div>
+            <div class="selection-group">
+                <label for="responseMode">Response Mode:</label>
+                <select id="responseMode">
+                    <option value="stream" selected>Stream (实时流式)</option>
+                    <option value="blocking">Blocking (阻塞式)</option>
+                </select>
+            </div>
         </div>
         
         <div class="info-panel">
@@ -193,6 +200,7 @@
         const sendButton = document.getElementById('sendButton');
         const statusDiv = document.getElementById('status');
         const serviceSelect = document.getElementById('serviceSelect');
+        const responseModeSelect = document.getElementById('responseMode');
         
         let userId = 'user-' + Date.now(); // Generate unique user ID
         let conversationId = null; // Will be set after first message
@@ -229,6 +237,7 @@
                 const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
                 const serviceType = selectedOption.getAttribute('data-type');
                 const serviceValue = serviceSelect.value;
+                const isStreaming = responseModeSelect.value === 'stream';
                 
                 // Prepare request data
                 const requestData = {
@@ -240,15 +249,17 @@
                 // Set either model or app based on selection type
                 if (serviceType === 'model') {
                     requestData.modelCode = serviceValue;
-                    requestData.modelProvider = serviceValue.includes('qwen') ? 'dashscope' : 'deepseek';
-                    requestData.serviceType = 'spring-ai';
-                    // Use blocking mode for models
-                    await sendBlockingRequest(requestData);
+                    requestData.serviceType = 'model';
                 } else if (serviceType === 'app') {
                     requestData.appCode = serviceValue;
                     requestData.serviceType = 'dify';
-                    // Use streaming mode for Dify apps
+                }
+                
+                // Use streaming or blocking based on user selection
+                if (isStreaming) {
                     await sendStreamingRequest(requestData);
+                } else {
+                    await sendBlockingRequest(requestData);
                 }
             } catch (error) {
                 console.error('Error:', error);

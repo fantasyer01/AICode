@@ -21,9 +21,12 @@ public class RestWebConfig {
         return new OkHttpClient.Builder()
             .connectTimeout(httpConfig.getConnectTimeout(), TimeUnit.MILLISECONDS)
             .readTimeout(httpConfig.getReadTimeout(), TimeUnit.MILLISECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .connectionPool(new ConnectionPool(5, 5, TimeUnit.MINUTES))
-            .retryOnConnectionFailure(true)
+            .writeTimeout(httpConfig.getWriteTimeout(), TimeUnit.MILLISECONDS)
+            .connectionPool(new ConnectionPool(
+                httpConfig.getConnectionPoolSize(), 
+                httpConfig.getConnectionPoolKeepAlive(), 
+                TimeUnit.MINUTES))
+            .retryOnConnectionFailure(httpConfig.isRetryOnConnectionFailure())
             .build();
     }
 }

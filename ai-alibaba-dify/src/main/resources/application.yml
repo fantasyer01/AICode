@@ -13,8 +13,12 @@ spring:
   http:
     connect-timeout: 5000
     read-timeout: 60000
+    write-timeout: 30000
     max-retry-attempts: 3
     sse-idle-timeout: 60000
+    connection-pool-size: 5
+    connection-pool-keep-alive: 5
+    retry-on-connection-failure: true
   ai:
     dashscope:
       api-key: sk-5d0de06011ca4705af7a8a6f16efd096
@@ -40,7 +44,7 @@ dify:
       app-id: b0bcac67-da42-42df-905c-2489e70cfa9a
     customer-service:
       api-key: app-6WeBDQ4k7keBbmHDXAb06nlf
-      app-id: ${DIFY_APP_ID_CS:customer-service-app-id}
+      app-id: d31dca5e-c5a6-4fa3-8710-4a9bed27c2ea
     tech-support:
       api-key: ${DIFY_API_KEY_TS:app-tech-support-key}
       app-id: ${DIFY_APP_ID_TS:tech-support-app-id}

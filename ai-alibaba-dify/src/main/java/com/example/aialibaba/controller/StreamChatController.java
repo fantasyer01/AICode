@@ -103,14 +103,4 @@ public class StreamChatController {
             return emitter;
         }
     }
-    
-    /**
-     * Health check endpoint for streaming service
-     */
-    @GetMapping("/health")
-    @Operation(summary = "Streaming service health check")
-    public String healthCheck() {
-        logger.debug("Streaming health check requested");
-        return "Streaming chat service is operational";
-    }
 }

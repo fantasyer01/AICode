@@ -13,9 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * REST controller for chat operations with Dify and AI integration
  */
@@ -82,37 +79,5 @@ public class ChatController {
                         request.getUserId(), e);
             throw e; // Let global exception handler handle it
         }
-    }
-    
-    /**
-     * Health check endpoint
-     */
-    @GetMapping("/health")
-    public ResponseEntity<String> healthCheck() {
-        logger.debug("Health check requested");
-        return ResponseEntity.ok("Chat service is operational");
-    }
-    
-    /**
-     * Get service information including streaming capabilities
-     */
-    @GetMapping("/info")
-    public ResponseEntity<Map<String, Object>> getServiceInfo() {
-        Map<String, Object> info = new HashMap<>();
-        info.put("service", "Spring AI Alibaba Dify Integration");
-        info.put("version", "1.0.0");
-        info.put("status", "operational");
-        info.put("timestamp", System.currentTimeMillis());
-        
-        // Add streaming support information
-        Map<String, Object> streaming = new HashMap<>();
-        streaming.put("supported", true);
-        streaming.put("endpoint", "/api/v1/stream/chat");
-        streaming.put("format", "Server-Sent Events (SSE)");
-        streaming.put("modes", new String[]{"blocking", "streaming"});
-        info.put("streaming", streaming);
-        
-        logger.debug("Service info requested");
-        return ResponseEntity.ok(info);
     }
 }

@@ -19,13 +19,13 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class UnifiedChatServiceImpl implements ChatService {
 
     private final ChatService difyChatService;
-    private final ChatService springAiUnifiedService;
+    private final ChatService springAiChatService;
 
     public UnifiedChatServiceImpl(
             @Qualifier("difyChatServiceImpl") ChatService difyChatService,
-            @Autowired(required = false) @Qualifier("springAiUnifiedService") ChatService springAiUnifiedService) {
+            @Autowired(required = false) @Qualifier("springAiChatService") ChatService springAiChatService) {
         this.difyChatService = difyChatService;
-        this.springAiUnifiedService = springAiUnifiedService;
+        this.springAiChatService = springAiChatService;
     }
 
     @Override
@@ -59,12 +59,12 @@ public class UnifiedChatServiceImpl implements ChatService {
      * Route to target service based on serviceType
      */
     private ChatService getTargetService(ChatRequestDTO request) {
-        if ("spring-ai".equalsIgnoreCase(request.getServiceType())) {
-            if (springAiUnifiedService == null) {
+        if ("model".equalsIgnoreCase(request.getServiceType())) {
+            if (springAiChatService == null) {
                 throw new ServiceException("AI_SERVICE_NOT_AVAILABLE", 
                     "Spring AI service is not available");
             }
-            return springAiUnifiedService;
+            return springAiChatService;
         }
         return difyChatService;
     }

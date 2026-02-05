@@ -19,12 +19,12 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Unified implementation of ChatService using Spring AI Alibaba
+ * Implementation of ChatService using Spring AI Alibaba
  * Supports multiple AI models through dynamic model switching
  * Note: Streaming is not supported for direct AI model access
  */
-@Service("springAiUnifiedService")
-public class SpringAiUnifiedServiceImpl implements ChatService {
+@Service("springAiChatService")
+public class SpringAiChatServiceImpl implements ChatService {
 
     private final ChatModel chatModel;
     
@@ -48,7 +48,7 @@ public class SpringAiUnifiedServiceImpl implements ChatService {
         MODEL_PROVIDER_MAP.put("deepseek-coder", "deepseek");
     }
 
-    public SpringAiUnifiedServiceImpl(@Autowired(required = false) ChatModel chatModel) {
+    public SpringAiChatServiceImpl(@Autowired(required = false) ChatModel chatModel) {
         this.chatModel = chatModel;
     }
 
@@ -111,13 +111,8 @@ public class SpringAiUnifiedServiceImpl implements ChatService {
         if (request.getModelCode() != null && !request.getModelCode().isEmpty()) {
             return request.getModelCode();
         }
-        
-        String provider = request.getModelProvider();
-        if ("deepseek".equalsIgnoreCase(provider)) {
-            return "deepseek-chat";
-        } else {
-            return "qwen-plus";
-        }
+        // Default to qwen-plus if no model code specified
+        return "qwen-plus";
     }
     
     private DashScopeChatOptions buildChatOptions(String modelCode) {
