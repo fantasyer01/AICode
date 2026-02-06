@@ -5,6 +5,8 @@ import com.example.aialibaba.exception.ServiceException;
 import com.example.aialibaba.model.dto.ChatRequestDTO;
 import com.example.aialibaba.model.dto.ChatResponseDTO;
 import com.example.aialibaba.service.ChatService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,10 +24,11 @@ import java.util.UUID;
 /**
  * Implementation of ChatService using Spring AI Alibaba
  * Supports multiple AI models through dynamic model switching
- * Note: Streaming is not supported for direct AI model access
  */
 @Service("springAiChatService")
 public class SpringAiChatServiceImpl implements ChatService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SpringAiChatServiceImpl.class);
 
     private final ChatModel chatModel;
     
@@ -57,23 +61,30 @@ public class SpringAiChatServiceImpl implements ChatService {
         validateRequest(request);
         
         if (chatModel == null) {
+            logger.error("Spring AI ChatModel not configured");
             throw new ServiceException("AI_SERVICE_NOT_CONFIGURED", 
                 "Spring AI service is not configured. Please check your configuration.");
         }
         
         try {
             String modelCode = getModelCode(request);
+            logger.info("Spring AI - Sending BLOCKING request with model: {}", modelCode);
             
             UserMessage userMessage = new UserMessage(request.getMessage());
             Prompt prompt = new Prompt(userMessage, buildChatOptions(modelCode));
             
             ChatResponse aiResponse = chatModel.call(prompt);
             
-            return convertToChatResponseDTO(aiResponse, request.getUserId());
+            ChatResponseDTO response = convertToChatResponseDTO(aiResponse, request.getUserId());
+            logger.info("✅ Spring AI - Received response, tokens: {}", 
+                    response.getUsage() != null ? response.getUsage().getTotalTokens() : "N/A");
+            
+            return response;
             
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
+            logger.error("Spring AI - Error communicating with AI service", e);
             throw new ServiceException("SPRING_AI_ERROR", "Failed to communicate with AI service", e);
         }
     }
@@ -85,8 +96,86 @@ public class SpringAiChatServiceImpl implements ChatService {
     
     @Override
     public SseEmitter streamMessage(ChatRequestDTO request) {
-        throw new ServiceException("STREAMING_NOT_SUPPORTED", 
-            "Streaming is not supported for Spring AI direct access");
+        validateRequest(request);
+        
+        if (chatModel == null) {
+            logger.error("Spring AI ChatModel not configured");
+            throw new ServiceException("AI_SERVICE_NOT_CONFIGURED", 
+                "Spring AI service is not configured. Please check your configuration.");
+        }
+        
+        String modelCode = getModelCode(request);
+        logger.info("Spring AI - Starting STREAMING request with model: {}", modelCode);
+        
+        SseEmitter emitter = new SseEmitter(300000L); // 5 minutes timeout
+        
+        try {
+            UserMessage userMessage = new UserMessage(request.getMessage());
+            Prompt prompt = new Prompt(userMessage, buildChatOptions(modelCode));
+            
+            // Use Spring AI's streaming capability
+            Flux<ChatResponse> streamResponse = chatModel.stream(prompt);
+            
+            StringBuilder accumulatedResponse = new StringBuilder();
+            
+            streamResponse.subscribe(
+                chatResponse -> {
+                    try {
+                        String content = chatResponse.getResult().getOutput().getText();
+                        if (content != null && !content.isEmpty()) {
+                            accumulatedResponse.append(content);
+                            
+                            // Send as SSE event matching Dify format
+                            Map<String, Object> eventData = new HashMap<>();
+                            eventData.put("event", "message");
+                            eventData.put("answer", content);
+                            eventData.put("created_at", System.currentTimeMillis());
+                            
+                            emitter.send(SseEmitter.event()
+                                    .name("message")
+                                    .data(eventData));
+                            
+                            logger.debug("Spring AI - Streamed chunk: {} chars", content.length());
+                        }
+                    } catch (Exception e) {
+                        logger.error("Spring AI - Error sending SSE event", e);
+                        emitter.completeWithError(e);
+                    }
+                },
+                error -> {
+                    logger.error("Spring AI - Streaming error", error);
+                    emitter.completeWithError(new ServiceException("SPRING_AI_STREAMING_ERROR", 
+                            "Error during streaming", error));
+                },
+                () -> {
+                    try {
+                        // Send completion event
+                        Map<String, Object> endEvent = new HashMap<>();
+                        endEvent.put("event", "message_end");
+                        endEvent.put("status", "completed");
+                        endEvent.put("created_at", System.currentTimeMillis());
+                        
+                        emitter.send(SseEmitter.event()
+                                .name("end")
+                                .data(endEvent));
+                        
+                        emitter.complete();
+                        logger.info("✅ Spring AI - Streaming completed, total length: {} chars", 
+                                accumulatedResponse.length());
+                    } catch (Exception e) {
+                        logger.error("Spring AI - Error completing stream", e);
+                        emitter.completeWithError(e);
+                    }
+                }
+            );
+            
+        } catch (Exception e) {
+            logger.error("Spring AI - Error initiating streaming", e);
+            emitter.completeWithError(new ServiceException("SPRING_AI_STREAMING_ERROR", 
+                    "Failed to initiate streaming", e));
+        }
+        
+        return emitter;
     }
     
     @Override

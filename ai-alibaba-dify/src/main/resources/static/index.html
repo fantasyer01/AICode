@@ -152,12 +152,13 @@
                 <select id="serviceSelect">
                     <optgroup label="AI Models">
                         <option value="qwen-plus" data-type="model">Qwen-Plus (通义千问增强版)</option>
-                        <option value="deepseek-chat" data-type="model">DeepSeek (深度求索)</option>
                     </optgroup>
                     <optgroup label="Dify Applications">
                         <option value="default" data-type="app">Default Assistant</option>
                         <option value="customer-service" data-type="app">Customer Service</option>
-                        <option value="tech-support" data-type="app">Technical Support</option>
+                    </optgroup>
+                    <optgroup label="Enterprise Integration">
+                        <option value="wecom" data-type="wecom">WeChat (企业微信机器人)</option>
                     </optgroup>
                 </select>
             </div>
@@ -176,6 +177,7 @@
                 <li>This is a demo interface for the Spring AI Alibaba Dify integration</li>
                 <li>Regular API: <code>http://localhost:8080/api/v1/chat/send</code></li>
                 <li>Streaming API: <code>http://localhost:8080/api/v1/stream/chat</code></li>
+                <li>WeCom Test API: <code>http://localhost:8080/api/wecom/test</code></li>
                 <li>Health check: <code>http://localhost:8080/api/v1/chat/health</code></li>
             </ul>
         </div>
@@ -250,13 +252,22 @@
                 if (serviceType === 'model') {
                     requestData.modelCode = serviceValue;
                     requestData.serviceType = 'model';
+                    console.log('Selected AI Model:', serviceValue, '| Mode:', isStreaming ? 'Streaming' : 'Blocking');
                 } else if (serviceType === 'app') {
                     requestData.appCode = serviceValue;
                     requestData.serviceType = 'dify';
+                    console.log('Selected Dify App:', serviceValue, '| Mode:', isStreaming ? 'Streaming' : 'Blocking');
+                } else if (serviceType === 'wecom') {
+                    requestData.serviceType = 'wecom';
+                    console.log('Selected WeCom (Enterprise WeChat) | Mode: Blocking');
                 }
                 
-                // Use streaming or blocking based on user selection
-                if (isStreaming) {
+                console.log('Request payload:', JSON.stringify(requestData, null, 2));
+                
+                // Use different request method based on service type
+                if (serviceType === 'wecom') {
+                    await sendWeComRequest(requestData);
+                } else if (isStreaming) {
                     await sendStreamingRequest(requestData);
                 } else {
                     await sendBlockingRequest(requestData);
@@ -274,6 +285,9 @@
         }
         
         async function sendBlockingRequest(requestData) {
+            console.log('Sending BLOCKING request to /api/v1/chat/send');
+            console.log('Request data:', requestData);
+            
             // Send request to backend
             const response = await fetch('/api/v1/chat/send', {
                 method: 'POST',
@@ -289,15 +303,19 @@
             
             const responseData = await response.json();
             
+            console.log('Received response:', responseData);
+            
             if (responseData.status === 'success') {
                 // Add AI response to chat
                 addMessage(responseData.answer, 'ai');
                 const selectedText = serviceSelect.options[serviceSelect.selectedIndex].text;
-                statusDiv.textContent = `Service: ${selectedText} | Last: ${new Date().toLocaleTimeString()}`;
+                const serviceTypeLabel = requestData.serviceType === 'model' ? 'AI Model' : 'Dify App';
+                statusDiv.textContent = `${serviceTypeLabel}: ${selectedText} | Last: ${new Date().toLocaleTimeString()}`;
                 
                 // Store conversation ID for continuity
                 if (responseData.conversationId) {
                     conversationId = responseData.conversationId;
+                    console.log('Stored conversation ID:', conversationId);
                 }
             } else {
                 showError(`Error: ${responseData.errorMessage || 'Unknown error'}`);
@@ -306,8 +324,9 @@
         
         async function sendStreamingRequest(requestData) {
             try {
-                console.log('=== Starting Streaming Request ===' );
-                console.log('Request data:', requestData);
+                console.log('=== Starting STREAMING Request ===' );
+                console.log('Request data:', JSON.stringify(requestData, null, 2));
+                console.log('Endpoint: /api/v1/stream/chat');
                 
                 // Use fetch with ReadableStream for SSE
                 const response = await fetch('/api/v1/stream/chat', {
@@ -436,12 +455,13 @@
                                     eventData.status === 'completed') {
                                     console.log('Received end event');
                                     const selectedText = serviceSelect.options[serviceSelect.selectedIndex].text;
-                                    statusDiv.textContent = `Service: ${selectedText} | Last: ${new Date().toLocaleTimeString()}`;
+                                    const serviceTypeLabel = requestData.serviceType === 'model' ? 'AI Model' : 'Dify App';
+                                    statusDiv.textContent = `${serviceTypeLabel}: ${selectedText} | Last: ${new Date().toLocaleTimeString()}`;
                                     
                                     // Store conversation ID if provided
                                     if (eventData.conversation_id) {
                                         conversationId = eventData.conversation_id;
-                                        console.log('Stored conversation ID:', conversationId);
+                                        console.log('💬 Stored conversation ID:', conversationId);
                                     }
                                 }
                             } else {
@@ -465,6 +485,69 @@
                 console.error('❌ Error in streaming request:', error);
                 console.error('Full error stack:', error.stack);
                 showError(`Streaming failed: ${error.message}`);
+            }
+        }
+        
+        async function sendWeComRequest(requestData) {
+            console.log('=== Sending WeCom Test Request ===');
+            console.log('Request data:', JSON.stringify(requestData, null, 2));
+            console.log('Endpoint: /api/wecom/test');
+            
+            statusDiv.textContent = 'Sending to WeCom...';
+            
+            try {
+                const wecomPayload = {
+                    msgtype: 'text',
+                    msgid: 'test_' + Date.now(),
+                    chatid: 'chat_' + Date.now(),
+                    chattype: 'single',
+                    from: {
+                        UserId: requestData.userId,
+                        Name: 'Test User'
+                    },
+                    text: {
+                        content: requestData.message
+                    }
+                };
+                
+                console.log('WeCom payload:', JSON.stringify(wecomPayload, null, 2));
+                
+                const response = await fetch('/api/wecom/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(wecomPayload)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+                }
+                
+                const responseData = await response.json();
+                console.log('WeCom response:', responseData);
+                
+                // Extract the text content from the response
+                let answerText = '';
+                if (responseData.text && responseData.text.content) {
+                    answerText = responseData.text.content;
+                } else if (responseData.markdown && responseData.markdown.content) {
+                    answerText = responseData.markdown.content;
+                } else if (typeof responseData === 'string') {
+                    answerText = responseData;
+                } else {
+                    answerText = JSON.stringify(responseData);
+                }
+                
+                addMessage(answerText, 'ai');
+                statusDiv.textContent = `WeCom | Last: ${new Date().toLocaleTimeString()}`;
+                
+            } catch (error) {
+                console.error('Error in WeCom request:', error);
+                showError(`WeCom request failed: ${error.message}`);
             }
         }
         

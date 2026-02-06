@@ -4,6 +4,8 @@ import com.example.aialibaba.exception.ServiceException;
 import com.example.aialibaba.model.dto.ChatRequestDTO;
 import com.example.aialibaba.model.dto.ChatResponseDTO;
 import com.example.aialibaba.service.ChatService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -18,6 +20,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Primary
 public class UnifiedChatServiceImpl implements ChatService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UnifiedChatServiceImpl.class);
+
     private final ChatService difyChatService;
     private final ChatService springAiChatService;
 
@@ -31,7 +35,13 @@ public class UnifiedChatServiceImpl implements ChatService {
     @Override
     public ChatResponseDTO sendMessage(ChatRequestDTO request) {
         validateRequest(request);
-        return getTargetService(request).sendMessage(request);
+        ChatService targetService = getTargetService(request);
+        logger.info("🔀 Routing BLOCKING request to: {} (serviceType: {}, modelCode: {}, appCode: {})",
+                targetService.getClass().getSimpleName(),
+                request.getServiceType(),
+                request.getModelCode(),
+                request.getAppCode());
+        return targetService.sendMessage(request);
     }
 
     @Override
@@ -42,7 +52,13 @@ public class UnifiedChatServiceImpl implements ChatService {
     @Override
     public SseEmitter streamMessage(ChatRequestDTO request) {
         validateRequest(request);
-        return getTargetService(request).streamMessage(request);
+        ChatService targetService = getTargetService(request);
+        logger.info("🔀 Routing STREAMING request to: {} (serviceType: {}, modelCode: {}, appCode: {})",
+                targetService.getClass().getSimpleName(),
+                request.getServiceType(),
+                request.getModelCode(),
+                request.getAppCode());
+        return targetService.streamMessage(request);
     }
 
     @Override
@@ -59,13 +75,20 @@ public class UnifiedChatServiceImpl implements ChatService {
      * Route to target service based on serviceType
      */
     private ChatService getTargetService(ChatRequestDTO request) {
-        if ("model".equalsIgnoreCase(request.getServiceType())) {
+        String serviceType = request.getServiceType();
+        logger.debug("Determining target service for serviceType: '{}'", serviceType);
+        
+        if ("model".equalsIgnoreCase(serviceType)) {
             if (springAiChatService == null) {
+                logger.error("Spring AI service requested but not available");
                 throw new ServiceException("AI_SERVICE_NOT_AVAILABLE", 
-                    "Spring AI service is not available");
+                    "Spring AI service is not available. Please check configuration.");
             }
+            logger.info("✅ Routing to Spring AI service for model: {}", request.getModelCode());
             return springAiChatService;
         }
+        
+        logger.info("✅ Routing to Dify service for app: {}", request.getAppCode());
         return difyChatService;
     }
 }

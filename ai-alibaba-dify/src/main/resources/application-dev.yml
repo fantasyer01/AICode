@@ -29,8 +29,8 @@ dify:
       api-key: app-rdYsBUw9XKOB17KCddfEV6ur  # Replace with your actual Dify API key
       app-id: b0bcac67-da42-42df-905c-2489e70cfa9a  # Your Dify App ID from the URL
     customer-service:
-      api-key: ${DIFY_API_KEY_CS:app-customer-service-dev-key}
-      app-id: ${DIFY_APP_ID_CS:customer-service-dev-app-id}
+      api-key: app-6WeBDQ4k7keBbmHDXAb06nlf
+      app-id: d31dca5e-c5a6-4fa3-8710-4a9bed27c2ea
     tech-support:
       api-key: ${DIFY_API_KEY_TS:app-tech-support-dev-key}
       app-id: ${DIFY_APP_ID_TS:tech-support-dev-app-id}

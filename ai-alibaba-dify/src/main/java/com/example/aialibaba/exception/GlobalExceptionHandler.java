@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -93,6 +94,29 @@ public class GlobalExceptionHandler {
         ChatResponseDTO response = ChatResponseDTO.error(errorCode, 
                 "External service server error: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
+    
+    /**
+     * Handle resource not found exceptions (e.g., Chrome DevTools probe)
+     * These are harmless and expected for browser development tools
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ChatResponseDTO> handleResourceNotFound(NoResourceFoundException ex) {
+        String resourcePath = ex.getResourcePath();
+        
+        // Silently ignore Chrome DevTools and other browser tool probes
+        if (resourcePath != null && 
+            (resourcePath.contains(".well-known") || 
+             resourcePath.contains("devtools") ||
+             resourcePath.contains("favicon.ico"))) {
+            logger.debug("Browser tool probe ignored: {}", resourcePath);
+        } else {
+            logger.warn("Resource not found: {}", resourcePath);
+        }
+        
+        ChatResponseDTO response = ChatResponseDTO.error("RESOURCE_NOT_FOUND", 
+                "The requested resource was not found.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     
     /**
