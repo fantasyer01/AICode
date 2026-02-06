@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -170,12 +171,11 @@ class SpringAiChatServiceImplTest {
                 .userId("test-user")
                 .build();
 
-        // When & Then
-        ServiceException exception = assertThrows(ServiceException.class, () -> {
-            service.streamMessage(request);
-        });
+        // When - streaming is now supported in SpringAiChatServiceImpl
+        SseEmitter emitter = service.streamMessage(request);
         
-        assertEquals("STREAMING_NOT_SUPPORTED", exception.getErrorCode());
+        // Then - should return an SseEmitter, not throw exception
+        assertNotNull(emitter);
     }
 
     @Test
@@ -187,12 +187,11 @@ class SpringAiChatServiceImplTest {
                 .conversationId("conv-123")
                 .build();
 
-        // When & Then
-        ServiceException exception = assertThrows(ServiceException.class, () -> {
-            service.streamMessageWithConversation(request);
-        });
+        // When - streaming is now supported in SpringAiChatServiceImpl
+        SseEmitter emitter = service.streamMessageWithConversation(request);
         
-        assertEquals("STREAMING_NOT_SUPPORTED", exception.getErrorCode());
+        // Then - should return an SseEmitter, not throw exception
+        assertNotNull(emitter);
     }
 
     @Test

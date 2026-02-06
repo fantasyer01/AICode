@@ -184,7 +184,7 @@
         
         <div class="chat-container" id="chatContainer">
             <div class="message ai-message">
-                Hello! I'm your AI assistant powered by Dify. How can I help you today?
+                Hello! I'm your AI assistant. How can I help you today?
             </div>
         </div>
         
@@ -207,6 +207,9 @@
         let userId = 'user-' + Date.now(); // Generate unique user ID
         let conversationId = null; // Will be set after first message
         
+        // Initial greeting message
+        const initialGreeting = 'Hello! I\'m your AI assistant. How can I help you today?';
+        
         // Auto-focus on input field
         messageInput.focus();
         
@@ -219,6 +222,18 @@
         
         // Send button click handler
         sendButton.addEventListener('click', sendMessage);
+        
+        // Clear chat when service selection changes
+        serviceSelect.addEventListener('change', function() {
+            clearChat();
+            console.log('Service changed, chat cleared');
+        });
+        
+        // Clear chat when response mode changes
+        responseModeSelect.addEventListener('change', function() {
+            clearChat();
+            console.log('Response mode changed, chat cleared');
+        });
         
         async function sendMessage() {
             const message = messageInput.value.trim();
@@ -578,6 +593,27 @@
             chatContainer.appendChild(errorDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
             statusDiv.textContent = 'Error occurred';
+        }
+        
+        function clearChat() {
+            // Clear all messages
+            chatContainer.innerHTML = '';
+            
+            // Reset conversation state
+            conversationId = null;
+            userId = 'user-' + Date.now();
+            
+            // Add initial greeting message back
+            const greetingDiv = document.createElement('div');
+            greetingDiv.className = 'message ai-message';
+            greetingDiv.textContent = initialGreeting;
+            chatContainer.appendChild(greetingDiv);
+            
+            // Clear status
+            statusDiv.textContent = '';
+            statusDiv.style.color = '#666';
+            
+            console.log('Chat cleared, conversation reset');
         }
         
         // Test connection on page load

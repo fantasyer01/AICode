@@ -6,7 +6,9 @@
 
 - **技术栈**: Java 17 + Spring Boot 3.2
 - **AI 集成**: 与 Dify 平台无缝对接
+- **双模式支持**: 支持阻塞(blocking)和流式(streaming)响应模式
 - **REST API**: 提供完整的聊天接口
+- **Server-Sent Events**: 流式输出采用 SSE 技术
 - **生产级日志**: 结构化日志配置，便于问题排查
 - **异常处理**: 全局异常处理器，统一错误响应格式
 - **配置管理**: 多环境配置支持（开发/测试/生产）
@@ -25,7 +27,8 @@ src/
 │   │   │   ├── RestWebConfig.java            # Web 配置类
 │   │   │   └── LoggingConfig.java            # 日志配置
 │   │   ├── controller/
-│   │   │   └── ChatController.java           # REST 控制器
+│   │   │   ├── ChatController.java          # REST 控制器(阻塞模式)
+│   │   │   └── StreamChatController.java    # 流式控制器
 │   │   ├── service/
 │   │   │   ├── ChatService.java              # 服务接口
 │   │   │   └── impl/
@@ -101,7 +104,7 @@ java -jar target/ai-alibaba-dify-1.0.0.jar
 
 ## 📡 API 接口
 
-### 发送消息
+### 阻塞模式发送消息
 
 **POST** `/api/v1/chat/send`
 
@@ -125,11 +128,56 @@ java -jar target/ai-alibaba-dify-1.0.0.jar
 }
 ```
 
+### 流式模式发送消息
+
+**POST** `/api/v1/stream/chat` *(Server-Sent Events)*
+
+请求体示例：
+```json
+{
+  "message": "你好，请逐步介绍人工智能的发展历程",
+  "userId": "user123"
+}
+```
+
+客户端接收事件流示例：
+```
+event: message
+data: {"event": "message", "task_id": "xxx", "message_id": "yyy", "answer": "人工智"}
+
+...
+
+event: message
+data: {"event": "message_end", "task_id": "xxx", "message_id": "yyy"}
+
+...
+
+event: end
+data: {}
+```
+
+### 流式对话（带上下文）
+
+**POST** `/api/v1/stream/chat-with-conversation` *(Server-Sent Events)*
+
+请求体示例：
+```json
+{
+  "message": "继续刚才的话题，详细说说深度学习",
+  "userId": "user123",
+  "conversationId": "conv456"
+}
+```
+
 ### 健康检查
 
 **GET** `/api/v1/chat/health`
 
 响应：`Chat service is operational`
+
+**GET** `/api/v1/stream/health`
+
+响应：`Streaming chat service is operational`
 
 ## 🛠️ 开发指南
 
@@ -139,6 +187,13 @@ java -jar target/ai-alibaba-dify-1.0.0.jar
 2. 在 `impl` 包中实现具体逻辑
 3. 在 `controller` 中添加对应的 REST 端点
 4. 更新 DTO 类以支持新的数据结构
+
+### 流式处理说明
+
+- 使用 `responseMode: "streaming"` 启用流式输出
+- 客户端需支持 Server-Sent Events (SSE)
+- 流式响应通过事件流分段返回数据
+- 默认超时时间为 60 秒，可在配置中调整
 
 ### 日志级别
 
@@ -177,6 +232,7 @@ mvn -Dtest=ChatServiceIntegrationTest test
 - 生产环境中禁用 Swagger UI
 - 使用 HTTPS 进行生产部署
 - 实施适当的输入验证和清理
+- 流式连接需要适当的超时和资源限制
 
 ## 🤝 贡献
 
