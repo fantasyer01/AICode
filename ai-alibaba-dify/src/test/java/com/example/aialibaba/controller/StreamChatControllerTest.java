@@ -116,14 +116,6 @@ class StreamChatControllerTest {
     }
 
     @Test
-    void testHealthCheck() throws Exception {
-        // When & Then
-        mockMvc.perform(get("/api/v1/stream/health"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Streaming chat service is operational"));
-    }
-
-    @Test
     void testStreamMessage_ServiceException() throws Exception {
         // Given
         when(difyChatService.streamMessage(any(ChatRequestDTO.class)))

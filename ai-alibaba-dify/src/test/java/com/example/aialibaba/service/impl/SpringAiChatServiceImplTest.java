@@ -15,17 +15,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class SpringAiUnifiedServiceImplTest {
+class SpringAiChatServiceImplTest {
 
     @Mock
     private ChatModel chatModel;
 
-    private SpringAiUnifiedServiceImpl service;
+    private SpringAiChatServiceImpl service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new SpringAiUnifiedServiceImpl(chatModel);
+        service = new SpringAiChatServiceImpl(chatModel);
     }
 
     @Test
@@ -33,8 +33,7 @@ class SpringAiUnifiedServiceImplTest {
         // Given
         ChatRequestDTO request = ChatRequestDTO.builder()
                 .message("Hello")
-                .serviceType("spring-ai")
-                .modelProvider("dashscope")
+                .serviceType("model")
                 .modelCode("qwen-plus")
                 .userId("test-user")
                 .build();
@@ -65,7 +64,7 @@ class SpringAiUnifiedServiceImplTest {
     @Test
     void testSendMessage_NullChatModel_ThrowsException() {
         // Given
-        service = new SpringAiUnifiedServiceImpl(null);
+        service = new SpringAiChatServiceImpl(null);
         ChatRequestDTO request = ChatRequestDTO.builder()
                 .message("Hello")
                 .userId("test-user")
@@ -84,8 +83,7 @@ class SpringAiUnifiedServiceImplTest {
         // Given
         ChatRequestDTO request = ChatRequestDTO.builder()
                 .message("Hello")
-                .serviceType("spring-ai")
-                .modelProvider("deepseek")
+                .serviceType("model")
                 .modelCode("deepseek-chat")
                 .userId("test-user")
                 .build();
@@ -114,7 +112,7 @@ class SpringAiUnifiedServiceImplTest {
         // Given
         ChatRequestDTO request = ChatRequestDTO.builder()
                 .message("Hello")
-                .serviceType("spring-ai")
+                .serviceType("model")
                 .userId("test-user")
                 .build();
 
