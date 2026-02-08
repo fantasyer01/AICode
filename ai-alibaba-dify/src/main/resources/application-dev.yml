@@ -9,12 +9,12 @@ server:
 spring:
   ai:
     dashscope:
-      api-key: sk-5d0de06011ca4705af7a8a6f16efd096  # Replace with your actual DashScope API key
+      api-key: ${DASHSCOPE_API_KEY:}  # Replace with your actual DashScope API key
       chat:
         options:
           model: qwen-plus
     deepseek:
-      api-key: sk-007cd17745724ca0857e1e79b9e2d32b  # Replace with your actual DeepSeek API key
+      api-key: ${DEEPSEEK_API_KEY:}  # Replace with your actual DeepSeek API key
       chat:
         options:
           model: deepseek-chat
@@ -26,14 +26,14 @@ dify:
     base-url: https://api.dify.ai/v1
   apps:
     default:
-      api-key: app-rdYsBUw9XKOB17KCddfEV6ur  # Replace with your actual Dify API key
-      app-id: b0bcac67-da42-42df-905c-2489e70cfa9a  # Your Dify App ID from the URL
+      api-key: ${DIFY_DEFAULT_API_KEY:}  # Replace with your actual Dify API key
+      app-id: ${DIFY_DEFAULT_APP_ID:}  # Your Dify App ID from the URL
     customer-service:
       api-key: app-6WeBDQ4k7keBbmHDXAb06nlf
       app-id: d31dca5e-c5a6-4fa3-8710-4a9bed27c2ea
     tech-support:
-      api-key: ${DIFY_API_KEY_TS:app-tech-support-dev-key}
-      app-id: ${DIFY_APP_ID_TS:tech-support-dev-app-id}
+      api-key: ${DIFY_TS_API_KEY:}
+      app-id: ${DIFY_TS_APP_ID:}
   timeout:
     connect: 5000
     read: 120000

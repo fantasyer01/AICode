@@ -8,9 +8,9 @@ server:
 dify:
   api:
     base-url: https://api.dify.ai/v1
-    key: app-Z0olxJHg2T4br6KmpE901NHl
+    key: ${DIFY_API_KEY}
   app:
-    id: test-dify-app-id
+    id: ${DIFY_APP_ID}
   timeout:
     connect: 2000
     read: 5000

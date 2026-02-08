@@ -21,12 +21,12 @@ spring:
     retry-on-connection-failure: true
   ai:
     dashscope:
-      api-key: sk-5d0de06011ca4705af7a8a6f16efd096
+      api-key: ${DASHSCOPE_API_KEY:}
       chat:
         options:
           model: qwen-plus
     deepseek:
-      api-key: sk-007cd17745724ca0857e1e79b9e2d32b
+      api-key: ${DEEPSEEK_API_KEY:}
       chat:
         options:
           model: deepseek-chat
@@ -40,14 +40,14 @@ dify:
     response-mode: streaming  # Options: "blocking" or "streaming"
   apps:
     default:
-      api-key: app-rdYsBUw9XKOB17KCddfEV6ur
-      app-id: b0bcac67-da42-42df-905c-2489e70cfa9a
+      api-key: ${DIFY_DEFAULT_API_KEY:}
+      app-id: ${DIFY_DEFAULT_APP_ID:}
     customer-service:
-      api-key: app-6WeBDQ4k7keBbmHDXAb06nlf
-      app-id: d31dca5e-c5a6-4fa3-8710-4a9bed27c2ea
+      api-key: ${DIFY_CS_API_KEY:}
+      app-id: ${DIFY_CS_APP_ID:}
     tech-support:
-      api-key: ${DIFY_API_KEY_TS:app-tech-support-key}
-      app-id: ${DIFY_APP_ID_TS:tech-support-app-id}
+      api-key: ${DIFY_TS_API_KEY:}
+      app-id: ${DIFY_TS_APP_ID:}
 
 # AI Models Configuration
 ai-models:

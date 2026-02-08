@@ -12,8 +12,8 @@ import java.util.Map;
 @Configuration
 @ConfigurationProperties(prefix = "dify")
 @Data
+
 public class DifyConfig {
-    
     private ApiConfig api = new ApiConfig();
     private Map<String, AppConfig> apps;
     

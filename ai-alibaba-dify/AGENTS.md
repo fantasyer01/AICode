@@ -69,6 +69,9 @@ mvn clean compile
 # Test
 mvn test
 
+# Run TestCase
+mvn -Dtest=ChatServiceIntegrationTest#testSendMessage_Success test
+
 # Run (dev profile)
 mvn spring-boot:run
 
@@ -83,6 +86,12 @@ java -jar target/ai-alibaba-dify-1.0.0.jar
 
 # Run JAR（prod）
 java -jar target/ai-alibaba-dify-1.0.0.jar --spring.profiles.active=prod
+
+# Run JAR (api-key)
+java -jar ai-alibaba-dify-1.0.0.jar `
+  --server.port=8081
+  --dify.apps.default.api-key=your-api-key-here `
+  --dify.apps.default.app-id=your-app-id-here
 ```
 
 ## API Endpoints
