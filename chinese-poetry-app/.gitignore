@@ -44,5 +44,6 @@ Thumbs.db
 .env
 .env.local
 
-# Configuration with sensitive data
-config/constants.py
+# Deployment packages
+chinese-poetry-app.zip
+chinese-poetry-app.tar.gz

@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs (container will create fresh logs)
+logs/
+
+# Git
+.git/
+.gitignore
+
+# Deployment packages
+*.zip
+*.tar.gz
+
+# Documentation
+*.md
+
+# Environment files (secrets passed via docker-compose env_file)
+.env
+.env.local
+.env.example
+
+# Deploy scripts (not needed in container)
+deploy/
+
+# Test files
+test.py

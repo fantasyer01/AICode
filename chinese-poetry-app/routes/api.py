@@ -4,9 +4,8 @@ Handles API endpoints for poetry search
 """
 
 import logging
-from flask import Blueprint, request, jsonify, Response, stream_with_context, current_app
+from flask import Blueprint, request, jsonify, Response, stream_with_context
 from services.poetry_service import PoetryAPI
-from utils.pinyin_helper import add_pinyin_to_verse
 
 logger = logging.getLogger(__name__)
 
@@ -27,25 +26,6 @@ def search_poetry():
     # Call API to query (non-streaming mode)
     api = PoetryAPI()
     poetry_data = api.query_poetry(verse_line, stream_mode=False)
-    
-    # Add pinyin based on configuration
-    enable_pinyin = current_app.config.get('ENABLE_PINYIN', False)
-    logger.info(f"拼音功能状态: {'启用' if enable_pinyin else '禁用'}")
-    
-    verses_with_pinyin = []
-    for verse in poetry_data.get('full_text', []):
-        verse_info = {
-            'text': verse
-        }
-        if enable_pinyin:
-            verse_info['pinyin'] = add_pinyin_to_verse(verse)
-        else:
-            verse_info['pinyin'] = ""  # Empty string, frontend won't display pinyin
-        
-        verses_with_pinyin.append(verse_info)
-    
-    poetry_data['verses_with_pinyin'] = verses_with_pinyin
-    poetry_data['pinyin_enabled'] = enable_pinyin  # Pass pinyin status to frontend
     
     logger.info(f"返回诗词数据: {poetry_data['title']} - {poetry_data['author']}")
     
