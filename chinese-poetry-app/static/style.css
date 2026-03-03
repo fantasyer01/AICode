@@ -174,6 +174,61 @@ input:checked + .slider:hover {
     flex: 1;
 }
 
+/* 图片区域 */
+.image-section {
+    margin-bottom: 2rem;
+}
+
+.image-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-loading {
+    text-align: center;
+    color: var(--accent-color);
+    width: 100%;
+    position: relative;
+}
+
+.image-loading-text {
+    text-align: center;
+    color: var(--accent-color);
+    font-size: 0.95rem;
+    padding: 0.6rem 0;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.image-result img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    cursor: zoom-in;
+}
+
+.image-error {
+    background: #fff3cd;
+    color: #856404;
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    text-align: center;
+    border-left: 4px solid #ffc107;
+    width: 100%;
+}
+
+.image-error p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
 .hidden {
     display: none;
 }
@@ -359,20 +414,13 @@ input:checked + .slider:hover {
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
     line-height: 1.8;
-    max-height: 70vh;
-    overflow-y: auto;
-    overflow-x: hidden;  /* 隐藏横向滚动条 */
-    word-wrap: break-word;  /* 长单词换行 */
-    overflow-wrap: break-word;  /* CSS3标准属性 */
-    word-break: break-all;  /* 强制任意位置换行 */
-    white-space: normal;  /* 确保正常换行 */
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
-/* 全局强制所有元素换行 */
 .markdown-content * {
-    word-wrap: break-word;
     overflow-wrap: break-word;
-    word-break: break-all;
     white-space: normal;
     max-width: 100%;
 }
@@ -393,17 +441,14 @@ input:checked + .slider:hover {
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--border-color);
-    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
 .markdown-content p {
     margin-bottom: 1rem;
     text-align: justify;
-    white-space: pre-wrap;  /* 保留换行符但自动换行 */
-    word-wrap: break-word;  /* 长单词换行 */
+    white-space: pre-wrap;
     overflow-wrap: break-word;
-    word-break: break-all;
     max-width: 100%;
 }
 
@@ -415,17 +460,14 @@ input:checked + .slider:hover {
 .markdown-content ul, .markdown-content ol {
     margin-left: 1.5rem;
     margin-bottom: 1rem;
-    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
 .markdown-content li {
     margin-bottom: 0.5rem;
     line-height: 1.8;
-    word-wrap: break-word;  /* 确保列表项也能换行 */
-    white-space: normal;  /* 允许正常换行 */
     overflow-wrap: break-word;
-    word-break: break-all;
+    white-space: normal;
     max-width: 100%;
 }
 
@@ -471,6 +513,102 @@ input:checked + .slider:hover {
     margin-top: auto;
 }
 
+/* 按钮加载状态 */
+.input-group button:disabled {
+    background: #a08060;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* 内联验证提示 */
+.input-error-msg {
+    color: #c33;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    padding-left: 4px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.input-error-msg.visible {
+    opacity: 1;
+    max-height: 2rem;
+}
+
+.input-group input.input-error {
+    border-color: #c33;
+}
+
+/* 图片淡入动画 */
+.image-result {
+    text-align: center;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.image-result.fade-in {
+    opacity: 1;
+}
+
+/* 图片骨架屏加载 */
+.image-skeleton {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    background: linear-gradient(90deg, #f0ebe6 25%, #e8e0d8 50%, #f0ebe6 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.image-loading-text {
+    text-align: center;
+    color: var(--accent-color);
+    font-size: 0.95rem;
+    margin-top: 0.8rem;
+}
+
+/* 图片点击放大 - 灯箱 */
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: zoom-out;
+}
+
+.lightbox-overlay.active {
+    opacity: 1;
+}
+
+.lightbox-overlay img {
+    max-width: 92vw;
+    max-height: 92vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.lightbox-overlay.active img {
+    transform: scale(1);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .container {
@@ -497,10 +635,22 @@ input:checked + .slider:hover {
         font-size: 1.1rem;
     }
     
+    /* 图片区域响应式 */
+    .image-container {
+        /* no padding needed, image fills container */
+    }
+    
+    .image-result img {
+        border-radius: 12px;
+    }
+
+    .image-skeleton {
+        width: 100%;
+    }
+    
     /* 流式模式Markdown内容响应式 */
     .markdown-content {
         padding: 1rem;
-        max-height: 60vh;
         font-size: 0.95rem;
     }
     
@@ -539,11 +689,15 @@ input:checked + .slider:hover {
         font-size: 1.5rem;
     }
     
+    /* 图片区域移动设备优化 */
+    .image-container {
+        min-height: auto;
+    }
+    
     /* 流式模式移动设备优化 */
     .markdown-content {
         padding: 0.8rem;
         font-size: 0.9rem;
-        max-height: 55vh;
     }
     
     .markdown-content h1 {

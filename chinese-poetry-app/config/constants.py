@@ -11,6 +11,21 @@ DEFAULT_STREAM_MODE = True  # 是否默认启用流式返回，True-启用，Fal
 # 流式日志输出配置
 IS_OUTPUT_STREAM_LOG = True  # 是否输出流式返回日志，True-输出，False-不输出
 
+# kie.ai 图片生成API配置
+KIE_API_KEY = os.environ.get('KIE_API_KEY', '')
+KIE_API_BASE_URL = "https://api.kie.ai/api/v1/jobs"
+IMAGE_STORAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'images')
+IMAGE_GENERATION_TIMEOUT = 180  # 前端轮询超时时间（秒）
+IMAGE_ASPECT_RATIO = "3:2"
+IMAGE_RESOLUTION = "1K"
+IMAGE_OUTPUT_FORMAT = "png"
+
+# 图片生成提示词模板
+IMAGE_PROMPT_TEMPLATE = """A traditional Chinese Song Dynasty (宋代) landscape painting (山水画) inspired by the poem "{title}" by {author}.
+The painting captures the mood and imagery of: {verse_line}.
+Style requirements: classical Chinese ink wash painting, fresh and elegant (清新淡雅), generous white space (留白), soft muted colors, misty mountains, flowing water, delicate brushwork, serene atmosphere, traditional Song Dynasty artistic aesthetics.
+No text, no characters, no calligraphy in the image."""
+
 # 其他配置
 DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
 
@@ -19,32 +34,33 @@ STREAM_PROMPT_TEMPLATE = """请提供以下句子的完整古诗词信息："{ve
 
 要求：
 1. 必须包含以下所有部分，不能省略：
-   《诗词标题》
-   作者: 作者名·朝代
+   # 《实际诗词标题》
+   **作者**: 作者名 · 朝代
    
-   📜 完整诗词
+   ## 📜 完整诗词
    （必须包含每一句诗词，每句独立一行，括号标注拼音，诗词内容中间部分不能省略，比如用......）
    
-   💬 译文
+   ## 💬 译文
    （必须对每一句诗词进行白话文翻译，与原文一一对应，译文内容中间部分不能省略，比如用......）
    
-   📖 创作背景
+   ## 📖 创作背景
    （详细描述200字左右，包括创作时间、地点、背景事件）
    
-   🔍 疑难字词解析
-   字词1: 详细解释
-   字词2: 详细解释
+   ## 🔍 疑难字词解析
+   - **字词1**: 详细解释
+   - **字词2**: 详细解释
    （至少包含3-5个重要字词）
    
-   🎨 整体鉴赏
+   ## 🎨 整体鉴赏
    （必须包含200字以上的详细鉴赏，分析艺术手法、情感表达、主题思想）
    
-   ⭐ 名人点评
-   点评人1: 具体点评内容
-   点评人2: 具体点评内容
+   ## ⭐ 名人点评
+   - **点评人1**: 具体点评内容
+   - **点评人2**: 具体点评内容
    （必须包含2-3条历史名人点评）
 
 注意：
+- 标题部分直接输出实际的诗词标题（如《静夜思》《登鹳雀楼》），不要输出"诗词标题"这几个字
 - 必须完整输出所有部分，不要省略或简化输出......
 - 每个部分都要有实质内容，不能只是标题
 """

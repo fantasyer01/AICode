@@ -22,14 +22,36 @@
                                placeholder="请输入诗句，如：床前明月光" required>
                         <button type="submit" id="searchBtn">寻诗</button>
                     </div>
+                    <div id="inputErrorMsg" class="input-error-msg">请输入要查询的诗句</div>
                     <div class="stream-toggle">
                         <label class="toggle-switch">
                             <input type="checkbox" id="streamMode" {{ 'checked' if config.get('DEFAULT_STREAM_MODE', False) else '' }}>
                             <span class="slider"></span>
                         </label>
                         <span class="toggle-label">实时显示</span>
+                        
+                        <label class="toggle-switch" style="margin-left: 20px;">
+                            <input type="checkbox" id="imageMode" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">图片显示</span>
                     </div>
                 </form>
+            </section>
+
+            <section id="imageSection" class="image-section hidden">
+                <div class="image-container">
+                    <div id="imageLoading" class="image-loading hidden">
+                        <div class="image-skeleton"></div>
+                        <p id="imageStatusText" class="image-loading-text">正在生成诗境插画...</p>
+                    </div>
+                    <div id="imageResult" class="image-result hidden">
+                        <img id="poetryImage" src="" alt="诗词意境图">
+                    </div>
+                    <div id="imageError" class="image-error hidden">
+                        <p>图片未能正常生成及加载</p>
+                    </div>
+                </div>
             </section>
 
             <section id="resultSection" class="result-section hidden">
@@ -47,8 +69,92 @@
         </footer>
     </div>
 
+    <!-- 灯箱 -->
+    <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="诗词意境图">
+    </div>
+
     <script>
         let currentEventSource = null;
+        let imagePollInterval = null;
+        let imageRequested = false;
+        
+        // 按钮加载状态管理
+        function setButtonLoading(loading) {
+            const btn = document.getElementById('searchBtn');
+            if (loading) {
+                btn.disabled = true;
+                btn.textContent = '搜索中...';
+            } else {
+                btn.disabled = false;
+                btn.textContent = '寻诗';
+            }
+        }
+        
+        // 内联验证提示
+        function showInputError() {
+            const input = document.getElementById('verseInput');
+            const msg = document.getElementById('inputErrorMsg');
+            input.classList.add('input-error');
+            msg.classList.add('visible');
+        }
+        
+        function hideInputError() {
+            const input = document.getElementById('verseInput');
+            const msg = document.getElementById('inputErrorMsg');
+            input.classList.remove('input-error');
+            msg.classList.remove('visible');
+        }
+        
+        // 输入时自动清除错误提示
+        document.getElementById('verseInput').addEventListener('input', function() {
+            if (this.value.trim()) {
+                hideInputError();
+            }
+        });
+        
+        // 灯箱功能
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            lightboxImg.src = src;
+            lightbox.style.display = 'flex';
+            requestAnimationFrame(() => lightbox.classList.add('active'));
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            setTimeout(() => {
+                lightbox.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 300);
+        }
+        
+        // ESC键关闭灯箱
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+        
+        // Reset image section state
+        function resetImageSection() {
+            if (imagePollInterval) {
+                clearTimeout(imagePollInterval);
+                imagePollInterval = null;
+            }
+            imageRequested = false;
+            const imageSection = document.getElementById('imageSection');
+            const imageLoading = document.getElementById('imageLoading');
+            const imageResult = document.getElementById('imageResult');
+            const imageError = document.getElementById('imageError');
+            imageSection.classList.add('hidden');
+            imageLoading.classList.add('hidden');
+            imageResult.classList.add('hidden');
+            imageResult.classList.remove('fade-in');
+            imageError.classList.add('hidden');
+            document.getElementById('imageStatusText').textContent = '正在生成诗境插画...';
+        }
         
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -60,9 +166,10 @@
             const poetryResult = document.getElementById('poetryResult');
             
             if (!verse) {
-                alert('请输入要查询的诗句');
+                showInputError();
                 return;
             }
+            hideInputError();
             
             // 关闭之前的流式连接
             if (currentEventSource) {
@@ -70,10 +177,14 @@
                 currentEventSource = null;
             }
             
+            // 重置图片区域
+            resetImageSection();
+            
             // 显示加载状态
             resultSection.classList.remove('hidden');
             loading.classList.remove('hidden');
             poetryResult.innerHTML = '';
+            setButtonLoading(true);
             
             if (streamMode) {
                 // 流式模式
@@ -98,18 +209,31 @@
                 
                 // 隐藏加载状态
                 loading.classList.add('hidden');
+                setButtonLoading(false);
                 
                 if (data.error) {
                     poetryResult.innerHTML = `<div class="error-message">${data.error}</div>`;
+                    // API异常时，不触发图片生成，隐藏图片区域
+                    resetImageSection();
                     return;
                 }
                 
                 // 渲染诗词结果
                 renderPoetryResult(data);
                 
+                // 平滑滚动到结果
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // 触发图片请求（异步，不阻塞文本显示）
+                console.log('非流式模式触发图片请求:', data.title, data.author, data.dynasty);
+                requestPoemImage(data.title, data.author, data.dynasty, verse);
+                
             } catch (error) {
                 loading.classList.add('hidden');
+                setButtonLoading(false);
                 poetryResult.innerHTML = '<div class="error-message">查询失败，请稍后重试</div>';
+                // 网络异常时，不触发图片生成，隐藏图片区域
+                resetImageSection();
                 console.error('Error:', error);
             }
         }
@@ -118,9 +242,13 @@
             loading.classList.add('hidden');
             poetryResult.innerHTML = '<div class="markdown-content" id="streamContent"></div>';
             
+            // 平滑滚动到结果
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
             const streamContent = document.getElementById('streamContent');
             let markdownText = '';
-            let buffer = '';  // 添加缓冲区处理不完整的数据行
+            let buffer = '';
+            let hasError = false;  // 标记是否发生错误
             
             fetch('/search_stream', {
                 method: 'POST',
@@ -138,19 +266,24 @@
                     reader.read().then(({ done, value }) => {
                         if (done) {
                             console.log('流式传输完成');
+                            setButtonLoading(false);
                             // 处理缓冲区中剩余的数据
                             if (buffer.trim()) {
                                 console.warn('缓冲区中有未处理数据:', buffer);
+                            }
+                            // 如果发生错误，隐藏图片区域
+                            if (hasError) {
+                                resetImageSection();
                             }
                             return;
                         }
                         
                         const chunk = decoder.decode(value, { stream: true });
-                        buffer += chunk;  // 添加到缓冲区
+                        buffer += chunk;
                         
                         // 按行分割，保留最后一个不完整的行
                         const lines = buffer.split('\n');
-                        buffer = lines.pop() || '';  // 保存最后一个可能不完整的行
+                        buffer = lines.pop() || '';
                         
                         lines.forEach(line => {
                             if (line.startsWith('data: ')) {
@@ -162,10 +295,19 @@
                                         streamContent.innerHTML = marked.parse(markdownText);
                                         // 自动滚动到底部
                                         streamContent.scrollTop = streamContent.scrollHeight;
+                                        
+                                        // 尝试从流式内容中提取标题和作者，触发图片请求
+                                        // 只有没有错误时才触发图片请求
+                                        if (!hasError) {
+                                            tryExtractAndRequestImage(markdownText, verse);
+                                        }
                                     }
                                     if (jsonData.error) {
+                                        hasError = true;  // 标记发生错误
                                         console.error('流式错误:', jsonData.error);
                                         streamContent.innerHTML += `<div class="error-message">错误: ${jsonData.error}</div>`;
+                                        // 发生错误时，隐藏图片区域
+                                        resetImageSection();
                                     }
                                 } catch (e) {
                                     console.warn('JSON解析失败，跳过此行:', line, e);
@@ -175,16 +317,179 @@
                         
                         readStream();
                     }).catch(error => {
+                        hasError = true;  // 标记发生错误
                         console.error('流式读取错误:', error);
+                        setButtonLoading(false);
                         streamContent.innerHTML += `<div class="error-message">流式传输错误: ${error.message}</div>`;
+                        // 发生错误时，隐藏图片区域
+                        resetImageSection();
                     });
                 }
                 
                 readStream();
             }).catch(error => {
+                hasError = true;  // 标记发生错误
                 console.error('流式请求错误:', error);
+                setButtonLoading(false);
                 streamContent.innerHTML = `<div class="error-message">流式请求失败: ${error.message}</div>`;
+                // 发生错误时，隐藏图片区域
+                resetImageSection();
             });
+        }
+        
+        // 从流式内容中提取标题和作者，触发图片生成
+        function tryExtractAndRequestImage(markdownText, verse) {
+            if (imageRequested) return;
+            
+            // 检查图片显示开关
+            const imageMode = document.getElementById('imageMode').checked;
+            if (!imageMode) return;
+            
+            // 匹配标题：兼容 # 《标题》、## 《标题》、《标题》等格式
+            const titleMatch = markdownText.match(/《(.+?)》/);
+            // 匹配作者：兼容 **作者**: 李白 · 唐代、作者: 李白·唐代、作者：李白 · 唐代 等格式
+            // 使用 \n 结尾确保在流式模式下该行已完整输出
+            const authorMatch = markdownText.match(/作者\*{0,2}\s*[:：]\s*(.+?)\s*[·•\u00B7\u2022\u30FB]\s*(.+)\n/);
+            
+            if (titleMatch && authorMatch) {
+                const title = titleMatch[1].trim();
+                const author = authorMatch[1].trim();
+                const dynasty = authorMatch[2].trim();
+                imageRequested = true;
+                console.log('流式模式提取到诗词信息:', title, author, dynasty);
+                requestPoemImage(title, author, dynasty, verse);
+            }
+        }
+        
+        // 异步请求诗词相关图片
+        async function requestPoemImage(title, author, dynasty, verse) {
+            // 检查图片显示开关
+            const imageMode = document.getElementById('imageMode').checked;
+            if (!imageMode) {
+                console.log('图片显示已关闭，跳过图片请求');
+                return;
+            }
+            
+            const imageSection = document.getElementById('imageSection');
+            const imageLoading = document.getElementById('imageLoading');
+            const imageError = document.getElementById('imageError');
+            
+            console.log('requestPoemImage 调用:', {title, author, dynasty, verse});
+            
+            try {
+                imageSection.classList.remove('hidden');
+                imageLoading.classList.remove('hidden');
+                
+                const response = await fetch('/image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ title, author, dynasty, verse })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'found') {
+                    displayImage(data.url, title);
+                } else if (data.status === 'generating') {
+                    pollImageStatus(data.taskId, title, author);
+                } else if (data.status === 'disabled') {
+                    // 图片功能未启用，静默隐藏
+                    imageSection.classList.add('hidden');
+                } else {
+                    imageLoading.classList.add('hidden');
+                    imageError.classList.remove('hidden');
+                    console.warn('图片请求失败:', data.message);
+                }
+            } catch (error) {
+                imageLoading.classList.add('hidden');
+                imageError.classList.remove('hidden');
+                console.error('图片请求异常:', error);
+            }
+        }
+        
+        // 轮询图片生成状态
+        function pollImageStatus(taskId, title, author) {
+            const statusText = document.getElementById('imageStatusText');
+            const startTime = Date.now();
+            const timeoutMs = 120 * 1000;  // 120秒超时
+
+            async function poll() {
+                const elapsed = Date.now() - startTime;
+
+                // 超时处理
+                if (elapsed > timeoutMs) {
+                    imagePollInterval = null;
+                    document.getElementById('imageLoading').classList.add('hidden');
+                    document.getElementById('imageError').classList.remove('hidden');
+                    document.getElementById('imageError').querySelector('p').textContent = '图片未能正常生成及加载';
+                    return;
+                }
+
+                // 更新等待时间显示
+                const seconds = Math.floor(elapsed / 1000);
+                statusText.textContent = `正在生成诗境插画...已等待 ${seconds} 秒`;
+
+                try {
+                    const params = new URLSearchParams({ taskId, title, author });
+                    const response = await fetch(`/image_status?${params}`);
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        imagePollInterval = null;
+                        displayImage(data.url, title);
+                        return;  // 终止轮询
+                    } else if (data.status === 'error') {
+                        imagePollInterval = null;
+                        document.getElementById('imageLoading').classList.add('hidden');
+                        document.getElementById('imageError').classList.remove('hidden');
+                        console.warn('图片生成失败:', data.message);
+                        return;  // 终止轮询
+                    }
+                    // status === 'waiting' → 继续轮询
+                } catch (error) {
+                    console.error('轮询图片状态异常:', error);
+                    // 网络异常不终止，等下一轮重试
+                }
+
+                // 当前请求完全结束后，再调度下一次
+                imagePollInterval = setTimeout(poll, 3000);
+            }
+
+            // 首次轮询延迟 3 秒后发起
+            imagePollInterval = setTimeout(poll, 3000);
+        }
+        
+        // 展示图片
+        function displayImage(imageUrl, title) {
+            const imageLoading = document.getElementById('imageLoading');
+            const imageResult = document.getElementById('imageResult');
+            const imageError = document.getElementById('imageError');
+            const statusText = document.getElementById('imageStatusText');
+            const img = document.getElementById('poetryImage');
+            
+            // Keep showing loading state with updated text while image downloads
+            statusText.textContent = '图片加载中...';
+            
+            img.onload = function() {
+                // Only hide loading and show result when image is fully loaded
+                imageLoading.classList.add('hidden');
+                imageResult.classList.remove('hidden');
+                // 淡入效果
+                requestAnimationFrame(() => imageResult.classList.add('fade-in'));
+            };
+            img.onerror = function() {
+                imageLoading.classList.add('hidden');
+                imageError.classList.remove('hidden');
+                imageError.querySelector('p').textContent = '图片未能正常生成及加载';
+                console.error('图片加载失败:', imageUrl);
+            };
+            
+            // 点击放大
+            img.onclick = function() {
+                openLightbox(this.src);
+            };
+            
+            img.src = imageUrl;
         }
         
         function renderPoetryResult(data) {
@@ -202,14 +507,24 @@
             `;
             
             // 添加诗词全文和拼音
-            if (data.verses_with_pinyin) {
-                data.verses_with_pinyin.forEach(verse => {
-                    html += `
+            // full_text format: "诗句文本（pīn yīn）" — split text and pinyin
+            if (data.full_text && data.full_text.length > 0) {
+                data.full_text.forEach(line => {
+                    const match = line.match(/^(.+?)（(.+)）$/);
+                    if (match) {
+                        html += `
                         <div class="verse-line">
-                            <div class="verse-text">${verse.text}</div>
-                            <div class="verse-pinyin">${verse.pinyin}</div>
+                            <div class="verse-text">${match[1]}</div>
+                            <div class="verse-pinyin">${match[2]}</div>
                         </div>
                     `;
+                    } else {
+                        html += `
+                        <div class="verse-line">
+                            <div class="verse-text">${line}</div>
+                        </div>
+                    `;
+                    }
                 });
             }
             
@@ -301,13 +616,6 @@
             
             document.getElementById('poetryResult').innerHTML = html;
         }
-        
-        // 回车键搜索
-        document.getElementById('verseInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('searchForm').dispatchEvent(new Event('submit'));
-            }
-        });
     </script>
 </body>
 </html>

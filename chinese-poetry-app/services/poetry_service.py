@@ -110,48 +110,57 @@ class PoetryAPI:
         return self._get_fallback_data(verse_line)    
 
     def _handle_json_response(self, response, verse_line: str) -> Any:
-
-            logger.info(f"非流式API响应状态码: {response.status_code}")
+        """
+        Handle non-streaming JSON response from API.
+        
+        Returns:
+            Poetry data dict on success, or dict with 'error' key on failure
+        """
+        logger.info(f"非流式API响应状态码: {response.status_code}")
+        
+        if response.status_code == 200:
+            result = response.json()
+            logger.info("API调用成功")
             
-            if response.status_code == 200:
-                result = response.json()
-                logger.info("API调用成功")
+            # Log complete API response
+            logger.debug("=" * 80)
+            logger.debug("DeepSeek API 完整返回报文:")
+            logger.debug("=" * 80)
+            logger.debug(json.dumps(result, ensure_ascii=False, indent=2))
+            logger.debug("=" * 80)
+            
+            # Parse response content
+            if 'choices' in result and len(result['choices']) > 0:
+                content = result['choices'][0]['message']['content']
+                logger.debug(f"提取的返回内容长度: {len(content)} 字符")
                 
-                # Log complete API response
-                logger.debug("=" * 80)
-                logger.debug("DeepSeek API 完整返回报文:")
-                logger.debug("=" * 80)
-                logger.debug(json.dumps(result, ensure_ascii=False, indent=2))
-                logger.debug("=" * 80)
+                # Clean content and extract JSON
+                cleaned_content = content.strip()
+                json_match = re.search(r'\{.*\}', cleaned_content, re.DOTALL)
                 
-                # Parse response content
-                if 'choices' in result and len(result['choices']) > 0:
-                    content = result['choices'][0]['message']['content']
-                    logger.debug(f"提取的返回内容长度: {len(content)} 字符")
-                    
-                    # Clean content and extract JSON
-                    cleaned_content = content.strip()
-                    json_match = re.search(r'\{.*\}', cleaned_content, re.DOTALL)
-                    
-                    if json_match:
-                        try:
-                            json_str = json_match.group()
-                            poetry_data = json.loads(json_str)
-                            logger.info("JSON解析成功")
-                            validated_data = self._validate_poetry_data(poetry_data, verse_line)
-                            return validated_data
-                        except json.JSONDecodeError as e:
-                            logger.error(f"JSON解析失败: {e}")
-                            if json_match:
-                                logger.debug(f"尝试解析的JSON字符串: {json_match.group()}")
-                    else:
-                        logger.error("未找到JSON格式内容")
-                        logger.debug(f"原始返回内容: {cleaned_content}")
+                if json_match:
+                    try:
+                        json_str = json_match.group()
+                        poetry_data = json.loads(json_str)
+                        logger.info("JSON解析成功")
+                        validated_data = self._validate_poetry_data(poetry_data, verse_line)
+                        return validated_data
+                    except json.JSONDecodeError as e:
+                        logger.error(f"JSON解析失败: {e}")
+                        if json_match:
+                            logger.debug(f"尝试解析的JSON字符串: {json_match.group()}")
+                        return {"error": "JSON解析失败，请重试"}
                 else:
-                    logger.error("API返回格式异常，缺少choices字段")
+                    logger.error("未找到JSON格式内容")
+                    logger.debug(f"原始返回内容: {cleaned_content}")
+                    return {"error": "API返回格式异常"}
             else:
-                logger.error(f"API请求失败: {response.status_code}")
-                logger.error(f"错误响应: {response.text}")
+                logger.error("API返回格式异常，缺少choices字段")
+                return {"error": "API返回格式异常"}
+        else:
+            logger.error(f"API请求失败: {response.status_code}")
+            logger.error(f"错误响应: {response.text}")
+            return {"error": f"API请求失败: {response.status_code}"}
                 
     def _build_prompt(self, verse_line: str, stream_mode: bool) -> str:
         """Build prompt for API request from constants"""
@@ -337,8 +346,7 @@ class PoetryAPI:
         logger.debug(f"使用备用Markdown数据 for: {verse_line}")
         
         fallback_markdown = {
-            "床前明月光": """
-# 《静夜思》
+            "床前明月光": """# 《静夜思》
 **作者**: 李白 · 唐代
 
 ## 📜 完整诗词
@@ -371,8 +379,7 @@ class PoetryAPI:
 """
         }
         
-        markdown_content = fallback_markdown.get(verse_line, f"""
-# 《诗词查询结果》
+        markdown_content = fallback_markdown.get(verse_line, f"""# 《诗词查询结果》
 **作者**: 暂缺 · 暂缺
 
 ## 📜 完整诗词

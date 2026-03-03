@@ -9,9 +9,12 @@ services:
     volumes:
       # Persist logs to host
       - ./logs:/app/logs
+      # Persist generated images to host
+      - ./static/images:/app/static/images
     environment:
       - TZ=Asia/Shanghai
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - KIE_API_KEY=${KIE_API_KEY}
     restart: always
     logging:
       driver: "json-file"

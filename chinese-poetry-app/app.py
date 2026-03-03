@@ -19,6 +19,9 @@ except ImportError:
 # Setup logging
 logger = setup_logging(app)
 
+# Ensure image storage directory exists
+os.makedirs(constants.IMAGE_STORAGE_DIR, exist_ok=True)
+
 # Register blueprints
 app.register_blueprint(web_bp)
 app.register_blueprint(api_bp)
@@ -38,6 +41,13 @@ if __name__ == '__main__':
             logger.warning("当前将使用备用数据进行演示")
         else:
             logger.info(f"API密钥已配置: ***{api_key[-4:] if len(api_key) > 4 else '***'}")
+        
+        # Check KIE API key configuration
+        kie_key = app.config.get('KIE_API_KEY')
+        if not kie_key:
+            logger.warning("KIE_API_KEY 未配置，图片生成功能已禁用")
+        else:
+            logger.info(f"KIE API密钥已配置: ***{kie_key[-4:] if len(kie_key) > 4 else '***'}")
         
         logger.info("=" * 60)
     
