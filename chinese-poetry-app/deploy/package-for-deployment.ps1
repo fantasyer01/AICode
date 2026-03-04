@@ -22,6 +22,7 @@ $ExcludeItems = @(
     ".vscode",
     ".idea",
     "*.log",
+    ".qoder",
     "deploy",
     ".gitignore",
     $OutputFile

@@ -65,7 +65,7 @@ class ImageService:
         try:
             url = f"{self.base_url}/recordInfo?taskId={task_id}"
             headers = {"Authorization": f"Bearer {self.api_key}"}
-            response = requests.get(url, headers=headers, timeout=30)
+            response = requests.get(url, headers=headers, timeout=60)
 
             if response.status_code != 200:
                 logger.error(f"查询任务状态失败, HTTP {response.status_code}: {response.text}")
@@ -134,7 +134,7 @@ class ImageService:
         try:
             url = f"{self.base_url}/recordInfo?taskId={task_id}"
             headers = {"Authorization": f"Bearer {self.api_key}"}
-            response = requests.get(url, headers=headers, timeout=30)
+            response = requests.get(url, headers=headers, timeout=60)
 
             if response.status_code != 200:
                 logger.error(f"查询任务状态失败, HTTP {response.status_code}: {response.text}")
@@ -246,7 +246,7 @@ class ImageService:
                 f"{self.base_url}/createTask",
                 headers=headers,
                 json=payload,
-                timeout=30,
+                timeout=60,
             )
 
             if response.status_code != 200:

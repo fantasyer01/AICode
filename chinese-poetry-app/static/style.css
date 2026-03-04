@@ -726,7 +726,6 @@ input:checked + .slider:hover {
     }
     
     .stream-toggle {
-        flex-direction: column;
         gap: 0.5rem;
     }
     
