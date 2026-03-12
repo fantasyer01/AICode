@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$CONTENT_TITLE - Admin">AI Blog Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        'primary-dark': '#1d4ed8',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col">
+
+    <!-- Admin Navigation -->
+    <nav class="bg-gray-800 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-14">
+                <div class="flex items-center space-x-6">
+                    <a th:href="@{/admin}" class="text-lg font-bold text-white hover:text-blue-300 transition-colors">
+                        AI Blog Admin
+                    </a>
+                    <a th:href="@{/admin}" class="text-sm text-gray-300 hover:text-white transition-colors">Articles</a>
+                    <a th:href="@{/admin/audit-logs}" class="text-sm text-gray-300 hover:text-white transition-colors">Audit Logs</a>
+                </div>
+                <div class="flex items-center space-x-4 text-sm">
+                    <a th:href="@{/}" class="text-gray-300 hover:text-white transition-colors">View Blog</a>
+                    <a th:href="@{/admin/logout}" class="text-red-400 hover:text-red-300 transition-colors">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 py-8">
+        <div layout:fragment="content"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+            <p class="text-center text-xs text-gray-500">
+                AI Blog Admin Panel
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

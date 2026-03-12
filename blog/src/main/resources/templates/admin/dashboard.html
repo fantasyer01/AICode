@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Articles</h1>
+        <a th:href="@{/admin/articles/create}"
+           class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors">
+            New Article
+        </a>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${articles.isEmpty()}" class="text-center py-16 bg-white rounded-xl border border-gray-200">
+        <p class="text-gray-500">No articles yet. Create your first article.</p>
+    </div>
+
+    <!-- Article Table -->
+    <div th:unless="${articles.isEmpty()}" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">ID</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Title</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Author</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Tags</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Created</th>
+                    <th class="text-right px-4 py-3 font-medium text-gray-500">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr th:each="article : ${articles.content}" class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-gray-500" th:text="${article.id}">1</td>
+                    <td class="px-4 py-3">
+                        <a th:href="@{'/article/' + ${article.id}}" th:text="${article.title}"
+                           class="text-gray-900 font-medium hover:text-primary transition-colors" target="_blank">
+                            Title
+                        </a>
+                    </td>
+                    <td class="px-4 py-3 text-gray-500" th:text="${article.author ?: '-'}">Author</td>
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap gap-1">
+                            <span th:each="tag : ${article.tags}" th:text="${tag}"
+                                  class="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-50 text-blue-700">
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-500" th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                    <td class="px-4 py-3 text-right space-x-3">
+                        <a th:href="@{'/admin/articles/' + ${article.id} + '/edit'}"
+                           class="text-primary hover:text-primary-dark transition-colors">Edit</a>
+                        <a th:href="@{'/admin/articles/' + ${article.id} + '/delete'}"
+                           class="text-red-500 hover:text-red-700 transition-colors">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${articles.totalPages > 1}" class="mt-6 flex justify-center items-center gap-2">
+        <a th:href="@{/admin(page=${articles.number - 1})}"
+           th:classappend="${articles.first} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            Prev
+        </a>
+        <span class="px-4 py-2 text-sm text-gray-500">
+            Page <span th:text="${articles.number + 1}">1</span> / <span th:text="${articles.totalPages}">1</span>
+        </span>
+        <a th:href="@{/admin(page=${articles.number + 1})}"
+           th:classappend="${articles.last} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            Next
+        </a>
+    </nav>
+
+</div>
+</body>
+</html>

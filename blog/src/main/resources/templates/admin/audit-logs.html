@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Audit Logs</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Audit Logs</h1>
+
+    <!-- Empty State -->
+    <div th:if="${logs.isEmpty()}" class="text-center py-16 bg-white rounded-xl border border-gray-200">
+        <p class="text-gray-500">No audit log entries yet.</p>
+    </div>
+
+    <!-- Audit Log Table -->
+    <div th:unless="${logs.isEmpty()}" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Timestamp</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Operation</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Entity Type</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Entity ID</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Operator</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr th:each="entry : ${logs.content}" class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-gray-500" th:text="${#temporals.format(entry.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</td>
+                    <td class="px-4 py-3">
+                        <span th:text="${entry.operationType}"
+                              th:classappend="${entry.operationType == 'INSERT'} ? 'bg-green-50 text-green-700' : (${entry.operationType == 'DELETE'} ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700')"
+                              class="inline-block px-2 py-0.5 text-xs font-medium rounded-full">
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-700" th:text="${entry.entityType}">Article</td>
+                    <td class="px-4 py-3 text-gray-500" th:text="${entry.entityId}">1</td>
+                    <td class="px-4 py-3 text-gray-500" th:text="${entry.operator}">admin</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${logs.totalPages > 1}" class="mt-6 flex justify-center items-center gap-2">
+        <a th:href="@{/admin/audit-logs(page=${logs.number - 1})}"
+           th:classappend="${logs.first} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            Prev
+        </a>
+        <span class="px-4 py-2 text-sm text-gray-500">
+            Page <span th:text="${logs.number + 1}">1</span> / <span th:text="${logs.totalPages}">1</span>
+        </span>
+        <a th:href="@{/admin/audit-logs(page=${logs.number + 1})}"
+           th:classappend="${logs.last} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            Next
+        </a>
+    </nav>
+
+</div>
+</body>
+</html>

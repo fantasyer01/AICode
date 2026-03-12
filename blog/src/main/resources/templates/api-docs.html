@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>API Documentation</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="max-w-3xl mx-auto">
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">API Documentation</h1>
+            <a th:href="@{/api/docs/raw}"
+               class="text-sm px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+                Raw Markdown
+            </a>
+        </div>
+        <div class="article-content prose bg-white rounded-xl p-8 shadow-sm border border-gray-100"
+             th:utext="${contentHtml}">
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

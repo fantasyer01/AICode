@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-blog
+  datasource:
+    url: jdbc:h2:file:./data/aiblog;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    #database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+  thymeleaf:
+    cache: false
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 50
+
+logging:
+  config: classpath:logback-spring.xml
+
+app:
+  image:
+    storage-dir: ./data/images
+    url-prefix: /images
+  admin:
+    username: admin
+    password: changeme123
+  api:
+    key: your-api-key-here

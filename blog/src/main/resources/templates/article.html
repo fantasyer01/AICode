@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${article.title}">Article</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <article class="max-w-3xl mx-auto">
+
+        <!-- Cover Image -->
+        <div th:if="${article.coverImageUrl != null and !article.coverImageUrl.isEmpty()}"
+             class="mb-8 rounded-xl overflow-hidden shadow-sm">
+            <img th:src="${article.coverImageUrl}" th:alt="${article.title}"
+                 class="w-full max-h-96 object-cover">
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight"
+            th:text="${article.title}">Article Title</h1>
+
+        <!-- Meta Bar -->
+        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-8 pb-6 border-b border-gray-200">
+            <span th:if="${article.author != null and !article.author.isEmpty()}"
+                  class="font-medium text-gray-700" th:text="${article.author}"></span>
+            <time th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')}"></time>
+            <div th:if="${article.tags != null and !article.tags.isEmpty()}" class="flex flex-wrap gap-1">
+                <a th:each="tag : ${article.tags}"
+                   th:href="@{'/tag/' + ${tag}}"
+                   th:text="'#' + ${tag}"
+                   class="px-2 py-0.5 text-xs rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                </a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="article-content prose" th:utext="${contentHtml}">
+            Article content rendered here.
+        </div>
+
+        <!-- Back -->
+        <div class="mt-12 pt-6 border-t border-gray-200">
+            <a th:href="@{/}" class="text-sm text-primary hover:underline">&larr; Back to all articles</a>
+        </div>
+
+    </article>
+
+</div>
+</body>
+</html>
