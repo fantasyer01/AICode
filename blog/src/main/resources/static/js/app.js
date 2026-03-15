@@ -29,3 +29,17 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapper.appendChild(btn);
     });
 });
+
+// Toggle raw content visibility for snippets
+function toggleRawContent(snippetId) {
+    var rawContentDiv = document.getElementById('raw-content-' + snippetId);
+    var toggleLink = document.getElementById('toggle-link-' + snippetId);
+
+    if (rawContentDiv.classList.contains('hidden')) {
+        rawContentDiv.classList.remove('hidden');
+        toggleLink.textContent = '收起原始内容';
+    } else {
+        rawContentDiv.classList.add('hidden');
+        toggleLink.textContent = '原始内容';
+    }
+}

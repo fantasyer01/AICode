@@ -18,11 +18,11 @@
         </div>
 
         <!-- Title -->
-        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight"
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 leading-tight font-serif"
             th:text="${article.title}">Article Title</h1>
 
         <!-- Meta Bar -->
-        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-8 pb-6 border-b border-gray-200">
+        <div class="flex flex-wrap items-center gap-4 text-sm text-warm-gray mb-8 pb-6 border-b border-warm-border">
             <span th:if="${article.author != null and !article.author.isEmpty()}"
                   class="font-medium text-gray-700" th:text="${article.author}"></span>
             <time th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')}"></time>
@@ -30,7 +30,7 @@
                 <a th:each="tag : ${article.tags}"
                    th:href="@{'/tag/' + ${tag}}"
                    th:text="'#' + ${tag}"
-                   class="px-2 py-0.5 text-xs rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                   class="px-2 py-0.5 text-xs rounded-full bg-cream text-secondary hover:bg-secondary hover:text-white transition-colors">
                 </a>
             </div>
         </div>
@@ -41,8 +41,8 @@
         </div>
 
         <!-- Back -->
-        <div class="mt-12 pt-6 border-t border-gray-200">
-            <a th:href="@{/}" class="text-sm text-primary hover:underline">&larr; Back to all articles</a>
+        <div class="mt-12 pt-6 border-t border-warm-border">
+            <a th:href="@{/}" class="text-sm text-primary hover:text-primary-dark transition-colors">&larr; Back to all articles</a>
         </div>
 
     </article>

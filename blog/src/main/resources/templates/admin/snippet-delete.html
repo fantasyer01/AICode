@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Delete Snippet</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="max-w-lg mx-auto mt-8">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h1 class="text-xl font-bold text-gray-900 mb-4">Delete Snippet</h1>
+
+            <p class="text-gray-600 mb-2">Are you sure you want to delete this snippet?</p>
+
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <p th:if="${snippet.processedTitle != null}" class="font-medium text-gray-900" th:text="${snippet.processedTitle}">Title</p>
+                <p th:if="${snippet.processedTitle == null}" class="font-medium text-gray-900 line-clamp-2" th:text="${snippet.rawContent}">Content</p>
+                <p class="text-sm text-gray-500 mt-1">
+                    ID: <span th:text="${snippet.id}">1</span>
+                    <span th:if="${snippet.author}"> | Author: <span th:text="${snippet.author}">Author</span></span>
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <form th:action="@{'/admin/snippets/' + ${snippet.id} + '/delete'}" method="post">
+                    <button type="submit"
+                            class="px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                        Confirm Delete
+                    </button>
+                </form>
+                <a th:href="@{/admin/snippets}"
+                   class="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

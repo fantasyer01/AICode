@@ -1,8 +1,10 @@
-# AI Blog API Documentation
+# AI 往昔录 API Documentation
 
-This document describes the REST API for the AI Blog system. Use these endpoints to programmatically create and manage blog articles.
+This document describes the REST API for the AI 往昔录 system. Use these endpoints to programmatically create and manage blog articles and snippets.
 
-**Base URL**: `http://localhost:8080`
+**Base URL**: `http://localhost:9100`
+
+**Authentication**: Write operations (POST, PUT, DELETE) require an `X-API-Key` header.
 
 ---
 
@@ -95,49 +97,7 @@ curl http://localhost:8080/api/articles/1
 
 ---
 
-### 3. Update Article
-
-**PUT** `/api/articles/{id}`
-
-Updates an existing article. Only provided fields are updated (partial update supported).
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|---|---|---|
-| `id` | `long` | Article ID |
-
-**Request Body:**
-
-All fields are optional. Only non-null fields will be updated.
-
-| Field | Type | Description |
-|---|---|---|
-| `title` | `string` | New title |
-| `author` | `string` | New author name |
-| `content` | `string` | New Markdown content |
-| `summary` | `string` | New summary |
-| `tags` | `string[]` | New tags (replaces all existing tags) |
-| `coverImage` | `string` | New cover image (Base64 or URL, same format as create) |
-
-**Example Request:**
-
-```bash
-curl -X PUT http://localhost:8080/api/articles/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Updated Title",
-    "tags": ["updated-tag", "ai"]
-  }'
-```
-
-**Response:** `200 OK` - Returns the updated article in the same JSON format.
-
-**Error:** `404 Not Found` if the article does not exist.
-
----
-
-### 4. List Articles
+### 3. List Articles
 
 **GET** `/api/articles`
 
@@ -228,3 +188,69 @@ All error responses follow this format:
 - **Pagination**: The default page size is 10, maximum is 50. Pages are 0-indexed.
 - **Cover Image**: The `coverImage` request field accepts Base64 encoded images or plain URLs. The response always returns a `coverImageUrl` with the accessible path.
 - **No DELETE endpoint**: Articles are permanent records and cannot be deleted through the API.
+
+---
+
+## Snippets API
+
+Snippets are short reading notes that are automatically processed by AI (DeepSeek LLM) to generate a title, structured content, and tags.
+
+### Create Snippet
+
+**POST** `/api/snippets`
+
+Creates a new snippet. The raw content is automatically processed by AI to generate a title, structured content, and 1-2 topic tags. Processing happens synchronously - the response includes the processed result.
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `X-API-Key: <your-api-key>` (required)
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `rawContent` | `string` | Yes | The raw reading note text to be processed |
+| `author` | `string` | No | Author name, max 200 characters |
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:9100/api/snippets \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "rawContent": "Today I read about how Redis uses single-threaded event loop for I/O multiplexing. The key insight is that most operations are memory-based so CPU is rarely the bottleneck. Network I/O is the real bottleneck and epoll handles that efficiently.",
+    "author": "John"
+  }'
+```
+
+**Response:** `201 Created`
+
+```json
+{
+  "id": 1,
+  "rawContent": "Today I read about how Redis uses single-threaded...",
+  "processedTitle": "Redis Single-Threaded Architecture",
+  "processedContent": "## Redis I/O Model\n\nRedis employs a single-threaded event loop...",
+  "displayTitle": "Redis Single-Threaded Architecture",
+  "displayContent": "## Redis I/O Model\n\nRedis employs a single-threaded event loop...",
+  "displayContentHtml": "<h2>Redis I/O Model</h2>\n<p>Redis employs a single-threaded event loop...</p>",
+  "tags": ["redis", "system-design"],
+  "author": "John",
+  "status": "PROCESSED",
+  "createdAt": "2026-03-14T14:30:00",
+  "updatedAt": "2026-03-14T14:30:00"
+}
+```
+
+**Status Field Values:**
+
+| Status | Meaning |
+|---|---|
+| `PROCESSED` | AI successfully generated title, content, and tags |
+| `PENDING` | AI processing has not started (rare in normal flow) |
+| `FAILED` | AI processing failed. `displayContent` falls back to `rawContent` |
+
+When `status` is `FAILED`, the snippet is still saved. The `displayTitle` will be `null` and `displayContent` will contain the original `rawContent`. The `tags` list will be empty.
+
+

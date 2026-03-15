@@ -5,35 +5,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title layout:title-pattern="$CONTENT_TITLE - AI Blog">AI Blog</title>
+    <title layout:title-pattern="$CONTENT_TITLE - AI 往昔录">AI 往昔录</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#2563eb',
-                        'primary-dark': '#1d4ed8',
+                        primary: '#E07A5F',
+                        'primary-dark': '#D06045',
+                        secondary: '#81B29A',
+                        cream: '#FDF8F3',
+                        'cream-dark': '#FDF6F0',
+                        'warm-gray': '#6B6B6B',
+                        'warm-border': '#E8E0D5',
+                        accent: '#F2CC8F',
+                    },
+                    fontFamily: {
+                        'serif': ['"Noto Serif SC"', 'Georgia', 'serif'],
+                        'sans': ['"Noto Sans SC"', 'system-ui', 'sans-serif'],
+                        'mono': ['"JetBrains Mono"', 'Consolas', 'monospace'],
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+<body class="bg-cream text-warm-gray min-h-screen flex flex-col font-sans">
 
     <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav class="bg-white/80 backdrop-blur-sm border-b border-warm-border sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 sm:px-6">
             <div class="flex justify-between items-center h-16">
-                <a th:href="@{/}" class="text-xl font-bold text-gray-900 hover:text-primary transition-colors">
-                    AI Blog
+                <a th:href="@{/}" class="text-xl font-bold text-gray-800 hover:text-primary transition-colors font-serif">
+                    AI 往昔录
                 </a>
                 <div class="flex items-center space-x-6 text-sm">
-                    <a th:href="@{/}" class="text-gray-600 hover:text-primary transition-colors">Home</a>
-                    <a th:href="@{/api/docs}" class="text-gray-600 hover:text-primary transition-colors">API Docs</a>
+                    <a th:href="@{/}" class="text-warm-gray hover:text-primary transition-colors">Home</a>
+                    <a th:href="@{/api/docs}" class="text-warm-gray hover:text-primary transition-colors">API Docs</a>
                 </div>
             </div>
         </div>
@@ -45,15 +59,15 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
+    <footer class="bg-white border-t border-warm-border mt-auto">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
-            <p class="text-center text-sm text-gray-500">
+            <p class="text-center text-sm text-warm-gray">
                 Powered by Spring Boot &amp; Thymeleaf
             </p>
         </div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/js/app.js?v=2}"></script>
 </body>
 </html>

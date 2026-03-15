@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9100
 
 spring:
   application:
@@ -8,7 +8,7 @@ spring:
     url: jdbc:h2:file:./data/aiblog;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
-    password:
+    password: 
   jpa:
     #database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -17,7 +17,7 @@ spring:
     open-in-view: false
   h2:
     console:
-      enabled: true
+      enabled: false
       path: /h2-console
       settings:
         web-allow-others: false
@@ -38,6 +38,10 @@ app:
     url-prefix: /images
   admin:
     username: admin
-    password: changeme123
+    password: ${BLOG_ADMIN_PASSWORD}
   api:
-    key: your-api-key-here
+    key: ${BLOG_API_KEY}
+  deepseek:
+    api-key: ${DEEPSEEK_API_KEY}
+    base-url: https://api.deepseek.com
+    model: deepseek-chat

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Snippets</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2 font-serif">Snippets</h1>
+        <p class="text-warm-gray mb-8">Reading notes and thoughts, organized by time.</p>
+
+        <!-- Empty State -->
+        <div th:if="${snippetsByDate.isEmpty()}" class="text-center py-16">
+            <p class="text-warm-gray">No snippets yet.</p>
+        </div>
+
+        <!-- Timeline -->
+        <div th:unless="${snippetsByDate.isEmpty()}" class="snippet-timeline">
+            <div th:each="entry : ${snippetsByDate}">
+                <!-- Date Marker -->
+                <div class="snippet-date-marker">
+                    <span th:text="${entry.key}">2026-03-14</span>
+                </div>
+
+                <!-- Snippet Cards for this date -->
+                <div th:each="snippet : ${entry.value}" class="snippet-item">
+                    <div class="snippet-dot"></div>
+                    <div class="snippet-card">
+                        <!-- Header: title + time -->
+                        <div class="snippet-card-header">
+                            <h3 th:if="${snippet.displayTitle != null}" class="snippet-card-title" th:text="${snippet.displayTitle}">Title</h3>
+                            <div class="snippet-card-meta">
+                                <span class="snippet-card-time" th:text="${#temporals.format(snippet.createdAt, 'HH:mm')}">14:30</span>
+                                <span th:if="${snippet.author != null && !snippet.author.isEmpty()}" class="snippet-card-author">
+                                    &middot; <span th:text="${snippet.author}">Author</span>
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Content -->
+                        <div class="snippet-card-content article-content" th:utext="${snippet.displayContentHtml}">
+                            Content here
+                        </div>
+                        <!-- View Raw Content Link -->
+                        <div class="snippet-card-raw-toggle">
+                            <a href="javascript:void(0)"
+                               th:data-snippet-id="${snippet.id}"
+                               th:id="'toggle-link-' + ${snippet.id}"
+                               onclick="toggleRawContent(this.getAttribute('data-snippet-id'))"
+                               class="text-xs text-warm-gray hover:text-primary transition-colors">
+                                原始内容
+                            </a>
+                        </div>
+                        <!-- Raw Content (Hidden by default) -->
+                        <div th:id="'raw-content-' + ${snippet.id}"
+                             class="snippet-raw-content hidden">
+                            <div class="snippet-raw-label">原始内容：</div>
+                            <pre th:text="${snippet.rawContent}"></pre>
+                        </div>
+                        <!-- Tags -->
+                        <div th:if="${snippet.tags != null && !snippet.tags.isEmpty()}" class="snippet-card-tags">
+                            <span th:each="tag : ${snippet.tags}" th:text="${tag}"
+                                  class="snippet-tag">tag</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav th:if="${snippetsPage.totalPages > 1}" class="mt-8 flex justify-center items-center gap-2">
+            <a th:href="@{/snippets(page=${snippetsPage.number - 1})}"
+               th:classappend="${snippetsPage.first} ? 'pointer-events-none opacity-40'"
+               class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream-dark transition-colors">
+                Prev
+            </a>
+            <span class="px-4 py-2 text-sm text-warm-gray">
+                Page <span th:text="${snippetsPage.number + 1}">1</span> / <span th:text="${snippetsPage.totalPages}">1</span>
+            </span>
+            <a th:href="@{/snippets(page=${snippetsPage.number + 1})}"
+               th:classappend="${snippetsPage.last} ? 'pointer-events-none opacity-40'"
+               class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream-dark transition-colors">
+                Next
+            </a>
+        </nav>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.aiblog.exception;
 
 import com.aiblog.controller.ArticleApiController;
+import com.aiblog.controller.SnippetApiController;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
-@RestControllerAdvice(basePackageClasses = ArticleApiController.class)
+@RestControllerAdvice(basePackageClasses = {ArticleApiController.class, SnippetApiController.class})
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);

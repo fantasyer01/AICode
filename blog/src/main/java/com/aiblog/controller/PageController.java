@@ -1,10 +1,12 @@
 package com.aiblog.controller;
 
 import com.aiblog.dto.ArticleResponse;
+import com.aiblog.dto.SnippetResponse;
 import com.aiblog.model.Article;
 import com.aiblog.repository.ArticleRepository;
 import com.aiblog.service.ArticleService;
 import com.aiblog.service.MarkdownService;
+import com.aiblog.service.SnippetService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Controller
@@ -23,12 +26,14 @@ public class PageController {
     private final ArticleService articleService;
     private final ArticleRepository articleRepository;
     private final MarkdownService markdownService;
+    private final SnippetService snippetService;
 
     public PageController(ArticleService articleService, ArticleRepository articleRepository,
-                          MarkdownService markdownService) {
+                          MarkdownService markdownService, SnippetService snippetService) {
         this.articleService = articleService;
         this.articleRepository = articleRepository;
         this.markdownService = markdownService;
+        this.snippetService = snippetService;
     }
 
     @ModelAttribute("allTags")
@@ -64,5 +69,15 @@ public class PageController {
         model.addAttribute("tagName", tagName);
         model.addAttribute("paginationBaseUrl", "/tag/" + tagName);
         return "tag";
+    }
+
+    @GetMapping("/snippets")
+    public String snippets(@RequestParam(defaultValue = "0") int page, Model model) {
+        Pageable pageable = PageRequest.of(page, 20);
+        LinkedHashMap<String, List<SnippetResponse>> snippetsByDate = snippetService.listGroupedByDate(pageable);
+        Page<SnippetResponse> snippetsPage = snippetService.list(pageable);
+        model.addAttribute("snippetsByDate", snippetsByDate);
+        model.addAttribute("snippetsPage", snippetsPage);
+        return "snippets";
     }
 }
