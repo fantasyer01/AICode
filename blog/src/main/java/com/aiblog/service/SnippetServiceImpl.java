@@ -78,6 +78,36 @@ public class SnippetServiceImpl implements SnippetService {
     }
 
     @Override
+    @Auditable(operation = "UPDATE", entityType = "Snippet")
+    public SnippetResponse saveOnly(Long id, String rawContent, String processedTitle, String processedContent, String author) {
+        Snippet snippet = getEntityById(id);
+        snippet.setRawContent(rawContent);
+        if (author != null) {
+            snippet.setAuthor(author);
+        }
+        if (processedTitle != null) {
+            snippet.setProcessedTitle(processedTitle);
+        }
+        if (processedContent != null) {
+            snippet.setProcessedContent(processedContent);
+        }
+        Snippet saved = snippetRepository.save(snippet);
+        log.info("Saved snippet id={} (without LLM reprocessing)", saved.getId());
+        return toResponse(saved);
+    }
+
+    @Override
+    @Auditable(operation = "UPDATE", entityType = "Snippet")
+    public SnippetResponse reprocess(Long id) {
+        Snippet snippet = getEntityById(id);
+        snippet.setStatus(SnippetStatus.PENDING);
+        processWithLlm(snippet);
+        Snippet saved = snippetRepository.save(snippet);
+        log.info("Reprocessed snippet id={}, status={}", saved.getId(), saved.getStatus());
+        return toResponse(saved);
+    }
+
+    @Override
     @Auditable(operation = "DELETE", entityType = "Snippet")
     public void delete(Long id) {
         Snippet snippet = getEntityById(id);

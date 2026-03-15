@@ -17,6 +17,10 @@ public interface SnippetService {
 
     SnippetResponse update(Long id, SnippetCreateRequest request);
 
+    SnippetResponse saveOnly(Long id, String rawContent, String processedTitle, String processedContent, String author);
+
+    SnippetResponse reprocess(Long id);
+
     void delete(Long id);
 
     Page<SnippetResponse> list(Pageable pageable);

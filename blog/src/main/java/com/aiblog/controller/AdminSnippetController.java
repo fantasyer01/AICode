@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin/snippets")
@@ -75,21 +76,39 @@ public class AdminSnippetController {
     @PostMapping("/{id}/edit")
     public String update(@PathVariable Long id,
                          @RequestParam String rawContent,
+                         @RequestParam(required = false) String processedTitle,
+                         @RequestParam(required = false) String processedContent,
                          @RequestParam(required = false) String author,
+                         RedirectAttributes redirectAttributes,
                          Model model) {
         try {
-            SnippetCreateRequest request = new SnippetCreateRequest();
-            request.setRawContent(rawContent);
-            request.setAuthor(author);
-
-            snippetService.update(id, request);
-            log.info("Admin updated snippet id={}", id);
+            snippetService.saveOnly(id, rawContent, processedTitle, processedContent, author);
+            log.info("Admin saved snippet id={}", id);
+            redirectAttributes.addFlashAttribute("success", "保存成功");
             return "redirect:/admin/snippets";
         } catch (Exception e) {
-            log.error("Admin: failed to update snippet id={}: {}", id, e.getMessage());
+            log.error("Admin: failed to save snippet id={}: {}", id, e.getMessage());
             Snippet snippet = snippetService.getEntityById(id);
             model.addAttribute("snippet", snippet);
-            model.addAttribute("error", "Failed to update snippet: " + e.getMessage());
+            model.addAttribute("error", "Failed to save snippet: " + e.getMessage());
+            return "admin/snippet-edit";
+        }
+    }
+
+    @PostMapping("/{id}/reprocess")
+    public String reprocess(@PathVariable Long id,
+                            RedirectAttributes redirectAttributes,
+                            Model model) {
+        try {
+            snippetService.reprocess(id);
+            log.info("Admin reprocessed snippet id={}", id);
+            redirectAttributes.addFlashAttribute("success", "AI 重新处理完成");
+            return "redirect:/admin/snippets/" + id + "/edit";
+        } catch (Exception e) {
+            log.error("Admin: failed to reprocess snippet id={}: {}", id, e.getMessage());
+            Snippet snippet = snippetService.getEntityById(id);
+            model.addAttribute("snippet", snippet);
+            model.addAttribute("error", "Failed to reprocess snippet: " + e.getMessage());
             return "admin/snippet-edit";
         }
     }
