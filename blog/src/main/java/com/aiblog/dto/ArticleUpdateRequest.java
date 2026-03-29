@@ -23,5 +23,10 @@ public class ArticleUpdateRequest {
 
     private List<String> tags;
 
+    @Size(max = 100, message = "Category must be at most 100 characters")
+    private String category;
+
     private String coverImage;
+
+    private Boolean published;
 }

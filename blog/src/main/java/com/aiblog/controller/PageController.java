@@ -41,16 +41,21 @@ public class PageController {
         return articleRepository.findAllTags();
     }
 
+    @ModelAttribute("allCategories")
+    public List<String> allCategories() {
+        return articleRepository.findAllCategories();
+    }
+
     @GetMapping("/")
     public String home(@RequestParam(defaultValue = "0") int page, Model model) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<ArticleResponse> articles = articleService.list(pageable);
+        Page<ArticleResponse> articles = articleService.listPublished(pageable);
         model.addAttribute("articles", articles);
         model.addAttribute("paginationBaseUrl", "/");
         return "index";
     }
 
-    @GetMapping("/article/{id}")
+    @GetMapping("/articles/{id}")
     public String articleDetail(@PathVariable Long id, Model model) {
         Article article = articleService.getEntityById(id);
         String contentHtml = markdownService.renderToHtml(article.getContent());
@@ -64,11 +69,23 @@ public class PageController {
                             @RequestParam(defaultValue = "0") int page,
                             Model model) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<ArticleResponse> articles = articleService.listByTag(tagName, pageable);
+        Page<ArticleResponse> articles = articleService.listPublishedByTag(tagName, pageable);
         model.addAttribute("articles", articles);
         model.addAttribute("tagName", tagName);
         model.addAttribute("paginationBaseUrl", "/tag/" + tagName);
         return "tag";
+    }
+
+    @GetMapping("/category/{categoryName}")
+    public String categoryFilter(@PathVariable String categoryName,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 Model model) {
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<ArticleResponse> articles = articleService.listPublishedByCategory(categoryName, pageable);
+        model.addAttribute("articles", articles);
+        model.addAttribute("categoryName", categoryName);
+        model.addAttribute("paginationBaseUrl", "/category/" + categoryName);
+        return "category";
     }
 
     @GetMapping("/snippets")

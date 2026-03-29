@@ -4,6 +4,8 @@
     line-height: 1.9;
     color: #3D3D3D;
     font-family: 'Noto Sans SC', system-ui, sans-serif;
+    text-align: justify;
+    counter-reset: h2-counter;
 }
 
 .article-content h1 {
@@ -22,8 +24,12 @@
     font-weight: 600;
     margin-top: 1.75rem;
     margin-bottom: 0.75rem;
-    color: #3D3D3D;
+    color: #3D5A80;
     font-family: 'Noto Serif SC', Georgia, serif;
+    background: linear-gradient(135deg, #FDF6F0 0%, #FDF8F3 100%);
+    border-left: 4px solid #E07A5F;
+    padding: 0.75rem 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
 }
 
 .article-content h3 {

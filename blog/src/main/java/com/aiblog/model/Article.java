@@ -40,6 +40,12 @@ public class Article {
     @Column(length = 2000)
     private String coverImageUrl;
 
+    @Column(length = 100)
+    private String category;
+
+    @Column(nullable = true)
+    private Boolean published = true;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

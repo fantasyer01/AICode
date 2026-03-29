@@ -20,4 +20,16 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     @Query("SELECT DISTINCT t FROM Article a JOIN a.tags t ORDER BY t")
     List<String> findAllTags();
+
+    @Query("SELECT DISTINCT a.category FROM Article a WHERE a.category IS NOT NULL ORDER BY a.category")
+    List<String> findAllCategories();
+
+    Page<Article> findByCategoryOrderByCreatedAtDesc(String category, Pageable pageable);
+
+    Page<Article> findByPublishedTrueOrderByCreatedAtDesc(Pageable pageable);
+
+    @Query("SELECT DISTINCT a FROM Article a JOIN a.tags t WHERE t = :tag AND a.published = true ORDER BY a.createdAt DESC")
+    Page<Article> findByTagAndPublishedTrue(@Param("tag") String tag, Pageable pageable);
+
+    Page<Article> findByCategoryAndPublishedTrueOrderByCreatedAtDesc(String category, Pageable pageable);
 }

@@ -53,10 +53,13 @@ public class ArticleApiController {
     @GetMapping
     public ResponseEntity<Page<ArticleResponse>> list(
             @RequestParam(required = false) String tag,
+            @RequestParam(required = false) String category,
             @PageableDefault(size = 10) Pageable pageable) {
-        log.info("API: GET /api/articles - tag={}, page={}, size={}", tag, pageable.getPageNumber(), pageable.getPageSize());
+        log.info("API: GET /api/articles - tag={}, category={}, page={}, size={}", tag, category, pageable.getPageNumber(), pageable.getPageSize());
         Page<ArticleResponse> page;
-        if (tag != null && !tag.isBlank()) {
+        if (category != null && !category.isBlank()) {
+            page = articleService.listByCategory(category.trim(), pageable);
+        } else if (tag != null && !tag.isBlank()) {
             page = articleService.listByTag(tag.trim(), pageable);
         } else {
             page = articleService.list(pageable);

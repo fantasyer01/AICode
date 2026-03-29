@@ -28,6 +28,7 @@ Creates a new blog article.
 | `content` | `string` | Yes | Article body in Markdown format |
 | `summary` | `string` | No | Short summary/excerpt, max 1000 characters |
 | `tags` | `string[]` | No | List of tag labels for categorization |
+| `category` | `string` | No | Article category for grouping, max 100 characters |
 | `coverImage` | `string` | No | Cover image as Base64 encoded string (supports data URI format `data:image/png;base64,...` or raw Base64). Also accepts a plain URL (http/https) |
 
 **Cover Image Handling:**
@@ -65,6 +66,7 @@ curl -X POST http://localhost:8080/api/articles \
   "contentHtml": "<h1>Design Patterns</h1>\n<p>Today we discussed...</p>",
   "summary": "A deep dive into common design patterns with GPT-4",
   "tags": ["design-patterns", "gpt-4", "software-engineering"],
+  "category": "Technology",
   "coverImageUrl": "/images/a1b2c3d4-xxxx-xxxx-xxxx-xxxxxxxxxxxx.png",
   "createdAt": "2025-01-15T10:30:00",
   "updatedAt": "2025-01-15T10:30:00"
@@ -110,6 +112,7 @@ Returns a paginated list of articles, ordered by creation date (newest first).
 | `page` | `int` | `0` | Page number (0-based) |
 | `size` | `int` | `10` | Page size (max 50) |
 | `tag` | `string` | - | Filter by tag (optional) |
+| `category` | `string` | - | Filter by category (optional) |
 
 **Example Requests:**
 

@@ -46,7 +46,8 @@ public class AdminSnippetController {
     @PostMapping("/create")
     public String create(@RequestParam String rawContent,
                          @RequestParam(required = false) String author,
-                         Model model) {
+                         Model model,
+                         RedirectAttributes redirectAttributes) {
         try {
             SnippetCreateRequest request = new SnippetCreateRequest();
             request.setRawContent(rawContent);
@@ -54,6 +55,7 @@ public class AdminSnippetController {
 
             SnippetResponse response = snippetService.create(request);
             log.info("Admin created snippet id={}", response.getId());
+            redirectAttributes.addFlashAttribute("success", "Snippet created successfully");
             return "redirect:/admin/snippets";
         } catch (Exception e) {
             log.error("Admin: failed to create snippet: {}", e.getMessage());
@@ -84,7 +86,7 @@ public class AdminSnippetController {
         try {
             snippetService.saveOnly(id, rawContent, processedTitle, processedContent, author);
             log.info("Admin saved snippet id={}", id);
-            redirectAttributes.addFlashAttribute("success", "保存成功");
+            redirectAttributes.addFlashAttribute("success", "Snippet updated successfully");
             return "redirect:/admin/snippets";
         } catch (Exception e) {
             log.error("Admin: failed to save snippet id={}: {}", id, e.getMessage());
@@ -102,7 +104,7 @@ public class AdminSnippetController {
         try {
             snippetService.reprocess(id);
             log.info("Admin reprocessed snippet id={}", id);
-            redirectAttributes.addFlashAttribute("success", "AI 重新处理完成");
+            redirectAttributes.addFlashAttribute("success", "AI reprocessing completed");
             return "redirect:/admin/snippets/" + id + "/edit";
         } catch (Exception e) {
             log.error("Admin: failed to reprocess snippet id={}: {}", id, e.getMessage());
@@ -123,9 +125,10 @@ public class AdminSnippetController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         snippetService.delete(id);
         log.info("Admin deleted snippet id={}", id);
+        redirectAttributes.addFlashAttribute("success", "Snippet deleted successfully");
         return "redirect:/admin/snippets";
     }
 }

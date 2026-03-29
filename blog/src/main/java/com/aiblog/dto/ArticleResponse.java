@@ -18,7 +18,9 @@ public class ArticleResponse {
     private String contentHtml;
     private String summary;
     private List<String> tags;
+    private String category;
     private String coverImageUrl;
+    private Boolean published;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -31,7 +33,9 @@ public class ArticleResponse {
         response.setContentHtml(contentHtml);
         response.setSummary(article.getSummary());
         response.setTags(article.getTags());
+        response.setCategory(article.getCategory());
         response.setCoverImageUrl(article.getCoverImageUrl());
+        response.setPublished(article.getPublished());
         response.setCreatedAt(article.getCreatedAt());
         response.setUpdatedAt(article.getUpdatedAt());
         return response;

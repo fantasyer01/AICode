@@ -103,7 +103,9 @@ public class AdminController {
                          @RequestParam(required = false) String author,
                          @RequestParam(required = false) String summary,
                          @RequestParam(required = false) String tags,
+                         @RequestParam(required = false) String category,
                          @RequestParam(required = false) String coverImage,
+                         @RequestParam(required = false, defaultValue = "true") Boolean published,
                          @RequestParam String content,
                          Model model,
                          RedirectAttributes redirectAttributes) {
@@ -115,9 +117,12 @@ public class AdminController {
             request.setContent(content);
             request.setCoverImage(coverImage);
             request.setTags(parseTags(tags));
+            request.setCategory(category);
+            request.setPublished(published);
 
             ArticleResponse response = articleService.create(request);
             log.info("Admin created article id={}", response.getId());
+            redirectAttributes.addFlashAttribute("success", "Article created successfully");
             return "redirect:/admin";
         } catch (Exception e) {
             log.error("Admin: failed to create article: {}", e.getMessage());
@@ -142,10 +147,14 @@ public class AdminController {
                          @RequestParam(required = false) String author,
                          @RequestParam(required = false) String summary,
                          @RequestParam(required = false) String tags,
+                         @RequestParam(required = false) String category,
                          @RequestParam(required = false) String coverImage,
+                         @RequestParam(required = false, defaultValue = "true") Boolean published,
                          @RequestParam String content,
-                         Model model) {
+                         Model model,
+                         RedirectAttributes redirectAttributes) {
         try {
+            log.info("Admin update article id={}, category='{}'", id, category);
             ArticleUpdateRequest request = new ArticleUpdateRequest();
             request.setTitle(title);
             request.setAuthor(author);
@@ -153,9 +162,12 @@ public class AdminController {
             request.setContent(content);
             request.setCoverImage(coverImage);
             request.setTags(parseTags(tags));
+            request.setCategory(category);
+            request.setPublished(published);
 
             articleService.update(id, request);
             log.info("Admin updated article id={}", id);
+            redirectAttributes.addFlashAttribute("success", "Article updated successfully");
             return "redirect:/admin";
         } catch (Exception e) {
             log.error("Admin: failed to update article id={}: {}", id, e.getMessage());
@@ -177,9 +189,10 @@ public class AdminController {
     }
 
     @PostMapping("/articles/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         articleService.delete(id);
         log.info("Admin deleted article id={}", id);
+        redirectAttributes.addFlashAttribute("success", "Article deleted successfully");
         return "redirect:/admin";
     }
 

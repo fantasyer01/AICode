@@ -43,7 +43,9 @@ public class ArticleServiceImpl implements ArticleService {
         article.setContent(request.getContent());
         article.setSummary(request.getSummary());
         article.setTags(request.getTags() != null ? request.getTags() : new ArrayList<>());
+        article.setCategory(request.getCategory());
         article.setCoverImageUrl(processImage(request.getCoverImage()));
+        article.setPublished(request.getPublished() != null ? request.getPublished() : true);
 
         Article saved = articleRepository.save(article);
         log.info("Created article id={}, title='{}'", saved.getId(), saved.getTitle());
@@ -77,8 +79,13 @@ public class ArticleServiceImpl implements ArticleService {
         if (request.getTags() != null) {
             article.setTags(request.getTags());
         }
+        // Category is always updated (allows clearing by setting empty string)
+        article.setCategory(request.getCategory());
         if (request.getCoverImage() != null) {
             article.setCoverImageUrl(processImage(request.getCoverImage()));
+        }
+        if (request.getPublished() != null) {
+            article.setPublished(request.getPublished());
         }
 
         Article saved = articleRepository.save(article);
@@ -105,6 +112,34 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional(readOnly = true)
     public Page<ArticleResponse> listByTag(String tag, Pageable pageable) {
         return articleRepository.findByTag(tag, pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ArticleResponse> listByCategory(String category, Pageable pageable) {
+        return articleRepository.findByCategoryOrderByCreatedAtDesc(category, pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ArticleResponse> listPublished(Pageable pageable) {
+        return articleRepository.findByPublishedTrueOrderByCreatedAtDesc(pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ArticleResponse> listPublishedByTag(String tag, Pageable pageable) {
+        return articleRepository.findByTagAndPublishedTrue(tag, pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ArticleResponse> listPublishedByCategory(String category, Pageable pageable) {
+        return articleRepository.findByCategoryAndPublishedTrueOrderByCreatedAtDesc(category, pageable)
                 .map(this::toResponse);
     }
 

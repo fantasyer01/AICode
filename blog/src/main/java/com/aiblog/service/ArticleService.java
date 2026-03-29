@@ -21,5 +21,13 @@ public interface ArticleService {
 
     Page<ArticleResponse> listByTag(String tag, Pageable pageable);
 
+    Page<ArticleResponse> listByCategory(String category, Pageable pageable);
+
+    Page<ArticleResponse> listPublished(Pageable pageable);
+
+    Page<ArticleResponse> listPublishedByTag(String tag, Pageable pageable);
+
+    Page<ArticleResponse> listPublishedByCategory(String category, Pageable pageable);
+
     Article getEntityById(Long id);
 }
