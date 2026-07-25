@@ -35,3 +35,6 @@ Thumbs.db
 
 ### Qoder ###
 .qoder/
+diagram/
+harness/
+scripts/

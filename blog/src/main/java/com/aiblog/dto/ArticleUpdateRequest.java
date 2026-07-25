@@ -1,5 +1,6 @@
 package com.aiblog.dto;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,16 @@ public class ArticleUpdateRequest {
     @Size(max = 100, message = "Category must be at most 100 characters")
     private String category;
 
-    private String coverImage;
+    /**
+     * Cover image URL. Must start with '/', 'http://', or 'https://'.
+     * Upload the image first via POST /api/images/upload to obtain a URL.
+     */
+    @Pattern(
+        regexp = "^(https?://|/).*",
+        message = "coverImageUrl must be a URL starting with '/', 'http://', or 'https://'. " +
+                  "Upload the image first via POST /api/images/upload"
+    )
+    private String coverImageUrl;
 
     private Boolean published;
 }

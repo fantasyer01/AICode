@@ -1,7 +1,7 @@
 package com.aiblog.service;
 
-import com.aiblog.dto.ArticleCoverImageUpdateRequest;
 import com.aiblog.dto.ArticleCreateRequest;
+import com.aiblog.dto.ArticleImagePatchRequest;
 import com.aiblog.dto.ArticleResponse;
 import com.aiblog.dto.ArticleUpdateRequest;
 import com.aiblog.model.Article;
@@ -19,15 +19,21 @@ public interface ArticleService {
     void delete(Long id);
 
     /**
-     * Replaces (or sets, if absent) the cover image of an article.
-     * The previous cover image URL is overwritten on the article record;
-     * the underlying file on disk is left as-is.
+     * Patches image references on an existing article without replacing other fields.
+     *
+     * <ul>
+     *   <li>If {@code request.coverImageUrl} is non-blank, the article's cover image URL
+     *       is replaced unconditionally.</li>
+     *   <li>If {@code request.contentReplacements} is non-empty, each map key found in
+     *       the article's Markdown content is replaced with its corresponding value.
+     *       Keys absent from the content are silently ignored.</li>
+     * </ul>
      *
      * @param id      article id
-     * @param request transport-agnostic payload carrying raw image bytes + metadata
+     * @param request patch payload; at least one field must be non-null/non-empty
      * @return updated article response
      */
-    ArticleResponse updateCoverImage(Long id, ArticleCoverImageUpdateRequest request);
+    ArticleResponse patchImages(Long id, ArticleImagePatchRequest request);
 
     Page<ArticleResponse> list(Pageable pageable);
 

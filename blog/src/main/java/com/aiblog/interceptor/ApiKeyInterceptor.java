@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,12 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
         String providedKey = request.getHeader(API_KEY_HEADER);
         if (apiKey.equals(providedKey)) {
+            return true;
+        }
+
+        // Allow requests from a logged-in admin session (e.g. admin panel editor image upload)
+        HttpSession session = request.getSession(false);
+        if (session != null && Boolean.TRUE.equals(session.getAttribute("ADMIN_LOGGED_IN"))) {
             return true;
         }
 

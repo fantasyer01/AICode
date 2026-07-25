@@ -1,7 +1,7 @@
 package com.aiblog.controller;
 
-import com.aiblog.dto.ArticleCoverImageUpdateRequest;
 import com.aiblog.dto.ArticleCreateRequest;
+import com.aiblog.dto.ArticleImagePatchRequest;
 import com.aiblog.dto.ArticleResponse;
 import com.aiblog.dto.ArticleUpdateRequest;
 import com.aiblog.service.ArticleService;
@@ -11,12 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.net.URI;
 
 @RestController
@@ -59,7 +56,8 @@ public class ArticleApiController {
             @RequestParam(required = false) String tag,
             @RequestParam(required = false) String category,
             @PageableDefault(size = 10) Pageable pageable) {
-        log.info("API: GET /api/articles - tag={}, category={}, page={}, size={}", tag, category, pageable.getPageNumber(), pageable.getPageSize());
+        log.info("API: GET /api/articles - tag={}, category={}, page={}, size={}",
+                tag, category, pageable.getPageNumber(), pageable.getPageSize());
         Page<ArticleResponse> page;
         if (category != null && !category.isBlank()) {
             page = articleService.listByCategory(category.trim(), pageable);
@@ -79,46 +77,33 @@ public class ArticleApiController {
     }
 
     /**
-     * Replace (or set) an article's cover image via multipart upload.
-     * Used both when the article never had a cover image, and when the user
-     * wants to change the existing cover.
+     * Patches image references on an existing article.
      *
-     * <p>The Controller is the only layer aware of the {@link MultipartFile}
-     * framework type: it unwraps the bytes and metadata into a transport-agnostic
-     * {@link ArticleCoverImageUpdateRequest} DTO before invoking the service,
-     * keeping the service layer free of any web/HTTP dependency (consistent with
-     * {@code create} / {@code update} which also take pure DTOs).
+     * <p>Supports two independent operations in a single call:
+     * <ul>
+     *   <li>Replace the article cover image by providing {@code coverImageUrl}.</li>
+     *   <li>Replace placeholder strings in the Markdown body by providing
+     *       {@code contentReplacements} (a map of placeholder → replacement value).</li>
+     * </ul>
+     * Both fields are optional, but at least one must be non-null/non-empty.
      *
      * <p>Auth: requires {@code X-API-Key} header (enforced by ApiKeyInterceptor).
      */
-    @PutMapping(value = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ArticleResponse> updateCoverImage(@PathVariable Long id,
-                                                            @RequestParam("file") MultipartFile file) {
-        log.info("API: PUT /api/articles/{}/cover - file='{}', size={}, type={}",
-                id, file.getOriginalFilename(), file.getSize(), file.getContentType());
+    @PatchMapping("/{id}/images")
+    public ResponseEntity<ArticleResponse> patchImages(@PathVariable Long id,
+                                                        @RequestBody ArticleImagePatchRequest request) {
+        log.info("API: PATCH /api/articles/{}/images", id);
 
-        ArticleCoverImageUpdateRequest request = toCoverImageRequest(file);
-        ArticleResponse response = articleService.updateCoverImage(id, request);
+        boolean hasCover = request.getCoverImageUrl() != null && !request.getCoverImageUrl().isBlank();
+        boolean hasReplacements = request.getContentReplacements() != null
+                && !request.getContentReplacements().isEmpty();
+
+        if (!hasCover && !hasReplacements) {
+            throw new IllegalArgumentException(
+                    "At least one of 'coverImageUrl' or 'contentReplacements' must be provided");
+        }
+
+        ArticleResponse response = articleService.patchImages(id, request);
         return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Adapts a {@link MultipartFile} into the transport-agnostic DTO consumed by the service layer.
-     * Empty / null files are surfaced as {@link IllegalArgumentException} which the global
-     * exception handler converts to {@code 400 Bad Request}.
-     */
-    private ArticleCoverImageUpdateRequest toCoverImageRequest(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Image file is required and must not be empty");
-        }
-        ArticleCoverImageUpdateRequest req = new ArticleCoverImageUpdateRequest();
-        try {
-            req.setData(file.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read uploaded file bytes", e);
-        }
-        req.setContentType(file.getContentType());
-        req.setOriginalFilename(file.getOriginalFilename());
-        return req;
     }
 }

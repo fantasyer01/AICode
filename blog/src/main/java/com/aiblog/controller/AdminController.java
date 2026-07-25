@@ -95,7 +95,7 @@ public class AdminController {
     // ==================== Create Article ====================
 
     @GetMapping("/articles/create")
-    public String createForm() {
+    public String createForm(Model model) {
         return "admin/article-create";
     }
 
@@ -105,7 +105,7 @@ public class AdminController {
                          @RequestParam(required = false) String summary,
                          @RequestParam(required = false) String tags,
                          @RequestParam(required = false) String category,
-                         @RequestParam(required = false) String coverImage,
+                         @RequestParam(required = false) String coverImageUrl,
                          @RequestParam(required = false, defaultValue = "true") Boolean published,
                          @RequestParam String content,
                          Model model,
@@ -116,7 +116,7 @@ public class AdminController {
             request.setAuthor(author);
             request.setSummary(summary);
             request.setContent(content);
-            request.setCoverImage(coverImage);
+            request.setCoverImageUrl(coverImageUrl);
             request.setTags(parseTags(tags));
             request.setCategory(category);
             request.setPublished(published);
@@ -149,7 +149,7 @@ public class AdminController {
                          @RequestParam(required = false) String summary,
                          @RequestParam(required = false) String tags,
                          @RequestParam(required = false) String category,
-                         @RequestParam(required = false) String coverImage,
+                         @RequestParam(required = false) String coverImageUrl,
                          @RequestParam(required = false, defaultValue = "true") Boolean published,
                          @RequestParam String content,
                          Model model,
@@ -161,7 +161,7 @@ public class AdminController {
             request.setAuthor(author);
             request.setSummary(summary);
             request.setContent(content);
-            request.setCoverImage(coverImage);
+            request.setCoverImageUrl(coverImageUrl);
             request.setTags(parseTags(tags));
             request.setCategory(category);
             request.setPublished(published);

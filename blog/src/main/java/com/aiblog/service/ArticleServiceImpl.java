@@ -1,8 +1,8 @@
 package com.aiblog.service;
 
 import com.aiblog.audit.Auditable;
-import com.aiblog.dto.ArticleCoverImageUpdateRequest;
 import com.aiblog.dto.ArticleCreateRequest;
+import com.aiblog.dto.ArticleImagePatchRequest;
 import com.aiblog.dto.ArticleResponse;
 import com.aiblog.dto.ArticleUpdateRequest;
 import com.aiblog.exception.ResourceNotFoundException;
@@ -15,8 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -26,13 +26,10 @@ public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
     private final MarkdownService markdownService;
-    private final ImageStorageService imageStorageService;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, MarkdownService markdownService,
-                              ImageStorageService imageStorageService) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, MarkdownService markdownService) {
         this.articleRepository = articleRepository;
         this.markdownService = markdownService;
-        this.imageStorageService = imageStorageService;
     }
 
     @Override
@@ -45,7 +42,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setSummary(request.getSummary());
         article.setTags(request.getTags() != null ? request.getTags() : new ArrayList<>());
         article.setCategory(request.getCategory());
-        article.setCoverImageUrl(processImage(request.getCoverImage()));
+        article.setCoverImageUrl(request.getCoverImageUrl());
         article.setPublished(request.getPublished() != null ? request.getPublished() : true);
 
         Article saved = articleRepository.save(article);
@@ -82,8 +79,8 @@ public class ArticleServiceImpl implements ArticleService {
         }
         // Category is always updated (allows clearing by setting empty string)
         article.setCategory(request.getCategory());
-        if (request.getCoverImage() != null) {
-            article.setCoverImageUrl(processImage(request.getCoverImage()));
+        if (request.getCoverImageUrl() != null) {
+            article.setCoverImageUrl(request.getCoverImageUrl());
         }
         if (request.getPublished() != null) {
             article.setPublished(request.getPublished());
@@ -104,20 +101,29 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Auditable(operation = "UPDATE", entityType = "Article")
-    public ArticleResponse updateCoverImage(Long id, ArticleCoverImageUpdateRequest request) {
+    public ArticleResponse patchImages(Long id, ArticleImagePatchRequest request) {
         Article article = getEntityById(id);
-        try {
-            String url = imageStorageService.saveImageFile(
-                    request.getData(), request.getContentType(), request.getOriginalFilename());
-            String previousUrl = article.getCoverImageUrl();
-            article.setCoverImageUrl(url);
-            Article saved = articleRepository.save(article);
-            log.info("Updated cover image for article id={}: '{}' -> '{}'", id, previousUrl, url);
-            return toResponse(saved);
-        } catch (IOException e) {
-            log.error("Failed to save uploaded cover image for article id={}: {}", id, e.getMessage(), e);
-            throw new RuntimeException("Failed to save cover image", e);
+
+        if (request.getCoverImageUrl() != null && !request.getCoverImageUrl().isBlank()) {
+            String previous = article.getCoverImageUrl();
+            article.setCoverImageUrl(request.getCoverImageUrl());
+            log.info("Patched cover image for article id={}: '{}' -> '{}'", id, previous, request.getCoverImageUrl());
         }
+
+        Map<String, String> replacements = request.getContentReplacements();
+        if (replacements != null && !replacements.isEmpty()) {
+            String content = article.getContent();
+            if (content != null) {
+                for (Map.Entry<String, String> entry : replacements.entrySet()) {
+                    content = content.replace(entry.getKey(), entry.getValue());
+                }
+                article.setContent(content);
+            }
+            log.info("Applied {} content replacement(s) for article id={}", replacements.size(), id);
+        }
+
+        Article saved = articleRepository.save(article);
+        return toResponse(saved);
     }
 
     @Override
@@ -172,21 +178,5 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleResponse toResponse(Article article) {
         String contentHtml = markdownService.renderToHtml(article.getContent());
         return ArticleResponse.fromEntity(article, contentHtml);
-    }
-
-    private String processImage(String coverImage) {
-        if (coverImage == null || coverImage.isBlank()) {
-            return null;
-        }
-        if (imageStorageService.isBase64Image(coverImage)) {
-            try {
-                return imageStorageService.saveBase64Image(coverImage);
-            } catch (IOException e) {
-                log.error("Failed to save cover image: {}", e.getMessage(), e);
-                throw new RuntimeException("Failed to save cover image", e);
-            }
-        }
-        // Already a URL, use as-is
-        return coverImage;
     }
 }
