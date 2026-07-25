@@ -45,7 +45,8 @@
                 <tr th:each="snippet : ${snippets.content}" class="hover:bg-gray-50">
                     <td class="px-4 py-3 text-gray-500" th:text="${snippet.id}">1</td>
                     <td class="px-4 py-3">
-                        <span th:if="${snippet.displayTitle != null}" class="text-gray-900 font-medium" th:text="${snippet.displayTitle}">Title</span>
+                        <a th:if="${snippet.displayTitle != null}" th:href="@{'/snippets/' + ${snippet.id}}"
+                           class="text-gray-900 font-medium hover:text-primary transition-colors" th:text="${snippet.displayTitle}">Title</a>
                         <span th:if="${snippet.displayTitle == null}" class="text-gray-400 italic">
                             <span th:if="${snippet.status.name() == 'PENDING'}">Pending...</span>
                             <span th:if="${snippet.status.name() == 'FAILED'}">Failed</span>

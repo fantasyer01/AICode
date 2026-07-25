@@ -12,9 +12,10 @@
 
         <!-- Cover Image -->
         <div th:if="${article.coverImageUrl != null and !article.coverImageUrl.isEmpty()}"
-             class="mb-8 rounded-xl overflow-hidden shadow-sm">
+             class="cover-image-wrapper mb-8 rounded-xl overflow-hidden shadow-sm">
             <img th:src="${article.coverImageUrl}" th:alt="${article.title}"
-                 class="w-full max-h-96 object-cover">
+                 decoding="async"
+                 class="cover-image w-full h-auto max-h-[480px] object-contain">
         </div>
 
         <!-- Title -->

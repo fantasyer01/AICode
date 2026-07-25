@@ -35,9 +35,10 @@
             <!-- Cover Image -->
             <a th:href="@{'/articles/' + ${article.id}}">
                 <div th:if="${article.coverImageUrl != null and !article.coverImageUrl.isEmpty()}"
-                     class="bg-gray-100 overflow-hidden">
+                     class="cover-image-wrapper bg-gray-100 overflow-hidden">
                     <img th:src="${article.coverImageUrl}" th:alt="${article.title}"
-                         class="w-full h-auto object-contain">
+                         loading="lazy" decoding="async"
+                         class="cover-image w-full h-auto object-contain">
                 </div>
                 <div th:unless="${article.coverImageUrl != null and !article.coverImageUrl.isEmpty()}"
                      class="h-32 bg-gradient-to-br from-cream to-accent/30">
@@ -80,9 +81,15 @@
 
     <!-- Pagination -->
     <nav th:if="${articles.totalPages > 1}" class="mt-10 flex justify-center items-center gap-2">
+        <a th:href="@{${paginationBaseUrl} + '?page=0'}"
+           th:classappend="${articles.first} ? 'pointer-events-none opacity-40'"
+           class="px-3 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream transition-colors">
+            首页
+        </a>
+
         <a th:href="@{${paginationBaseUrl} + '?page=' + ${articles.number - 1}}"
            th:classappend="${articles.first} ? 'pointer-events-none opacity-40'"
-           class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream transition-colors">
+           class="px-3 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream transition-colors">
             Prev
         </a>
 
@@ -92,8 +99,14 @@
 
         <a th:href="@{${paginationBaseUrl} + '?page=' + ${articles.number + 1}}"
            th:classappend="${articles.last} ? 'pointer-events-none opacity-40'"
-           class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream transition-colors">
+           class="px-3 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream transition-colors">
             Next
+        </a>
+
+        <a th:href="@{${paginationBaseUrl} + '?page=' + ${articles.totalPages - 1}}"
+           th:classappend="${articles.last} ? 'pointer-events-none opacity-40'"
+           class="px-3 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:bg-cream transition-colors">
+            尾页
         </a>
     </nav>
 

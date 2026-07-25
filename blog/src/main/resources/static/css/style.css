@@ -140,11 +140,19 @@
     margin: 1rem 0;
 }
 
+.article-content .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1rem 0;
+}
+
 .article-content table {
     width: 100%;
     border-collapse: collapse;
-    margin: 1rem 0;
+    margin: 0;
     font-size: 0.875rem;
+    min-width: 480px;
 }
 
 .article-content thead {
@@ -300,7 +308,7 @@
 }
 
 .snippet-card {
-    background: #fff;
+    background: #FFFDF8;
     border: 1px solid #E8E0D5;
     border-radius: 0.75rem;
     padding: 1.25rem 1.5rem;
@@ -316,9 +324,9 @@
 }
 
 .snippet-card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #3D3D3D;
+    font-size: 1.5rem;           /* 24px - 卡片标题作为最高层级，明显大于正文 H1/H2 */
+    font-weight: 700;
+    color: #2A2A2A;              /* 加深颜色以强化层级 */
     margin-bottom: 0.25rem;
     font-family: 'Noto Serif SC', Georgia, serif;
 }
@@ -362,6 +370,196 @@
     color: #E07A5F;
     border-radius: 1rem;
     border: 1px solid #F2DED6;
+}
+
+/* ===== Snippet Content Styles ===== */
+/* 继承 article-content 的大部分样式，只调整 h1/h2 字号 */
+
+.snippet-content {
+    line-height: 1.9;
+    color: #3D3D3D;
+    font-family: 'Noto Sans SC', system-ui, sans-serif;
+    text-align: justify;
+}
+
+.snippet-content h1,
+.snippet-content h2 {
+    font-size: 1.25rem;          /* 20px - H1/H2 统一字号 */
+    font-weight: 600;            /* 字重降低，让位于卡片标题(700) */
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    color: #6B6055;              /* 暖灰，弱化层级，使其低于卡片标题 #2A2A2A */
+    border-bottom: 1px solid #E8E0D5;
+    padding: 0 0 0.5rem 0;       /* 仅保留底部内边距，重置 .article-content h2 的 0.75rem 1rem */
+    font-family: 'Noto Serif SC', Georgia, serif;
+    /* 显式重置 .article-content h2 残留的胶囊样式，确保详情页(同时挂 article-content + snippet-content) 也使用下划线风格 */
+    background: none;
+    border-left: none;
+    border-radius: 0;
+}
+
+.snippet-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #4A4A4A;
+    font-family: 'Noto Serif SC', Georgia, serif;
+}
+
+.snippet-content h4, .snippet-content h5, .snippet-content h6 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #4A4A4A;
+    font-family: 'Noto Serif SC', Georgia, serif;
+}
+
+.snippet-content p {
+    margin-bottom: 1rem;
+}
+
+.snippet-content a {
+    color: #E07A5F;
+    text-decoration: none;
+    border-bottom: 1px solid #E07A5F;
+    transition: all 0.2s ease;
+}
+
+.snippet-content a:hover {
+    color: #D06045;
+    border-bottom-color: #D06045;
+}
+
+.snippet-content strong {
+    font-weight: 600;
+    color: #3D3D3D;
+}
+
+.snippet-content ul, .snippet-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.snippet-content ul {
+    list-style-type: disc;
+}
+
+.snippet-content ol {
+    list-style-type: decimal;
+}
+
+.snippet-content li {
+    margin-bottom: 0.25rem;
+}
+
+.snippet-content li > ul, .snippet-content li > ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+.snippet-content blockquote {
+    border-left: 4px solid #E07A5F;
+    padding: 0.75rem 1.25rem;
+    margin: 1.5rem 0;
+    background-color: #FDF8F3;
+    color: #6B6B6B;
+    border-radius: 0 0.5rem 0.5rem 0;
+    font-style: italic;
+}
+
+.snippet-content blockquote p {
+    margin-bottom: 0;
+}
+
+.snippet-content code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.875em;
+    background-color: #FDF6F0;
+    padding: 0.15em 0.4em;
+    border-radius: 0.25rem;
+    color: #E07A5F;
+}
+
+.snippet-content pre {
+    margin: 1rem 0;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    position: relative;
+}
+
+.snippet-content pre code {
+    display: block;
+    padding: 1.25rem;
+    background-color: #2D2D2D;
+    color: #FDF8F3;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    border-radius: 0.75rem;
+}
+
+.snippet-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.snippet-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.snippet-content thead {
+    background-color: #FDF6F0;
+}
+
+.snippet-content th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #E8E0D5;
+    color: #4A4A4A;
+}
+
+.snippet-content td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #FDF6F0;
+}
+
+.snippet-content tbody tr:hover {
+    background-color: #FDF8F3;
+}
+
+.snippet-content hr {
+    border: none;
+    border-top: 1px solid #E8E0D5;
+    margin: 2.5rem 0;
+    text-align: center;
+}
+
+.snippet-content hr::after {
+    content: '···';
+    display: inline-block;
+    position: relative;
+    top: -0.8rem;
+    padding: 0 0.5rem;
+    background: #FDF8F3;
+    color: #E07A5F;
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+}
+
+.snippet-content .task-list-item {
+    list-style-type: none;
+    margin-left: -1.5rem;
+}
+
+.snippet-content .task-list-item input[type="checkbox"] {
+    margin-right: 0.5rem;
 }
 
 /* ===== Raw Content Toggle Styles ===== */
@@ -412,4 +610,51 @@
     font-family: 'Noto Sans SC', system-ui, sans-serif;
     color: #4B5563;
     line-height: 1.7;
+}
+
+/* ==================== Prompt Styles ==================== */
+
+/* ===== Cover Image Lazy Load + Fade-in ===== */
+
+.cover-image-wrapper {
+    min-height: 180px;
+    background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+    position: relative;
+}
+
+.cover-image {
+    opacity: 0;
+    transition: opacity 0.35s ease-in;
+}
+
+.cover-image.loaded {
+    opacity: 1;
+}
+
+/* ==================== Prompt Content Styles ==================== */
+
+#promptContent {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+#promptContent code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }

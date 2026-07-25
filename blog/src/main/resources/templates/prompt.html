@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${prompt.title}">Prompt Detail</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <article class="max-w-3xl mx-auto">
+
+        <!-- Title -->
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 leading-tight font-serif"
+            th:text="${prompt.title}">Prompt Title</h1>
+
+        <!-- Meta Bar (consistent with articles & snippets) -->
+        <div class="flex flex-wrap items-center gap-4 text-sm text-warm-gray mb-8 pb-6 border-b border-warm-border">
+            <time th:text="${#temporals.format(prompt.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</time>
+            <span th:text="${prompt.source}"
+                  class="px-2 py-0.5 text-xs rounded-full bg-cream text-secondary">Source</span>
+            <span th:if="${prompt.model != null && !prompt.model.isEmpty()}"
+                  th:text="${prompt.model}"
+                  class="px-2 py-0.5 text-xs rounded-full bg-cream text-secondary">Model</span>
+            <div th:if="${prompt.tags != null and !prompt.tags.isEmpty()}" class="flex flex-wrap gap-1">
+                <span th:each="tag : ${prompt.tags}"
+                      th:text="'#' + ${tag}"
+                      class="px-2 py-0.5 text-xs rounded-full bg-cream text-secondary">
+                </span>
+            </div>
+        </div>
+
+        <!-- Description — Notion-style "Description" callout (blue) -->
+        <section th:if="${prompt.description != null && !prompt.description.isEmpty()}" class="mb-6">
+            <div class="flex gap-3 rounded-lg bg-blue-50/70 px-5 py-4">
+                <span class="flex-shrink-0 text-lg leading-6 select-none" aria-hidden="true">ℹ️</span>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-blue-700 mb-1">Description</div>
+                    <p th:text="${prompt.description}"
+                       class="text-[15px] leading-relaxed text-gray-700 m-0">
+                        Description
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prompt — Notion-style code callout (Soft Paper) -->
+        <section class="mb-6">
+            <div class="rounded-lg bg-[#FAF5EC] border border-warm-border overflow-hidden shadow-sm">
+                <div class="flex items-center justify-between px-4 py-2 bg-[#F2EAD9]/70 border-b border-warm-border">
+                    <div class="flex items-center gap-2 text-xs font-medium text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                        </svg>
+                        <span class="uppercase tracking-wider">Prompt</span>
+                    </div>
+                    <button onclick="copyPromptContent()" id="copyBtn"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-gray-600 bg-white/80 hover:bg-white hover:text-primary rounded border border-warm-border transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        <span>Copy</span>
+                    </button>
+                </div>
+                <pre id="promptContent"
+                     class="text-[13.5px] font-mono leading-[1.75] text-gray-800 whitespace-pre-wrap break-words m-0 px-5 py-4 bg-transparent"><code class="bg-transparent" th:text="${prompt.content}">Prompt content here</code></pre>
+            </div>
+        </section>
+
+        <!-- Notes — Notion-style "Usage Tips" callout (sage green) -->
+        <section th:if="${prompt.notes != null && !prompt.notes.isEmpty()}" class="mb-6">
+            <div class="flex gap-3 rounded-lg bg-emerald-50/70 px-5 py-4">
+                <span class="flex-shrink-0 text-lg leading-6 select-none" aria-hidden="true">💡</span>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-emerald-700 mb-2">Usage Tips</div>
+                    <div class="article-content prose max-w-none text-[15px] leading-relaxed text-gray-700"
+                         th:utext="${notesHtml}">
+                        Notes content
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Back -->
+        <div class="mt-12 pt-6 border-t border-warm-border">
+            <a th:href="@{/prompts}" class="text-sm text-primary hover:text-primary-dark transition-colors">&larr; Back to all prompts</a>
+        </div>
+
+    </article>
+
+</div>
+</body>
+</html>

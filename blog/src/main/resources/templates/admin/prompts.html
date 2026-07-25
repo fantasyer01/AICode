@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Prompts</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Success Message -->
+    <div th:if="${success}" class="mb-4 p-3 rounded-lg bg-green-50 border border-green-200">
+        <p class="text-sm text-green-600" th:text="${success}">Success</p>
+    </div>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Prompts</h1>
+        <a th:href="@{/admin/prompts/create}"
+           class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors">
+            New Prompt
+        </a>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${prompts.isEmpty()}" class="text-center py-16 bg-white rounded-xl border border-gray-200">
+        <p class="text-gray-500">No prompts yet. Create your first prompt.</p>
+    </div>
+
+    <!-- Prompt Table -->
+    <div th:unless="${prompts.isEmpty()}" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">ID</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Title</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Source</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Model</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Tags</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Published</th>
+                    <th class="text-left px-4 py-3 font-medium text-gray-500">Created</th>
+                    <th class="text-right px-4 py-3 font-medium text-gray-500">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr th:each="prompt : ${prompts.content}" class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-gray-500" th:text="${prompt.id}">1</td>
+                    <td class="px-4 py-3">
+                        <a th:href="@{'/prompts/' + ${prompt.id}}" th:text="${prompt.title}"
+                           class="text-gray-900 font-medium hover:text-primary transition-colors" target="_blank">
+                            Title
+                        </a>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span th:text="${prompt.source}"
+                              th:classappend="${prompt.source.name() == 'SELF'} ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'"
+                              class="inline-block px-2 py-0.5 text-xs rounded-full">
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-500" th:text="${prompt.model ?: '-'}">Model</td>
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap gap-1">
+                            <span th:each="tag : ${prompt.tags}" th:text="${tag}"
+                                  class="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-50 text-blue-700">
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span th:if="${prompt.published}" class="inline-block px-2 py-0.5 text-xs rounded-full bg-green-50 text-green-700">Published</span>
+                        <span th:unless="${prompt.published}" class="inline-block px-2 py-0.5 text-xs rounded-full bg-yellow-50 text-yellow-700">Draft</span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-500" th:text="${#temporals.format(prompt.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                    <td class="px-4 py-3 text-right space-x-3">
+                        <a th:href="@{'/admin/prompts/' + ${prompt.id} + '/edit'}"
+                           class="text-primary hover:text-primary-dark transition-colors">Edit</a>
+                        <a th:href="@{'/admin/prompts/' + ${prompt.id} + '/delete'}"
+                           class="text-red-500 hover:text-red-700 transition-colors">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${prompts.totalPages > 1}" class="mt-6 flex justify-center items-center gap-2">
+        <a th:href="@{/admin/prompts(page=${prompts.number - 1})}"
+           th:classappend="${prompts.first} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            Prev
+        </a>
+        <span class="px-4 py-2 text-sm text-gray-500">
+            Page <span th:text="${prompts.number + 1}">1</span> / <span th:text="${prompts.totalPages}">1</span>
+        </span>
+        <a th:href="@{/admin/prompts(page=${prompts.number + 1})}"
+           th:classappend="${prompts.last} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            Next
+        </a>
+    </nav>
+
+</div>
+</body>
+</html>

@@ -6,6 +6,30 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Cover image fade-in on load
+    document.querySelectorAll('.cover-image').forEach(function (img) {
+        if (img.complete && img.naturalHeight > 0) {
+            img.classList.add('loaded');
+        } else {
+            img.addEventListener('load', function () {
+                img.classList.add('loaded');
+            });
+            img.addEventListener('error', function () {
+                img.classList.add('loaded');
+            });
+        }
+    });
+
+    // Wrap tables in scrollable container for mobile
+    document.querySelectorAll('.article-content table').forEach(function (table) {
+        if (!table.parentElement.classList.contains('table-wrapper')) {
+            var wrapper = document.createElement('div');
+            wrapper.className = 'table-wrapper';
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+        }
+    });
+
     // Add copy button to code blocks
     document.querySelectorAll('.article-content pre').forEach(function (pre) {
         var wrapper = document.createElement('div');
@@ -42,4 +66,31 @@ function toggleRawContent(snippetId) {
         rawContentDiv.classList.add('hidden');
         toggleLink.textContent = '原始内容';
     }
+}
+
+// Copy prompt content to clipboard
+function copyPromptContent() {
+    var promptEl = document.getElementById('promptContent');
+    var btn = document.getElementById('copyBtn');
+    if (!promptEl || !btn) return;
+
+    var text = promptEl.textContent || promptEl.innerText;
+    navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'Copied!';
+        setTimeout(function () {
+            btn.textContent = 'Copy';
+        }, 2000);
+    }).catch(function () {
+        // Fallback for older browsers
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        btn.textContent = 'Copied!';
+        setTimeout(function () {
+            btn.textContent = 'Copy';
+        }, 2000);
+    });
 }

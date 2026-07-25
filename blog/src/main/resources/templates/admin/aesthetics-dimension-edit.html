@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Edit Dimension</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Dimension</h1>
+
+        <div th:if="${error}" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
+            <p class="text-sm text-red-600" th:text="${error}">Error</p>
+        </div>
+
+        <form th:action="@{'/admin/aesthetics/dimensions/' + ${dimension.id} + '/edit'}" method="post" class="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
+
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name <span class="text-red-500">*</span></label>
+                <input type="text" id="name" name="name" required maxlength="200"
+                       th:value="${dimension.name}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+
+            <div>
+                <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type <span class="text-red-500">*</span></label>
+                <select id="type" name="type" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option th:each="t : ${dimensionTypes}" th:value="${t}" th:text="${t}"
+                            th:selected="${dimension.type == t}">TYPE</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="displayOrder" class="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
+                <input type="number" id="displayOrder" name="displayOrder"
+                       th:value="${dimension.displayOrder}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" rows="3" maxlength="1000"
+                          th:text="${dimension.description}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit"
+                        class="px-5 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors">
+                    Update
+                </button>
+                <a th:href="@{/admin/aesthetics/dimensions}"
+                   class="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

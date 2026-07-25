@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${article.title}">Aesthetics Article</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <article class="max-w-3xl mx-auto">
+        <!-- Back link -->
+        <a th:href="@{/aesthetics}" class="inline-flex items-center text-sm text-warm-gray hover:text-primary transition-colors mb-6">
+            &larr; Back to Aesthetics
+        </a>
+
+        <!-- Cover Image -->
+        <img th:if="${article.coverImageUrl != null && !article.coverImageUrl.isEmpty()}"
+             th:src="${article.coverImageUrl}"
+             th:alt="${article.title}"
+             class="w-full h-auto rounded-xl mb-6 border border-warm-border">
+
+        <!-- Dimension Badges -->
+        <div class="flex flex-wrap gap-2 mb-4">
+            <span th:text="${article.sensoryDimension.name}"
+                  class="px-3 py-1 text-xs rounded-full bg-purple-50 text-purple-700 font-medium">Sensory</span>
+            <span th:text="${article.domainDimension.name}"
+                  class="px-3 py-1 text-xs rounded-full bg-teal-50 text-teal-700 font-medium">Domain</span>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-3xl font-bold text-gray-800 mb-3 font-serif" th:text="${article.title}">Title</h1>
+
+        <!-- Meta -->
+        <div class="flex items-center gap-4 text-sm text-warm-gray mb-8 border-b border-warm-border pb-4">
+            <span th:if="${article.author != null}" th:text="${article.author}">Author</span>
+            <span th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd')}">2024-01-01</span>
+        </div>
+
+        <!-- Content -->
+        <div class="article-content" th:utext="${contentHtml}">
+            Content here
+        </div>
+
+        <!-- Tags -->
+        <div th:if="${!article.tags.isEmpty()}" class="mt-8 pt-4 border-t border-warm-border">
+            <div class="flex flex-wrap gap-2">
+                <span th:each="tag : ${article.tags}" th:text="${tag}"
+                      class="px-3 py-1 text-xs rounded-full bg-cream-dark text-warm-gray border border-warm-border">
+                </span>
+            </div>
+        </div>
+    </article>
+
+</div>
+</body>
+</html>

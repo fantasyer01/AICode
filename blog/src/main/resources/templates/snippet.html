@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${snippetResponse.displayTitle != null ? snippetResponse.displayTitle : 'Snippet #' + snippet.id}">Snippet</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <article class="max-w-3xl mx-auto">
+
+        <!-- Title -->
+        <h1 th:if="${snippetResponse.displayTitle != null}"
+            class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 leading-tight font-serif"
+            th:text="${snippetResponse.displayTitle}">Snippet Title</h1>
+        <h1 th:unless="${snippetResponse.displayTitle != null}"
+            class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 leading-tight font-serif">
+            Snippet #<span th:text="${snippet.id}">1</span>
+        </h1>
+
+        <!-- Meta Bar -->
+        <div class="flex flex-wrap items-center gap-4 text-sm text-warm-gray mb-8 pb-6 border-b border-warm-border">
+            <span th:if="${snippet.author != null and !snippet.author.isEmpty()}"
+                  class="font-medium text-gray-700" th:text="${snippet.author}"></span>
+            <time th:text="${#temporals.format(snippet.createdAt, 'yyyy-MM-dd HH:mm')}"></time>
+            <div th:if="${snippet.tags != null and !snippet.tags.isEmpty()}" class="flex flex-wrap gap-1">
+                <span th:each="tag : ${snippet.tags}"
+                      th:text="'#' + ${tag}"
+                      class="px-2 py-0.5 text-xs rounded-full bg-cream text-secondary">
+                </span>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="article-content prose snippet-content" th:utext="${snippetResponse.displayContentHtml}">
+            Snippet content rendered here.
+        </div>
+
+        <!-- Raw Content (collapsible) -->
+        <div class="mt-10">
+            <a href="javascript:void(0)"
+               id="raw-toggle-link"
+               onclick="(function(){var el=document.getElementById('raw-content-block');var lnk=document.getElementById('raw-toggle-link');if(el.classList.contains('hidden')){el.classList.remove('hidden');lnk.textContent='收起原始内容';}else{el.classList.add('hidden');lnk.textContent='查看原始内容';}})()"
+               class="text-sm text-warm-gray hover:text-primary transition-colors">
+                查看原始内容
+            </a>
+            <div id="raw-content-block" class="snippet-raw-content hidden mt-3">
+                <div class="snippet-raw-label">原始内容：</div>
+                <pre th:text="${snippet.rawContent}"></pre>
+            </div>
+        </div>
+
+        <!-- Back -->
+        <div class="mt-12 pt-6 border-t border-warm-border">
+            <a th:href="@{/snippets}" class="text-sm text-primary hover:text-primary-dark transition-colors">&larr; Back to all snippets</a>
+        </div>
+
+    </article>
+
+</div>
+</body>
+</html>

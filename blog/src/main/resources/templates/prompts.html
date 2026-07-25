@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Prompts</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-2 font-serif">Prompts</h1>
+    <p class="text-warm-gray mb-6">Curated collection of AI prompts</p>
+
+    <!-- Search & Filter Bar -->
+    <form th:action="@{/prompts}" method="get"
+          class="bg-white rounded-xl border border-warm-border p-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div class="md:col-span-2">
+                <input type="text" name="keyword" th:value="${keyword}"
+                       placeholder="Search by title..."
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+            <div>
+                <select name="source"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">All Sources</option>
+                    <option value="SELF" th:selected="${source == 'SELF'}">Self</option>
+                    <option value="WEBSITE" th:selected="${source == 'WEBSITE'}">Website</option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <select name="model"
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">All Models</option>
+                    <option th:each="m : ${allModels}" th:value="${m}" th:text="${m}"
+                            th:selected="${model == m}">Model</option>
+                </select>
+                <button type="submit"
+                        class="flex-shrink-0 px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors whitespace-nowrap">
+                    Search
+                </button>
+            </div>
+        </div>
+        <!-- Active filters indicator -->
+        <div th:if="${keyword != null || source != null || model != null}" class="mt-3 flex items-center gap-2">
+            <span class="text-xs text-gray-500">Active filters:</span>
+            <a th:href="@{/prompts}" class="text-xs text-primary hover:text-primary-dark transition-colors">Clear all</a>
+        </div>
+    </form>
+
+    <!-- Empty State -->
+    <div th:if="${prompts.isEmpty()}" class="text-center py-16">
+        <p class="text-warm-gray">No prompts found matching your criteria.</p>
+    </div>
+
+    <!-- Prompt List -->
+    <div th:unless="${prompts.isEmpty()}" class="space-y-3">
+        <div th:each="prompt : ${prompts.content}"
+             class="bg-white rounded-xl border border-warm-border p-4 hover:shadow-sm transition-shadow">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                    <a th:href="@{'/prompts/' + ${prompt.id}}"
+                       class="text-base font-semibold text-gray-800 hover:text-primary transition-colors font-serif">
+                        <span th:text="${prompt.title}">Title</span>
+                    </a>
+                    <p th:if="${prompt.description != null && !prompt.description.isEmpty()}"
+                       th:text="${prompt.description}"
+                       class="text-sm text-warm-gray mt-1 line-clamp-2">Description</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span th:text="${prompt.source}"
+                          th:classappend="${prompt.source.name() == 'SELF'} ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'"
+                          class="px-2 py-0.5 text-xs rounded-full whitespace-nowrap">Source</span>
+                    <span th:if="${prompt.model != null && !prompt.model.isEmpty()}"
+                          th:text="${prompt.model}"
+                          class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600 whitespace-nowrap">Model</span>
+                </div>
+            </div>
+            <!-- Tags and date -->
+            <div class="flex items-center justify-between mt-3">
+                <div class="flex flex-wrap gap-1">
+                    <span th:each="t : ${prompt.tags}" th:text="${t}"
+                          class="px-2 py-0.5 text-xs rounded-full bg-cream-dark text-warm-gray border border-warm-border">Tag</span>
+                </div>
+                <span class="text-xs text-gray-400" th:text="${#temporals.format(prompt.createdAt, 'yyyy-MM-dd')}">2024-01-01</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${prompts.totalPages > 1}" class="mt-8 flex justify-center items-center gap-2">
+        <a th:href="@{/prompts(page=${prompts.number - 1}, keyword=${keyword}, source=${source}, model=${model})}"
+           th:classappend="${prompts.first} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:text-primary transition-colors">
+            Prev
+        </a>
+        <span class="px-4 py-2 text-sm text-warm-gray">
+            Page <span th:text="${prompts.number + 1}">1</span> / <span th:text="${prompts.totalPages}">1</span>
+        </span>
+        <a th:href="@{/prompts(page=${prompts.number + 1}, keyword=${keyword}, source=${source}, model=${model})}"
+           th:classappend="${prompts.last} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:text-primary transition-colors">
+            Next
+        </a>
+    </nav>
+
+</div>
+</body>
+</html>

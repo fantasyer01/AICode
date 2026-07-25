@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Aesthetics</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-2 font-serif">Aesthetics</h1>
+    <p class="text-warm-gray mb-6">Exploring beauty across senses and disciplines</p>
+
+    <!-- Dimension Filters -->
+    <div class="mb-8 space-y-3">
+        <!-- Sensory Dimensions -->
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide mr-1">Sensory:</span>
+            <a th:href="@{/aesthetics}"
+               th:classappend="${activeSensory == null} ? 'bg-primary text-white' : 'bg-white text-warm-gray hover:text-primary'"
+               class="px-3 py-1 text-xs rounded-full border border-warm-border transition-colors">
+                All
+            </a>
+            <a th:each="dim : ${sensoryDimensions}"
+               th:href="@{/aesthetics(sensory=${dim.id}, domain=${activeDomain})}"
+               th:text="${dim.name}"
+               th:classappend="${activeSensory != null && activeSensory == dim.id} ? 'bg-primary text-white border-primary' : 'bg-white text-warm-gray hover:text-primary'"
+               class="px-3 py-1 text-xs rounded-full border border-warm-border transition-colors">
+                Dim
+            </a>
+        </div>
+        <!-- Domain Dimensions -->
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide mr-1">Domain:</span>
+            <a th:href="@{/aesthetics(sensory=${activeSensory})}"
+               th:classappend="${activeDomain == null} ? 'bg-primary text-white' : 'bg-white text-warm-gray hover:text-primary'"
+               class="px-3 py-1 text-xs rounded-full border border-warm-border transition-colors">
+                All
+            </a>
+            <a th:each="dim : ${domainDimensions}"
+               th:href="@{/aesthetics(sensory=${activeSensory}, domain=${dim.id})}"
+               th:text="${dim.name}"
+               th:classappend="${activeDomain != null && activeDomain == dim.id} ? 'bg-primary text-white border-primary' : 'bg-white text-warm-gray hover:text-primary'"
+               class="px-3 py-1 text-xs rounded-full border border-warm-border transition-colors">
+                Dim
+            </a>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${articles.isEmpty()}" class="text-center py-16">
+        <p class="text-warm-gray">No aesthetics articles found.</p>
+    </div>
+
+    <!-- Gallery Grid (Masonry-like) -->
+    <div th:unless="${articles.isEmpty()}" class="columns-1 md:columns-2 lg:columns-3 gap-5 space-y-5">
+        <div th:each="article : ${articles.content}"
+             class="break-inside-avoid bg-white rounded-xl border border-warm-border overflow-hidden hover:shadow-md transition-shadow">
+            <!-- Cover Image -->
+            <a th:href="@{'/aesthetics/' + ${article.id}}" class="block">
+                <img th:if="${article.coverImageUrl != null && !article.coverImageUrl.isEmpty()}"
+                     th:src="${article.coverImageUrl}"
+                     th:alt="${article.title}"
+                     class="w-full h-auto object-cover">
+            </a>
+            <!-- Content -->
+            <div class="p-4">
+                <!-- Dimension Badges -->
+                <div class="flex flex-wrap gap-1.5 mb-2">
+                    <span th:text="${article.sensoryDimension.name}"
+                          class="px-2 py-0.5 text-xs rounded-full bg-purple-50 text-purple-700">Sensory</span>
+                    <span th:text="${article.domainDimension.name}"
+                          class="px-2 py-0.5 text-xs rounded-full bg-teal-50 text-teal-700">Domain</span>
+                </div>
+                <!-- Title -->
+                <a th:href="@{'/aesthetics/' + ${article.id}}"
+                   class="block text-base font-semibold text-gray-800 hover:text-primary transition-colors font-serif mb-1">
+                    <span th:text="${article.title}">Title</span>
+                </a>
+                <!-- Summary -->
+                <p th:if="${article.summary != null && !article.summary.isEmpty()}"
+                   th:text="${article.summary}"
+                   class="text-sm text-warm-gray line-clamp-3 mb-2">Summary</p>
+                <!-- Meta -->
+                <div class="flex items-center justify-between text-xs text-gray-400 mt-2">
+                    <span th:text="${article.author ?: ''}">Author</span>
+                    <span th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd')}">2024-01-01</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${articles.totalPages > 1}" class="mt-8 flex justify-center items-center gap-2">
+        <a th:href="@{/aesthetics(page=${articles.number - 1}, sensory=${activeSensory}, domain=${activeDomain})}"
+           th:classappend="${articles.first} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:text-primary transition-colors">
+            Prev
+        </a>
+        <span class="px-4 py-2 text-sm text-warm-gray">
+            Page <span th:text="${articles.number + 1}">1</span> / <span th:text="${articles.totalPages}">1</span>
+        </span>
+        <a th:href="@{/aesthetics(page=${articles.number + 1}, sensory=${activeSensory}, domain=${activeDomain})}"
+           th:classappend="${articles.last} ? 'pointer-events-none opacity-40'"
+           class="px-4 py-2 text-sm rounded-lg border border-warm-border bg-white text-warm-gray hover:text-primary transition-colors">
+            Next
+        </a>
+    </nav>
+
+</div>
+</body>
+</html>

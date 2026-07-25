@@ -34,10 +34,27 @@ public class DeepSeekService {
 
             IMPORTANT: Your response MUST be in Chinese (both title and content), regardless of the input language.
 
+            HEADING FORMAT RULES (STRICT - MUST FOLLOW):
+            - In the "content" markdown body, EVERY section heading MUST use level-2 markdown headings, i.e. start with exactly "## " (two hash characters followed by one space).
+            - DO NOT use level-1 headings ("# "). The title is returned separately in the "title" field; never repeat it as an H1 inside content.
+            - DO NOT use level-3 or deeper headings ("### ", "#### ", etc.). If you feel a sub-section is needed, demote it to a bold paragraph ("**子标题**") or a list item instead of a deeper heading.
+            - DO NOT use Setext-style headings (underlines made of "===" or "---") or HTML heading tags (<h1>, <h2>, ...). Only the ATX form "## 标题" is allowed.
+            - The body should normally contain at least 2 such "## " sections so the structure is visible. If the source is too short to split, you may omit headings entirely - but if you DO use any heading, it must be level-2.
+
+            Example of a valid content field (illustrative only):
+            ## 核心要点一
+            内容描述...
+
+            ## 核心要点二
+            内容描述...
+
+            ## 核心要点三
+            内容描述...
+
             You MUST respond with a valid JSON object and nothing else. The JSON must have exactly these fields:
             {
               "title": "concise Chinese title here",
-              "content": "structured Chinese markdown content here, condensed and concise",
+              "content": "structured Chinese markdown content here using ONLY '## ' level-2 headings, condensed and concise",
               "tags": ["tag1", "tag2"]
             }
             """;

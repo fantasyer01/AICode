@@ -1,6 +1,7 @@
 package com.aiblog.service;
 
 import com.aiblog.audit.Auditable;
+import com.aiblog.dto.ArticleCoverImageUpdateRequest;
 import com.aiblog.dto.ArticleCreateRequest;
 import com.aiblog.dto.ArticleResponse;
 import com.aiblog.dto.ArticleUpdateRequest;
@@ -99,6 +100,24 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = getEntityById(id);
         articleRepository.delete(article);
         log.info("Deleted article id={}, title='{}'", id, article.getTitle());
+    }
+
+    @Override
+    @Auditable(operation = "UPDATE", entityType = "Article")
+    public ArticleResponse updateCoverImage(Long id, ArticleCoverImageUpdateRequest request) {
+        Article article = getEntityById(id);
+        try {
+            String url = imageStorageService.saveImageFile(
+                    request.getData(), request.getContentType(), request.getOriginalFilename());
+            String previousUrl = article.getCoverImageUrl();
+            article.setCoverImageUrl(url);
+            Article saved = articleRepository.save(article);
+            log.info("Updated cover image for article id={}: '{}' -> '{}'", id, previousUrl, url);
+            return toResponse(saved);
+        } catch (IOException e) {
+            log.error("Failed to save uploaded cover image for article id={}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Failed to save cover image", e);
+        }
     }
 
     @Override

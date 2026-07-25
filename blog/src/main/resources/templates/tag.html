@@ -43,9 +43,10 @@
 
             <a th:href="@{'/articles/' + ${article.id}}">
                 <div th:if="${article.coverImageUrl != null and !article.coverImageUrl.isEmpty()}"
-                     class="h-48 bg-gray-100 overflow-hidden">
+                     class="cover-image-wrapper h-48 bg-gray-100 overflow-hidden">
                     <img th:src="${article.coverImageUrl}" th:alt="${article.title}"
-                         class="w-full h-full object-cover">
+                         loading="lazy" decoding="async"
+                         class="cover-image w-full h-full object-cover">
                 </div>
                 <div th:unless="${article.coverImageUrl != null and !article.coverImageUrl.isEmpty()}"
                      class="h-32 bg-gradient-to-br from-blue-50 to-indigo-100">

@@ -31,7 +31,17 @@
                     <div class="snippet-card">
                         <!-- Header: title + time -->
                         <div class="snippet-card-header">
-                            <h3 th:if="${snippet.displayTitle != null}" class="snippet-card-title" th:text="${snippet.displayTitle}">Title</h3>
+                            <h3 th:if="${snippet.displayTitle != null}" class="snippet-card-title">
+                                <a th:href="@{'/snippets/' + ${snippet.id}}"
+                                   th:text="${snippet.displayTitle}"
+                                   class="hover:text-primary transition-colors">Title</a>
+                            </h3>
+                            <h3 th:unless="${snippet.displayTitle != null}" class="snippet-card-title">
+                                <a th:href="@{'/snippets/' + ${snippet.id}}"
+                                   class="text-warm-gray hover:text-primary transition-colors text-sm font-normal">
+                                    查看详情 &rarr;
+                                </a>
+                            </h3>
                             <div class="snippet-card-meta">
                                 <span class="snippet-card-time" th:text="${#temporals.format(snippet.createdAt, 'HH:mm')}">14:30</span>
                                 <span th:if="${snippet.author != null && !snippet.author.isEmpty()}" class="snippet-card-author">
@@ -40,7 +50,7 @@
                             </div>
                         </div>
                         <!-- Content -->
-                        <div class="snippet-card-content article-content" th:utext="${snippet.displayContentHtml}">
+                        <div class="snippet-card-content snippet-content" th:utext="${snippet.displayContentHtml}">
                             Content here
                         </div>
                         <!-- View Raw Content Link -->

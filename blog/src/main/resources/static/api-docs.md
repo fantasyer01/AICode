@@ -156,6 +156,74 @@ curl "http://localhost:8080/api/articles?tag=gpt-4"
 
 ---
 
+### 4. Replace Article Cover Image (Multipart Upload)
+
+**PUT** `/api/articles/{id}/cover`
+
+Uploads a new cover image and binds it to the specified article. Use this endpoint in two scenarios:
+
+1. **First-time cover**: the article was created without a `coverImage` and you now want to attach one.
+2. **Replace cover**: the user wants to change the existing cover image.
+
+The previous `coverImageUrl` (if any) is overwritten on the article record. The underlying file on disk is left untouched (i.e., this is a non-destructive add to image storage).
+
+**Request Headers:**
+- `Content-Type: multipart/form-data`
+- `X-API-Key: <your-api-key>` (required)
+
+**Request Body (multipart form fields):**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `file` | `file` | Yes | The image file. Supported MIME types: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/svg+xml`. Max size: **5 MB** |
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `id` | `long` | Article ID |
+
+**Example Request:**
+
+```bash
+curl -X PUT "http://localhost:9100/api/articles/1/cover" \
+  -H "X-API-Key: your-api-key" \
+  -F "file=@/path/to/cover.png"
+```
+
+PowerShell:
+
+```powershell
+$form = @{ file = Get-Item "C:\images\cover.png" }
+Invoke-RestMethod -Method Put `
+  -Uri "http://localhost:9100/api/articles/1/cover" `
+  -Headers @{ "X-API-Key" = $env:BLOG_API_KEY } `
+  -Form $form
+```
+
+**Response:** `200 OK` - Returns the full updated article. The new local URL is in `coverImageUrl`:
+
+```json
+{
+  "id": 1,
+  "title": "...",
+  "coverImageUrl": "/images/8e2c1f7a-3d4b-4f1e-9a55-b7c0d2e3f410.png",
+  "updatedAt": "2026-05-20T10:30:00",
+  "...": "..."
+}
+```
+
+**Error Responses:**
+
+| Status | Reason |
+|---|---|
+| `400 Bad Request` | File is empty, missing, or not an allowed image type |
+| `401 Unauthorized` | Missing or invalid `X-API-Key` |
+| `404 Not Found` | Article with the given `id` does not exist |
+| `413 Payload Too Large` | File exceeds 5 MB limit |
+
+---
+
 ## Error Responses
 
 All error responses follow this format:
@@ -189,8 +257,7 @@ All error responses follow this format:
 - **Content Format**: Article content should be written in Markdown. The API returns both raw `content` (Markdown) and rendered `contentHtml` (HTML).
 - **Tags**: Tags are simple strings. Use lowercase with hyphens for consistency (e.g., `"machine-learning"`).
 - **Pagination**: The default page size is 10, maximum is 50. Pages are 0-indexed.
-- **Cover Image**: The `coverImage` request field accepts Base64 encoded images or plain URLs. The response always returns a `coverImageUrl` with the accessible path.
-- **No DELETE endpoint**: Articles are permanent records and cannot be deleted through the API.
+- **Cover Image**: The `coverImage` request field accepts Base64 encoded images or plain URLs. The response always returns a `coverImageUrl` with the accessible path. To replace an existing article's cover via file upload, use the dedicated `PUT /api/articles/{id}/cover` multipart endpoint (see section 4).
 
 ---
 

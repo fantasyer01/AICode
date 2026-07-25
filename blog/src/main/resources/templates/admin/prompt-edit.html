@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Edit Prompt</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Prompt</h1>
+
+        <div th:if="${error}" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
+            <p class="text-sm text-red-600" th:text="${error}">Error</p>
+        </div>
+
+        <form th:action="@{'/admin/prompts/' + ${prompt.id} + '/edit'}" method="post" class="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
+
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
+                <input type="text" id="title" name="title" required maxlength="500"
+                       th:value="${prompt.title}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" rows="2" maxlength="2000"
+                          th:text="${prompt.description}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="source" class="block text-sm font-medium text-gray-700 mb-1">Source <span class="text-red-500">*</span></label>
+                    <select id="source" name="source" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option th:each="s : ${sources}" th:value="${s}" th:text="${s}"
+                                th:selected="${prompt.source == s}">Source</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="promptModel" class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                    <input type="text" id="promptModel" name="promptModel" maxlength="200"
+                           th:value="${prompt.model}"
+                           placeholder="e.g. GPT-4, Claude 3.5 Sonnet"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+            </div>
+
+            <div>
+                <label for="tags" class="block text-sm font-medium text-gray-700 mb-1">Tags <span class="text-gray-400 font-normal">(comma-separated)</span></label>
+                <input type="text" id="tags" name="tags"
+                       th:value="${#strings.listJoin(prompt.tags, ', ')}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+
+            <div>
+                <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Prompt Content <span class="text-red-500">*</span></label>
+                <textarea id="content" name="content" rows="12" required
+                          th:text="${prompt.content}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+            </div>
+
+            <div>
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes / Usage Tips</label>
+                <textarea id="notes" name="notes" rows="4"
+                          th:text="${prompt.notes}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Publish Status</label>
+                <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="published" value="true"
+                               th:checked="${prompt.published}"
+                               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary">
+                        <span class="text-sm text-gray-700">Published</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="published" value="false"
+                               th:checked="${!prompt.published}"
+                               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary">
+                        <span class="text-sm text-gray-700">Draft</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit"
+                        class="px-5 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors">
+                    Update
+                </button>
+                <a th:href="@{/admin/prompts}"
+                   class="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

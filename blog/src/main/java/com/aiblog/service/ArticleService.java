@@ -1,5 +1,6 @@
 package com.aiblog.service;
 
+import com.aiblog.dto.ArticleCoverImageUpdateRequest;
 import com.aiblog.dto.ArticleCreateRequest;
 import com.aiblog.dto.ArticleResponse;
 import com.aiblog.dto.ArticleUpdateRequest;
@@ -16,6 +17,17 @@ public interface ArticleService {
     ArticleResponse update(Long id, ArticleUpdateRequest request);
 
     void delete(Long id);
+
+    /**
+     * Replaces (or sets, if absent) the cover image of an article.
+     * The previous cover image URL is overwritten on the article record;
+     * the underlying file on disk is left as-is.
+     *
+     * @param id      article id
+     * @param request transport-agnostic payload carrying raw image bytes + metadata
+     * @return updated article response
+     */
+    ArticleResponse updateCoverImage(Long id, ArticleCoverImageUpdateRequest request);
 
     Page<ArticleResponse> list(Pageable pageable);
 
