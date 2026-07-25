@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+    <!-- Console appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+    
+    <!-- Application package logger -->
+    <logger name="com.example.httpclient.test" level="DEBUG" />
+    
+    <!-- Apache HttpClient loggers - reduce verbosity -->
+    <logger name="org.apache.http" level="WARN" />
+    <logger name="org.apache.http.wire" level="WARN" />
+    <logger name="org.apache.http.headers" level="WARN" />
+    
+</configuration>

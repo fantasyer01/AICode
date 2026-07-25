@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Fault Simulator - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-badge {
+            font-size: 0.9em;
+            padding: 5px 10px;
+        }
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85em;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+        .log-success { color: #4ec9b0; }
+        .log-error { color: #f14c4c; }
+        .log-info { color: #569cd6; }
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .btn-fault {
+            margin: 2px;
+        }
+        .status-healthy { background-color: #198754; }
+        .status-error { background-color: #dc3545; }
+        .status-idle { background-color: #6c757d; }
+        .status-unknown { background-color: #ffc107; color: #000; }
+        .container-running { background-color: #198754; }
+        .container-stopped { background-color: #dc3545; }
+        .container-paused { background-color: #ffc107; color: #000; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Network Fault Simulator</span>
+            <span class="text-light" id="dockerStatus">Docker: Checking...</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Left Column: Status & Controls -->
+            <div class="col-md-6">
+                <!-- Pool Status Card -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <span>Druid Connection Pool Status</span>
+                        <span id="poolStatusBadge" class="badge status-badge status-unknown">Unknown</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="metric-value text-primary" id="activeCount">-</div>
+                                <small class="text-muted">Active</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="metric-value text-success" id="poolingCount">-</div>
+                                <small class="text-muted">Pooling (Idle)</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="metric-value text-warning" id="waitThreadCount">-</div>
+                                <small class="text-muted">Waiting</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row text-center">
+                            <div class="col-3">
+                                <div id="connectCount">-</div>
+                                <small class="text-muted">Connects</small>
+                            </div>
+                            <div class="col-3">
+                                <div id="closeCount">-</div>
+                                <small class="text-muted">Closes</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-danger" id="connectErrorCount">-</div>
+                                <small class="text-muted">Connect Errors</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-danger" id="errorCount">-</div>
+                                <small class="text-muted">Total Errors</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <small class="text-muted">Max Active: <span id="maxActive">-</span></small>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Min Idle: <span id="minIdle">-</span></small>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Initial: <span id="initialSize">-</span></small>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="resetPoolStats()">Reset Stats</button>
+                            <a href="/druid" target="_blank" class="btn btn-sm btn-outline-info">Druid Monitor</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container Status Card -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                        <span>MySQL Container Status</span>
+                        <span id="containerStatusBadge" class="badge status-badge">Unknown</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <p><strong>Container:</strong> <span id="containerName">-</span></p>
+                                <p><strong>State:</strong> <span id="containerState">-</span></p>
+                            </div>
+                            <div class="col-6">
+                                <p><strong>Network:</strong> <span id="networkConnected">-</span></p>
+                                <p><strong>Status:</strong> <span id="containerStatus">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fault Simulation Controls -->
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        Fault Simulation Controls
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Network Faults</h6>
+                            <button class="btn btn-danger btn-fault" onclick="triggerFault('network-down')">
+                                Disconnect Network
+                            </button>
+                            <button class="btn btn-success btn-fault" onclick="triggerFault('network-up')">
+                                Reconnect Network
+                            </button>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Database Service Faults</h6>
+                            <button class="btn btn-danger btn-fault" onclick="triggerFault('db-stop')">
+                                Stop MySQL
+                            </button>
+                            <button class="btn btn-success btn-fault" onclick="triggerFault('db-start')">
+                                Start MySQL
+                            </button>
+                            <button class="btn btn-warning btn-fault" onclick="triggerFault('db-restart')">
+                                Restart MySQL
+                            </button>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Connection Timeout</h6>
+                            <button class="btn btn-danger btn-fault" onclick="triggerFault('timeout')">
+                                Pause (Timeout)
+                            </button>
+                            <button class="btn btn-success btn-fault" onclick="triggerFault('timeout-clear')">
+                                Unpause (Clear)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Testing & Logs -->
+            <div class="col-md-6">
+                <!-- Database Test Controls -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        Database Connection Tests
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Single Query Tests</h6>
+                            <button class="btn btn-primary" onclick="executeTest('query')">
+                                Test Query (SELECT 1)
+                            </button>
+                            <button class="btn btn-primary" onclick="executeTest('data-query')">
+                                Query Data
+                            </button>
+                            <button class="btn btn-primary" onclick="executeTest('insert')">
+                                Insert Data
+                            </button>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <h6>Continuous Test</h6>
+                            <div class="input-group mb-2" style="max-width: 300px;">
+                                <span class="input-group-text">Interval (ms)</span>
+                                <input type="number" class="form-control" id="testInterval" value="1000" min="100">
+                            </div>
+                            <button class="btn btn-success" id="startContinuousBtn" onclick="startContinuousTest()">
+                                Start Continuous Test
+                            </button>
+                            <button class="btn btn-danger" id="stopContinuousBtn" onclick="stopContinuousTest()" disabled>
+                                Stop Continuous Test
+                            </button>
+                            <span id="continuousStatus" class="ms-2 text-muted"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Log -->
+                <div class="card">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <span>Operation Log</span>
+                        <button class="btn btn-sm btn-outline-light" onclick="clearLog()">Clear</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="log-container" id="logContainer">
+                            <div class="log-entry log-info">[System] Dashboard initialized. Waiting for status...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continuous Test Results -->
+                <div class="card">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <span>Continuous Test Results (<span id="resultCount">0</span>)</span>
+                        <button class="btn btn-sm btn-outline-light" onclick="clearTestResults()">Clear Results</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="log-container" id="testResultsContainer" style="max-height: 200px;">
+                            <div class="log-entry log-info">No test results yet.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let statusInterval;
+        let testResultsInterval;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkDockerStatus();
+            updateStatus();
+            statusInterval = setInterval(updateStatus, 1000);
+            testResultsInterval = setInterval(updateTestResults, 2000);
+        });
+
+        function checkDockerStatus() {
+            fetch('/api/docker/available')
+                .then(response => response.json())
+                .then(data => {
+                    const el = document.getElementById('dockerStatus');
+                    if (data.available) {
+                        el.innerHTML = '<span class="badge bg-success">Docker: Connected</span>';
+                    } else {
+                        el.innerHTML = '<span class="badge bg-danger">Docker: Not Available</span>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('dockerStatus').innerHTML = '<span class="badge bg-danger">Docker: Error</span>';
+                });
+        }
+
+        function updateStatus() {
+            // Update pool status
+            fetch('/api/pool/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('activeCount').textContent = data.activeCount;
+                    document.getElementById('poolingCount').textContent = data.poolingCount;
+                    document.getElementById('waitThreadCount').textContent = data.waitThreadCount;
+                    document.getElementById('connectCount').textContent = data.connectCount;
+                    document.getElementById('closeCount').textContent = data.closeCount;
+                    document.getElementById('connectErrorCount').textContent = data.connectErrorCount;
+                    document.getElementById('errorCount').textContent = data.errorCount;
+                    document.getElementById('maxActive').textContent = data.maxActive;
+                    document.getElementById('minIdle').textContent = data.minIdle;
+                    document.getElementById('initialSize').textContent = data.initialSize;
+                    
+                    const badge = document.getElementById('poolStatusBadge');
+                    badge.textContent = data.status;
+                    badge.className = 'badge status-badge status-' + data.status.toLowerCase();
+                })
+                .catch(err => {
+                    console.error('Error fetching pool status:', err);
+                });
+
+            // Update container status
+            fetch('/api/container/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('containerName').textContent = data.containerName || '-';
+                    document.getElementById('containerState').textContent = data.state || '-';
+                    document.getElementById('containerStatus').textContent = data.status || '-';
+                    document.getElementById('networkConnected').textContent = data.networkConnected ? 'Connected' : 'Disconnected';
+                    
+                    const badge = document.getElementById('containerStatusBadge');
+                    if (data.paused) {
+                        badge.textContent = 'Paused';
+                        badge.className = 'badge status-badge container-paused';
+                    } else if (data.running) {
+                        badge.textContent = 'Running';
+                        badge.className = 'badge status-badge container-running';
+                    } else {
+                        badge.textContent = 'Stopped';
+                        badge.className = 'badge status-badge container-stopped';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching container status:', err);
+                });
+
+            // Update continuous test status
+            fetch('/api/test/continuous/status')
+                .then(response => response.json())
+                .then(data => {
+                    const startBtn = document.getElementById('startContinuousBtn');
+                    const stopBtn = document.getElementById('stopContinuousBtn');
+                    const statusEl = document.getElementById('continuousStatus');
+                    
+                    if (data.running) {
+                        startBtn.disabled = true;
+                        stopBtn.disabled = false;
+                        statusEl.textContent = 'Running... (' + data.resultCount + ' results)';
+                        statusEl.className = 'ms-2 text-success';
+                    } else {
+                        startBtn.disabled = false;
+                        stopBtn.disabled = true;
+                        statusEl.textContent = 'Stopped';
+                        statusEl.className = 'ms-2 text-muted';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching continuous test status:', err);
+                });
+        }
+
+        function updateTestResults() {
+            fetch('/api/test/continuous/results')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('resultCount').textContent = data.length;
+                    
+                    if (data.length > 0) {
+                        const container = document.getElementById('testResultsContainer');
+                        container.innerHTML = '';
+                        
+                        // Show last 20 results in reverse order
+                        const recentResults = data.slice(-20).reverse();
+                        recentResults.forEach(result => {
+                            const cssClass = result.success ? 'log-success' : 'log-error';
+                            const status = result.success ? 'OK' : 'FAIL';
+                            const div = document.createElement('div');
+                            div.className = 'log-entry ' + cssClass;
+                            div.textContent = `[${formatTime(result.timestamp)}] ${status} - ${result.responseTimeMs}ms - ${result.message}`;
+                            container.appendChild(div);
+                        });
+                        
+                        container.scrollTop = 0;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching test results:', err);
+                });
+        }
+
+        function triggerFault(faultType) {
+            addLog('info', 'Triggering fault: ' + faultType);
+            
+            fetch('/api/fault/' + faultType, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    const cssClass = data.success ? 'success' : 'error';
+                    addLog(cssClass, `[${data.operation}] ${data.message}`);
+                })
+                .catch(err => {
+                    addLog('error', 'Error triggering fault: ' + err.message);
+                });
+        }
+
+        function executeTest(testType) {
+            addLog('info', 'Executing test: ' + testType);
+            
+            fetch('/api/test/' + testType, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    const cssClass = data.success ? 'success' : 'error';
+                    addLog(cssClass, `[${data.operation}] ${data.message} (${data.responseTimeMs}ms)`);
+                    if (data.details) {
+                        addLog('info', 'Details: ' + data.details);
+                    }
+                })
+                .catch(err => {
+                    addLog('error', 'Error executing test: ' + err.message);
+                });
+        }
+
+        function startContinuousTest() {
+            const interval = document.getElementById('testInterval').value;
+            addLog('info', 'Starting continuous test with interval: ' + interval + 'ms');
+            
+            fetch('/api/test/continuous/start?intervalMs=' + interval, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    const cssClass = data.success ? 'success' : 'error';
+                    addLog(cssClass, data.message);
+                })
+                .catch(err => {
+                    addLog('error', 'Error starting continuous test: ' + err.message);
+                });
+        }
+
+        function stopContinuousTest() {
+            addLog('info', 'Stopping continuous test');
+            
+            fetch('/api/test/continuous/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    addLog('success', data.message);
+                })
+                .catch(err => {
+                    addLog('error', 'Error stopping continuous test: ' + err.message);
+                });
+        }
+
+        function resetPoolStats() {
+            fetch('/api/pool/reset', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    addLog('success', 'Pool statistics reset');
+                })
+                .catch(err => {
+                    addLog('error', 'Error resetting pool stats: ' + err.message);
+                });
+        }
+
+        function clearTestResults() {
+            fetch('/api/test/continuous/clear', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('testResultsContainer').innerHTML = '<div class="log-entry log-info">Results cleared.</div>';
+                    document.getElementById('resultCount').textContent = '0';
+                    addLog('success', 'Test results cleared');
+                })
+                .catch(err => {
+                    addLog('error', 'Error clearing test results: ' + err.message);
+                });
+        }
+
+        function addLog(type, message) {
+            const container = document.getElementById('logContainer');
+            const div = document.createElement('div');
+            div.className = 'log-entry log-' + type;
+            div.textContent = `[${formatTime(new Date().toISOString())}] ${message}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry log-info">[System] Log cleared.</div>';
+        }
+
+        function formatTime(isoString) {
+            if (!isoString) return '--:--:--';
+            const date = new Date(isoString);
+            return date.toLocaleTimeString();
+        }
+    </script>
+</body>
+</html>
