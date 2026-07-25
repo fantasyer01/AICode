@@ -1,0 +1,68 @@
+{
+  "commands" : [ {
+    "id" : "550e8400-e29b-41d4-a716-446655440001",
+    "title" : "查看端口占用",
+    "command" : "netstat -ano | findstr :8080",
+    "platform" : "windows",
+    "tags" : [ "网络", "调试" ],
+    "description" : "查看指定端口的占用情况，找到对应的 PID 进程。将 :8080 替换为实际端口号。",
+    "createTime" : "2025-04-25T10:00:00",
+    "updateTime" : "2025-04-25T10:00:00"
+  }, {
+    "id" : "550e8400-e29b-41d4-a716-446655440002",
+    "title" : "查看端口占用（Linux）",
+    "command" : "ss -tlnp | grep :8080",
+    "platform" : "linux",
+    "tags" : [ "网络", "调试" ],
+    "description" : "使用 ss 命令查看指定端口的监听情况，比 netstat 更快更现代。",
+    "createTime" : "2025-04-25T10:01:00",
+    "updateTime" : "2025-04-25T10:01:00"
+  }, {
+    "id" : "550e8400-e29b-41d4-a716-446655440006",
+    "title" : "Git 查看提交日志（图形化）",
+    "command" : "git log --oneline --graph --all --decorate",
+    "platform" : "common",
+    "tags" : [ "Git" ],
+    "description" : "以简洁的图形方式查看所有分支的提交历史。--oneline 单行显示，--graph 图形化，--all 所有分支。",
+    "createTime" : "2025-04-25T10:05:00",
+    "updateTime" : "2025-04-25T10:05:00"
+  }, {
+    "id" : "550e8400-e29b-41d4-a716-446655440007",
+    "title" : "批量杀死进程",
+    "command" : "taskkill /F /IM java.exe",
+    "platform" : "windows",
+    "tags" : [ "系统管理", "调试" ],
+    "description" : "强制结束所有 java.exe 进程。/F 强制终止，/IM 指定进程名。可替换为其他进程名。",
+    "createTime" : "2025-04-25T10:06:00",
+    "updateTime" : "2025-04-25T10:06:00"
+  }, {
+    "id" : "550e8400-e29b-41d4-a716-446655440008",
+    "title" : "查找大文件",
+    "command" : "find / -type f -size +100M -exec ls -lh {} \\;",
+    "platform" : "linux",
+    "tags" : [ "文件", "系统管理", "运维" ],
+    "description" : "查找系统中大于 100MB 的文件并显示详细信息。可以修改 +100M 为其他大小阈值。",
+    "createTime" : "2025-04-25T10:07:00",
+    "updateTime" : "2025-04-25T10:07:00"
+  }, {
+    "id" : "550e8400-e29b-41d4-a716-446655440010",
+    "title" : "Docker Compose 重启服务",
+    "command" : "docker compose down && docker compose up -d",
+    "platform" : "common",
+    "tags" : [ "Docker", "运维" ],
+    "description" : "先停止并移除所有容器，再后台重新启动。适用于更新配置后重启服务。",
+    "createTime" : "2025-04-25T10:09:00",
+    "updateTime" : "2025-04-25T10:09:00"
+  }, {
+    "id" : "9252991f-659e-45c5-aa62-6c38aa9b87bc",
+    "title" : "SSH隧道",
+    "command" : "ssh -N -L 24713:127.0.0.1:24713 root@43.164.128.96",
+    "platform" : "common",
+    "tags" : [ "运维" ],
+    "description" : "1、SSH隧道方式登录远程服务器\n2、-N 不执行远程命令。只建立连接，不打开远程 shell，常用于纯端口转发\n3、-L 24713:127.0.0.1:24713 本地端口转发。格式：本地端口:目标主机:目标端口，优先采用公钥认证（如果本地有私钥且服务器有对应公钥）\n4、root@43.164.128.96 以 root 用户登录远程 SSH 服务器（IP：43.164.128.96）\n5、-V  输出详细的调试信息",
+    "createTime" : "2026-04-26T07:37:16",
+    "updateTime" : "2026-04-26T07:49:51"
+  } ],
+  "tags" : [ "系统管理", "Docker", "Git", "运维" ],
+  "version" : 1
+}

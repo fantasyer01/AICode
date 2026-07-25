@@ -1,0 +1,14 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+app:
+  admin-password: changeme
+  data-path: ./data/commands.json
+  token-expire-hours: 24

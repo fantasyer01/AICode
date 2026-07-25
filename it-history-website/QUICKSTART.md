@@ -92,6 +92,41 @@ llm.openai.api-key=sk-your-actual-api-key
 
 ⚠️ **Never commit API keys to git!**
 
+## Image Generation Configuration (Optional)
+
+The application can generate AI images for stories using Kie.ai Nano Banana Pro API:
+
+**Windows PowerShell:**
+```powershell
+# Set API key in current session
+$env:KIE_AI_API_KEY="your-kie-ai-api-key"
+
+# Run backend
+cd D:\code\AICode\it-history-website\backend
+mvn spring-boot:run
+```
+
+**Persistent configuration:**
+
+Edit `backend/src/main/resources/application.properties`:
+```properties
+image.kie-ai.api-key=your-kie-ai-api-key
+```
+
+**Image Storage Location:**
+- Default: `%USERPROFILE%\it-history-images`
+- Images are organized by date (e.g., `2024-01-15/story_01-15_abc123.png`)
+- Configure custom path in `application.properties`:
+  ```properties
+  image.storage.base-path=D:\MyImages\it-history
+  ```
+
+**Get Kie.ai API Key:**
+1. Visit: https://kie.ai/api-key
+2. Sign up for an account
+3. Generate an API key
+4. Cost: ~$0.12 per 2K image
+
 ## Stopping the Application
 
 **Backend:**

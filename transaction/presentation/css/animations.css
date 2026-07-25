@@ -1,0 +1,472 @@
+/* Animation Definitions - Database Transaction Presentation */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.fade-in-delay {
+    animation: fadeIn 0.5s ease-in 0.3s both;
+}
+
+/* Slide In Animations */
+@keyframes slideInBottom {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-bottom {
+    animation: slideInBottom 0.6s ease-out;
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+}
+
+/* Zoom Animations */
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes zoomOut {
+    from {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.zoom-in {
+    animation: zoomIn 0.4s ease-out;
+}
+
+.zoom-out {
+    animation: zoomOut 0.4s ease-out;
+}
+
+.scale-in {
+    animation: zoomIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Flip Animation */
+@keyframes flipIn {
+    from {
+        transform: perspective(400px) rotateY(90deg);
+        opacity: 0;
+    }
+    to {
+        transform: perspective(400px) rotateY(0);
+        opacity: 1;
+    }
+}
+
+.flip-in {
+    animation: flipIn 0.7s ease-out;
+}
+
+/* Expand Animation */
+@keyframes expand {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+    to {
+        max-height: 500px;
+        opacity: 1;
+    }
+}
+
+.expand {
+    animation: expand 0.5s ease-out;
+}
+
+/* Flow Animation - For data flow diagrams */
+@keyframes flowRight {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+.arrow {
+    animation: flowRight 1s ease-in-out infinite;
+}
+
+/* Rotate Animation */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: rotate 20s linear infinite;
+}
+
+/* Pulse Animation - For highlighting */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Highlight Animation */
+@keyframes highlight {
+    0%, 100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(122, 184, 245, 0.3);
+    }
+}
+
+.highlight-animate {
+    animation: highlight 0.3s ease-in-out 3;
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.bounce {
+    animation: bounce 1s ease;
+}
+
+/* Fly In Animation - For chapter covers */
+@keyframes flyIn {
+    from {
+        transform: translateZ(-1000px) scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: translateZ(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.fly-in {
+    animation: flyIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Card Cascade Animation */
+@keyframes cascadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.acid-card:nth-child(1) {
+    animation: cascadeIn 0.5s ease-out 0s both;
+}
+
+.acid-card:nth-child(2) {
+    animation: cascadeIn 0.5s ease-out 0.2s both;
+}
+
+.acid-card:nth-child(3) {
+    animation: cascadeIn 0.5s ease-out 0.4s both;
+}
+
+.acid-card:nth-child(4) {
+    animation: cascadeIn 0.5s ease-out 0.6s both;
+}
+
+.problem-card:nth-child(1) {
+    animation: cascadeIn 0.5s ease-out 0s both;
+}
+
+.problem-card:nth-child(2) {
+    animation: cascadeIn 0.5s ease-out 0.3s both;
+}
+
+.problem-card:nth-child(3) {
+    animation: cascadeIn 0.5s ease-out 0.6s both;
+}
+
+/* Table Row Animation */
+@keyframes tableRowIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.isolation-table tbody tr:nth-child(1) {
+    animation: tableRowIn 0.5s ease-out 0s both;
+}
+
+.isolation-table tbody tr:nth-child(2) {
+    animation: tableRowIn 0.5s ease-out 0.2s both;
+}
+
+.isolation-table tbody tr:nth-child(3) {
+    animation: tableRowIn 0.5s ease-out 0.4s both;
+}
+
+.isolation-table tbody tr:nth-child(4) {
+    animation: tableRowIn 0.5s ease-out 0.6s both;
+}
+
+/* Timeline Item Animation */
+@keyframes timelineAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.timeline-item.animate {
+    animation: timelineAppear 0.4s ease-out;
+}
+
+/* Hover Effects */
+.card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+.step-box:hover,
+.flow-box:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-medium);
+    transition: all 0.3s ease;
+}
+
+/* Attention Seeker */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+/* Loading Animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Gradient Animation */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.gradient-animate {
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Slide Transition Effects */
+.slide {
+    will-change: opacity;
+}
+
+.slide.active {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Quadrant Animation */
+.quadrant:nth-child(1) {
+    animation: zoomIn 0.5s ease-out 0s both;
+}
+
+.quadrant:nth-child(2) {
+    animation: zoomIn 0.5s ease-out 0.15s both;
+}
+
+.quadrant:nth-child(3) {
+    animation: zoomIn 0.5s ease-out 0.3s both;
+}
+
+.quadrant:nth-child(4) {
+    animation: zoomIn 0.5s ease-out 0.45s both;
+}
+
+/* Flow Step Animation */
+.flow-step > * {
+    animation: slideInBottom 0.6s ease-out;
+}
+
+.flow-step .step-box:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.flow-step .arrow {
+    animation-delay: 0.2s;
+    animation-name: slideInBottom, flowRight;
+    animation-duration: 0.6s, 1s;
+    animation-timing-function: ease-out, ease-in-out;
+    animation-iteration-count: 1, infinite;
+}
+
+.flow-step .step-box:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Comparison Scenario Animation */
+.scenario.success {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+.scenario.failure {
+    animation: slideInRight 0.6s ease-out;
+}
+
+/* State Transition Animation */
+@keyframes stateTransition {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.state {
+    animation: stateTransition 0.8s ease-out;
+}
+
+/* Smooth Transitions */
+* {
+    transition-property: transform, opacity, background-color, color, box-shadow;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+}
+
+/* Disable animations for print */
+@media print {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

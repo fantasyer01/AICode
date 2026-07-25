@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单管理 - 审核管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-shield-check me-2"></i>审核管理系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/audit/pending">
+                            <i class="bi bi-hourglass-split me-1"></i>待审核
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/audit">
+                            <i class="bi bi-list-check me-1"></i>审核记录
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-database me-1"></i>业务管理
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/user">
+                                <i class="bi bi-people me-2"></i>用户管理 (单表)
+                            </a></li>
+                            <li><a class="dropdown-item active" href="/order">
+                                <i class="bi bi-cart3 me-2"></i>订单管理 (多表)
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/permission">
+                            <i class="bi bi-key me-1"></i>字段权限
+                        </a>
+                    </li>
+                </ul>
+                <span class="navbar-text text-light">
+                    <i class="bi bi-person-circle me-1"></i>Demo User
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4><i class="bi bi-cart3 me-2 text-primary"></i>订单管理 <small class="text-muted fs-6">(多表演示)</small></h4>
+                <p class="text-muted mb-0">演示多表关联数据（订单主表+订单明细）的增删改操作</p>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="showAddModal()">
+                    <i class="bi bi-plus-lg me-1"></i>新增订单
+                </button>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="card mb-4">
+            <div class="card-body py-2">
+                <form class="row g-2 align-items-center" method="get">
+                    <div class="col-auto">
+                        <input type="text" class="form-control form-control-sm" name="keyword" 
+                               placeholder="搜索订单号/客户名..." th:value="${keyword}" style="width: 250px;">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-search me-1"></i>搜索
+                        </button>
+                        <a href="/order" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>清除
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-table me-2"></i>订单列表
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th width="80" data-field="id">ID</th>
+                                <th data-field="orderNo">订单号</th>
+                                <th data-field="customerName">客户名称</th>
+                                <th data-field="customerPhone">联系电话</th>
+                                <th data-field="shippingAddress">收货地址</th>
+                                <th width="120" data-field="totalAmount">总金额</th>
+                                <th width="100" data-field="status">状态</th>
+                                <th width="160" data-field="createTime">创建时间</th>
+                                <th width="180">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="order : ${pageResult.records}">
+                                <td data-field="id" th:text="${order.id}"></td>
+                                <td data-field="orderNo"><code th:text="${order.orderNo}"></code></td>
+                                <td data-field="customerName" th:text="${order.customerName}"></td>
+                                <td data-field="customerPhone" th:text="${order.customerPhone}"></td>
+                                <td data-field="shippingAddress" th:text="${order.shippingAddress}"></td>
+                                <td data-field="totalAmount" class="text-danger fw-bold">
+                                    ¥<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}"></span>
+                                </td>
+                                <td data-field="status">
+                                    <span class="badge bg-warning text-dark" th:if="${order.status == 0}">待确认</span>
+                                    <span class="badge bg-info" th:if="${order.status == 1}">已确认</span>
+                                    <span class="badge bg-primary" th:if="${order.status == 2}">已发货</span>
+                                    <span class="badge bg-success" th:if="${order.status == 3}">已完成</span>
+                                    <span class="badge bg-secondary" th:if="${order.status == 4}">已取消</span>
+                                </td>
+                                <td data-field="createTime" th:text="${order.createTime != null ? #temporals.format(order.createTime, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                                <td>
+                                    <a th:href="@{/order/view/{id}(id=${order.id})}" class="btn btn-sm btn-outline-info btn-action me-1">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-primary btn-action me-1" 
+                                            th:data-id="${order.id}" onclick="showEditModal(this)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger btn-action" 
+                                            th:data-id="${order.id}" th:data-no="${order.orderNo}" onclick="deleteOrder(this)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(pageResult.records)}">
+                                <td colspan="9">
+                                    <div class="empty-state">
+                                        <div class="icon"><i class="bi bi-cart-x"></i></div>
+                                        <p>暂无订单数据</p>
+                                        <button class="btn btn-primary btn-sm" onclick="showAddModal()">
+                                            <i class="bi bi-plus-lg me-1"></i>新增订单
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Pagination -->
+            <div class="card-footer bg-white" th:if="${pageResult.pages > 1}">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item" th:classappend="${pageResult.current == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/order(page=${pageResult.current - 1}, keyword=${keyword})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(1, pageResult.pages)}" 
+                            th:classappend="${i == pageResult.current} ? 'active'">
+                            <a class="page-link" th:href="@{/order(page=${i}, keyword=${keyword})}" th:text="${i}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${pageResult.current == pageResult.pages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/order(page=${pageResult.current + 1}, keyword=${keyword})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-cart-plus me-2"></i><span id="modalTitle">新增订单</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="orderForm">
+                        <input type="hidden" id="orderId">
+                        
+                        <!-- Order Basic Info -->
+                        <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-info-circle me-2"></i>订单信息</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">客户名称 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="customerName" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">联系电话</label>
+                                <input type="text" class="form-control" id="customerPhone">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">订单状态</label>
+                                <select class="form-select" id="orderStatus">
+                                    <option value="0">待确认</option>
+                                    <option value="1">已确认</option>
+                                    <option value="2">已发货</option>
+                                    <option value="3">已完成</option>
+                                    <option value="4">已取消</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">收货地址</label>
+                                <input type="text" class="form-control" id="shippingAddress">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">备注</label>
+                                <input type="text" class="form-control" id="orderRemark">
+                            </div>
+                        </div>
+                        
+                        <!-- Order Items -->
+                        <h6 class="border-bottom pb-2 mb-3 d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-box-seam me-2"></i>商品明细</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow()">
+                                <i class="bi bi-plus-lg me-1"></i>添加商品
+                            </button>
+                        </h6>
+                        <div class="order-items-container" id="itemsContainer">
+                            <!-- Items will be added here dynamically -->
+                        </div>
+                        
+                        <!-- Total -->
+                        <div class="row mt-3">
+                            <div class="col-12 text-end">
+                                <span class="fs-5">总金额: </span>
+                                <span class="fs-4 text-danger fw-bold">¥<span id="totalAmount">0.00</span></span>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>提示:</strong> 订单数据包含主表和明细表，提交后所有数据都需要审核通过才会写入数据库。
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveOrder()">
+                        <i class="bi bi-send me-1"></i>提交审核
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light border-top">
+        <div class="container text-center text-muted">
+            <small>审核管理系统 Demo - 基于注解的通用复核功能演示</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/common.js"></script>
+    <script>
+        let orderModal;
+        let isEdit = false;
+        let itemIndex = 0;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+            // Apply field permissions to hide columns
+            applyFieldPermissions('biz_order');
+        });
+        
+        // Hide columns based on field permissions
+        async function applyFieldPermissions(tableName) {
+            try {
+                const result = await apiRequest(`/permission/api/queryable/${tableName}`);
+                if (!result.success) {
+                    console.warn('Failed to fetch field permissions');
+                    return;
+                }
+                
+                const queryableFields = result.data;
+                const allFields = ['id', 'orderNo', 'customerName', 'customerPhone', 'shippingAddress', 'totalAmount', 'status', 'remark', 'createTime', 'updateTime'];
+                
+                // Hide columns for fields that are not queryable
+                allFields.forEach(field => {
+                    if (!queryableFields.includes(field)) {
+                        // Hide header
+                        document.querySelectorAll(`th[data-field="${field}"]`).forEach(el => {
+                            el.style.display = 'none';
+                        });
+                        // Hide cells
+                        document.querySelectorAll(`td[data-field="${field}"]`).forEach(el => {
+                            el.style.display = 'none';
+                        });
+                    }
+                });
+            } catch (e) {
+                console.warn('Error applying field permissions:', e);
+            }
+        }
+        
+        function showAddModal() {
+            isEdit = false;
+            itemIndex = 0;
+            document.getElementById('modalTitle').textContent = '新增订单';
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderId').value = '';
+            document.getElementById('itemsContainer').innerHTML = '';
+            document.getElementById('totalAmount').textContent = '0.00';
+            
+            // Add initial item row
+            addItemRow();
+            
+            orderModal.show();
+        }
+        
+        async function showEditModal(btn) {
+            isEdit = true;
+            itemIndex = 0;
+            const id = btn.dataset.id;
+            
+            const result = await apiRequest(`/order/api/${id}`);
+            if (!result.success) {
+                showToast('获取订单信息失败', 'error');
+                return;
+            }
+            
+            const orderDTO = result.data;
+            const order = orderDTO.order;
+            const items = orderDTO.items;
+            
+            document.getElementById('modalTitle').textContent = '编辑订单';
+            document.getElementById('orderId').value = order.id;
+            document.getElementById('customerName').value = order.customerName || '';
+            document.getElementById('customerPhone').value = order.customerPhone || '';
+            document.getElementById('shippingAddress').value = order.shippingAddress || '';
+            document.getElementById('orderStatus').value = order.status;
+            document.getElementById('orderRemark').value = order.remark || '';
+            
+            // Clear and add items
+            document.getElementById('itemsContainer').innerHTML = '';
+            items.forEach(item => {
+                addItemRow(item);
+            });
+            
+            calculateTotal();
+            orderModal.show();
+        }
+        
+        function addItemRow(item = null) {
+            const container = document.getElementById('itemsContainer');
+            const index = itemIndex++;
+            
+            const html = `
+                <div class="order-item-row" id="itemRow${index}">
+                    <div class="row align-items-end">
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label small">商品名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="productName${index}" 
+                                   value="${item?.productName || ''}" required>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label small">规格</label>
+                            <input type="text" class="form-control form-control-sm" id="specification${index}" 
+                                   value="${item?.specification || ''}">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label small">单价 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control form-control-sm" id="unitPrice${index}" 
+                                   value="${item?.unitPrice || ''}" step="0.01" min="0" onchange="calculateItemSubtotal(${index})" required>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label small">数量 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control form-control-sm" id="quantity${index}" 
+                                   value="${item?.quantity || 1}" min="1" onchange="calculateItemSubtotal(${index})" required>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label small">小计</label>
+                            <input type="text" class="form-control form-control-sm" id="subtotal${index}" 
+                                   value="${item?.subtotal || '0.00'}" readonly style="background-color: #e9ecef;">
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItemRow(${index})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            
+            if (item) {
+                calculateItemSubtotal(index);
+            }
+        }
+        
+        function removeItemRow(index) {
+            const row = document.getElementById(`itemRow${index}`);
+            if (row) {
+                row.remove();
+                calculateTotal();
+            }
+        }
+        
+        function calculateItemSubtotal(index) {
+            const unitPrice = parseFloat(document.getElementById(`unitPrice${index}`).value) || 0;
+            const quantity = parseInt(document.getElementById(`quantity${index}`).value) || 0;
+            const subtotal = unitPrice * quantity;
+            document.getElementById(`subtotal${index}`).value = subtotal.toFixed(2);
+            calculateTotal();
+        }
+        
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll('[id^="subtotal"]').forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            document.getElementById('totalAmount').textContent = total.toFixed(2);
+        }
+        
+        function getItems() {
+            const items = [];
+            document.querySelectorAll('.order-item-row').forEach(row => {
+                const index = row.id.replace('itemRow', '');
+                const productName = document.getElementById(`productName${index}`).value.trim();
+                const unitPrice = parseFloat(document.getElementById(`unitPrice${index}`).value) || 0;
+                const quantity = parseInt(document.getElementById(`quantity${index}`).value) || 0;
+                
+                if (productName && unitPrice > 0 && quantity > 0) {
+                    items.push({
+                        productName: productName,
+                        specification: document.getElementById(`specification${index}`).value.trim(),
+                        unitPrice: unitPrice,
+                        quantity: quantity,
+                        subtotal: unitPrice * quantity
+                    });
+                }
+            });
+            return items;
+        }
+        
+        async function saveOrder() {
+            const customerName = document.getElementById('customerName').value.trim();
+            if (!customerName) {
+                showToast('请填写客户名称', 'warning');
+                return;
+            }
+            
+            const items = getItems();
+            if (items.length === 0) {
+                showToast('请至少添加一个商品', 'warning');
+                return;
+            }
+            
+            const totalAmount = items.reduce((sum, item) => sum + item.subtotal, 0);
+            
+            const data = {
+                order: {
+                    customerName: customerName,
+                    customerPhone: document.getElementById('customerPhone').value.trim(),
+                    shippingAddress: document.getElementById('shippingAddress').value.trim(),
+                    status: parseInt(document.getElementById('orderStatus').value),
+                    remark: document.getElementById('orderRemark').value.trim(),
+                    totalAmount: totalAmount
+                },
+                items: items
+            };
+            
+            let result;
+            if (isEdit) {
+                const id = document.getElementById('orderId').value;
+                result = await apiRequest(`/order/api/${id}`, 'PUT', data);
+            } else {
+                result = await apiRequest('/order/api', 'POST', data);
+            }
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                orderModal.hide();
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+        
+        async function deleteOrder(btn) {
+            const id = btn.dataset.id;
+            const orderNo = btn.dataset.no;
+            
+            if (!confirm(`确定要删除订单 "${orderNo}" 吗？将同时删除订单明细。删除操作需要审核通过后才会执行。`)) {
+                return;
+            }
+            
+            const result = await apiRequest(`/order/api/${id}`, 'DELETE');
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

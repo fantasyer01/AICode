@@ -1,0 +1,376 @@
+:root {
+    --primary-color: #4361ee;
+    --success-color: #06d6a0;
+    --warning-color: #ffd166;
+    --danger-color: #ef476f;
+    --info-color: #118ab2;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%) !important;
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #3a0ca3 0%, #4361ee 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #06d6a0 0%, #05a77b 100%);
+    border: none;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef476f 0%, #d63958 100%);
+    border: none;
+}
+
+/* Status badges */
+.badge-pending {
+    background-color: #ffd166;
+    color: #212529;
+}
+
+.badge-approved {
+    background-color: #06d6a0;
+    color: #fff;
+}
+
+.badge-rejected {
+    background-color: #ef476f;
+    color: #fff;
+}
+
+/* Operation type badges */
+.badge-insert {
+    background-color: #06d6a0;
+    color: #fff;
+}
+
+.badge-update {
+    background-color: #118ab2;
+    color: #fff;
+}
+
+.badge-delete {
+    background-color: #ef476f;
+    color: #fff;
+}
+
+/* Stats cards */
+.stats-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    color: #fff;
+}
+
+.stats-card.pending {
+    background: linear-gradient(135deg, #ffd166 0%, #f0c14b 100%);
+    color: #212529;
+}
+
+.stats-card.approved {
+    background: linear-gradient(135deg, #06d6a0 0%, #05a77b 100%);
+}
+
+.stats-card.rejected {
+    background: linear-gradient(135deg, #ef476f 0%, #d63958 100%);
+}
+
+.stats-card .icon {
+    font-size: 2.5rem;
+    opacity: 0.8;
+}
+
+.stats-card .count {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Page header */
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-header h4 {
+    font-weight: 700;
+    color: #212529;
+}
+
+/* Pagination */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    border-radius: 8px;
+    margin: 0 2px;
+    color: #4361ee;
+}
+
+.page-item.active .page-link {
+    background-color: #4361ee;
+    border-color: #4361ee;
+}
+
+/* Form styles */
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 0.625rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4361ee;
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Toast notifications */
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1080;
+}
+
+/* Modal styles */
+.modal-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 12px;
+}
+
+/* Code/JSON display */
+.json-display {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Timeline for audit history */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4361ee;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #4361ee;
+}
+
+.timeline-item.approve::before {
+    background: #06d6a0;
+    box-shadow: 0 0 0 2px #06d6a0;
+}
+
+.timeline-item.reject::before {
+    background: #ef476f;
+    box-shadow: 0 0 0 2px #ef476f;
+}
+
+/* Data comparison table */
+.comparison-table th {
+    width: 25%;
+}
+
+.comparison-table .field-name {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.comparison-table .before-value {
+    background-color: #fff3cd;
+}
+
+.comparison-table .after-value {
+    background-color: #d1e7dd;
+}
+
+/* Empty state */
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.empty-state .icon {
+    font-size: 4rem;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+/* Action buttons in table */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Item list in order form */
+.order-items-container {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.order-item-row {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.order-item-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Business Data Display - Comparison View */
+.comparison-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.comparison-view .old-value {
+    font-size: 0.9rem;
+}
+
+.comparison-view .new-value {
+    font-size: 1.05rem;
+    font-weight: bold !important;
+    color: #dc3545 !important;
+}
+
+.comparison-view .badge {
+    width: fit-content;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+}
+
+/* Table comparison for multi-table operations */
+.table-comparison {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-comparison .comparison-header {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    font-weight: 600;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Highlight changed rows in comparison */
+.row-changed {
+    background-color: #fff3cd !important;
+}
+
+/* Business data card enhancements */
+#businessDataCard .card-body {
+    min-height: 200px;
+}
+
+#snapshotDisplay .alert {
+    border-radius: 8px;
+}
+
+/* Responsive adjustments for comparison view */
+@media (max-width: 768px) {
+    .comparison-view .old-value,
+    .comparison-view .new-value {
+        font-size: 0.9rem;
+    }
+}

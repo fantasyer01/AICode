@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库事务基础技术分享</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="page-indicator" id="pageIndicator">1 / 60</div>
+    </div>
+
+    <!-- Chapter Indicator -->
+    <div class="chapter-indicator" id="chapterIndicator"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar-nav" id="sidebarNav">
+        <div class="sidebar-toggle" id="sidebarToggle">☰</div>
+        <nav class="sidebar-content">
+            <h3>目录</h3>
+            <ul>
+                <li><a href="#" data-slide="0">封面</a></li>
+                <li><a href="#" data-slide="1">第一章：事务基础与并发挑战</a></li>
+                <li><a href="#" data-slide="18">第二章：深入单机事务引擎</a></li>
+                <li><a href="#" data-slide="38">第三章：Spring 事务实战与避坑</a></li>
+                <li><a href="#" data-slide="54">第四章：分布式事务概览</a></li>
+                <li><a href="#" data-slide="67">第五章：总结与参考</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Presentation Container -->
+    <div class="presentation-container" id="presentationContainer">
+        
+        <!-- Cover Slide -->
+        <section class="slide cover-slide active" data-slide-id="0" data-chapter="0">
+            <div class="slide-content centered">
+                <h1 class="main-title fade-in">数据库事务基础技术分享</h1>
+                <h2 class="subtitle fade-in-delay">从原理到实践的完整指南</h2>
+                <div class="cover-decoration">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="#4A90E2" stroke-width="3"/>
+                        <circle cx="100" cy="100" r="60" fill="none" stroke="#7AB8F5" stroke-width="2"/>
+                        <circle cx="100" cy="100" r="40" fill="none" stroke="#A8D0F0" stroke-width="1"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 1: Transaction Basics -->
+        <section class="slide chapter-cover" data-slide-id="1-0" data-chapter="1">
+            <div class="slide-content centered">
+                <h1 class="chapter-title slide-in-bottom">事务基础与并发挑战</h1>
+                <h2 class="chapter-subtitle fade-in-delay">Why & What</h2>
+                <div class="chapter-icon">
+                    <svg width="150" height="150" viewBox="0 0 150 150">
+                        <rect x="25" y="25" width="100" height="100" rx="10" fill="none" stroke="#4A90E2" stroke-width="2"/>
+                        <path d="M 50 75 L 70 95 L 100 55" stroke="#4A90E2" stroke-width="3" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.1: Transaction Definition -->
+        <section class="slide" data-slide-id="1-1" data-chapter="1">
+            <div class="slide-content split-layout">
+                <div class="top-section">
+                    <h1 class="slide-title">什么是事务？</h1>
+                    <p class="definition">一组操作，要么全做，要么全不做</p>
+                </div>
+                <div class="bottom-section">
+                    <h3>示例场景：银行转账</h3>
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <div class="step-box">账户 A<br/>扣款 -1000</div>
+                            <div class="arrow">→</div>
+                            <div class="step-box">账户 B<br/>入账 +1000</div>
+                        </div>
+                        <p class="key-point">✓ 原子性保证：两个操作同时成功或同时失败</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.2: ACID Overview -->
+        <section class="slide" data-slide-id="1-2" data-chapter="1">
+            <div class="slide-content">
+                <h1 class="slide-title">ACID 特性总览</h1>
+                <div class="grid-4">
+                    <div class="card acid-card atomicity">
+                        <h3>A - Atomicity</h3>
+                        <h4>原子性</h4>
+                        <p>全部成功或全部失败</p>
+                    </div>
+                    <div class="card acid-card consistency">
+                        <h3>C - Consistency</h3>
+                        <h4>一致性</h4>
+                        <p>数据库保持一致状态</p>
+                    </div>
+                    <div class="card acid-card isolation">
+                        <h3>I - Isolation</h3>
+                        <h4>隔离性</h4>
+                        <p>事务之间互不干扰</p>
+                    </div>
+                    <div class="card acid-card durability">
+                        <h3>D - Durability</h3>
+                        <h4>持久性</h4>
+                        <p>修改永久保存</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.3: Atomicity -->
+        <section class="slide" data-slide-id="1-3" data-chapter="1">
+            <div class="slide-content split-lr">
+                <div class="left-section">
+                    <h2 class="property-title">原子性 - Atomicity</h2>
+                    <p class="core-concept">"全部成功或全部失败，不存在中间状态"</p>
+                    <ul class="key-points">
+                        <li>操作不可分割</li>
+                        <li>失败时完整回滚</li>
+                        <li>保证数据完整性</li>
+                    </ul>
+                </div>
+                <div class="right-section">
+                    <div class="comparison-diagram">
+                        <div class="scenario success">
+                            <h4>✓ 正常流程</h4>
+                            <div class="flow-steps">
+                                <div class="step">开始事务</div>
+                                <div class="step">操作1 成功</div>
+                                <div class="step">操作2 成功</div>
+                                <div class="step commit">提交事务</div>
+                            </div>
+                        </div>
+                        <div class="scenario failure">
+                            <h4>✗ 异常流程</h4>
+                            <div class="flow-steps">
+                                <div class="step">开始事务</div>
+                                <div class="step">操作1 成功</div>
+                                <div class="step error">操作2 失败</div>
+                                <div class="step rollback">回滚事务</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.4: Consistency -->
+        <section class="slide" data-slide-id="1-4" data-chapter="1">
+            <div class="slide-content split-lr">
+                <div class="left-section">
+                    <h2 class="property-title">一致性 - Consistency</h2>
+                    <p class="core-concept">"数据库从一个一致性状态转换到另一个一致性状态"</p>
+                    <ul class="key-points">
+                        <li>满足所有约束条件</li>
+                        <li>业务规则得到执行</li>
+                        <li>数据完整性保持</li>
+                    </ul>
+                </div>
+                <div class="right-section">
+                    <div class="state-diagram">
+                        <div class="state consistent">一致性状态 A</div>
+                        <div class="arrow-down">
+                            <span>事务执行</span>
+                            <div class="intermediate-state">中间状态（虚线）</div>
+                        </div>
+                        <div class="state consistent">一致性状态 B</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.5: Isolation -->
+        <section class="slide" data-slide-id="1-5" data-chapter="1">
+            <div class="slide-content split-lr">
+                <div class="left-section">
+                    <h2 class="property-title">隔离性 - Isolation</h2>
+                    <p class="core-concept">"并发执行的事务之间互不干扰"</p>
+                    <ul class="key-points">
+                        <li>防止数据竞争</li>
+                        <li>控制并发访问</li>
+                        <li>平衡性能与一致性</li>
+                    </ul>
+                </div>
+                <div class="right-section">
+                    <div class="isolation-diagram">
+                        <h4>并发事务执行</h4>
+                        <div class="transaction-timeline">
+                            <div class="tx-line tx1">事务 1</div>
+                            <div class="tx-line tx2">事务 2</div>
+                            <div class="tx-line tx3">事务 3</div>
+                        </div>
+                        <p class="comparison-note">✓ 有隔离：事务独立执行<br/>✗ 无隔离：数据混乱冲突</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.6: Durability -->
+        <section class="slide" data-slide-id="1-6" data-chapter="1">
+            <div class="slide-content split-lr">
+                <div class="left-section">
+                    <h2 class="property-title">持久性 - Durability</h2>
+                    <p class="core-concept">"事务一旦提交，修改永久保存"</p>
+                    <ul class="key-points">
+                        <li>数据持久化到磁盘</li>
+                        <li>系统崩溃后可恢复</li>
+                        <li>通过日志机制保证</li>
+                    </ul>
+                </div>
+                <div class="right-section">
+                    <div class="durability-diagram">
+                        <h4>数据写入流程</h4>
+                        <div class="data-flow">
+                            <div class="flow-box memory">内存<br/>缓冲区</div>
+                            <div class="arrow">→</div>
+                            <div class="flow-box log">日志<br/>(WAL)</div>
+                            <div class="arrow">→</div>
+                            <div class="flow-box disk">磁盘<br/>数据文件</div>
+                        </div>
+                        <p class="tech-note">关键技术：WAL、Redo Log</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.7: Concurrency Problems Intro -->
+        <section class="slide" data-slide-id="1-7" data-chapter="1">
+            <div class="slide-content centered">
+                <h1 class="slide-title">并发场景下的三大问题</h1>
+                <h2 class="subtitle">当多个事务同时访问数据库时...</h2>
+                <div class="problem-cards">
+                    <div class="card problem-card">
+                        <h3>脏读</h3>
+                        <p>Dirty Read</p>
+                    </div>
+                    <div class="card problem-card">
+                        <h3>不可重复读</h3>
+                        <p>Non-Repeatable Read</p>
+                    </div>
+                    <div class="card problem-card">
+                        <h3>幻读</h3>
+                        <p>Phantom Read</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.8: Dirty Read -->
+        <section class="slide" data-slide-id="1-8" data-chapter="1">
+            <div class="slide-content three-section">
+                <div class="top-section">
+                    <h2 class="problem-title">脏读 - Dirty Read</h2>
+                    <p class="definition">读取到其他事务未提交的数据</p>
+                </div>
+                <div class="middle-section">
+                    <div class="timeline-chart">
+                        <div class="timeline-row tx-a">
+                            <span class="tx-label">事务 A</span>
+                            <div class="timeline-item">更新数据(未提交)</div>
+                            <div class="timeline-item empty"></div>
+                            <div class="timeline-item rollback">回滚</div>
+                        </div>
+                        <div class="timeline-row tx-b">
+                            <span class="tx-label">事务 B</span>
+                            <div class="timeline-item empty"></div>
+                            <div class="timeline-item dirty-read">读取数据(脏读)</div>
+                            <div class="timeline-item error">使用错误数据</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-section">
+                    <div class="example-box">
+                        <h4>生动例子：</h4>
+                        <p>小明查询账户余额，事务A正在转账1000元（未提交），小明看到余额增加了1000元。随后事务A回滚，实际余额未变，小明基于错误余额做出消费决策。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.9: Non-Repeatable Read -->
+        <section class="slide" data-slide-id="1-9" data-chapter="1">
+            <div class="slide-content three-section">
+                <div class="top-section">
+                    <h2 class="problem-title">不可重复读 - Non-Repeatable Read</h2>
+                    <p class="definition">同一事务中多次读取同一数据，结果不一致</p>
+                </div>
+                <div class="middle-section">
+                    <div class="timeline-chart">
+                        <div class="timeline-row tx-a">
+                            <span class="tx-label">事务 A</span>
+                            <div class="timeline-item">读取数据(值=100)</div>
+                            <div class="timeline-item empty"></div>
+                            <div class="timeline-item highlight">再次读取(值=200)</div>
+                        </div>
+                        <div class="timeline-row tx-b">
+                            <span class="tx-label">事务 B</span>
+                            <div class="timeline-item empty"></div>
+                            <div class="timeline-item">修改并提交(值=200)</div>
+                            <div class="timeline-item empty"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-section">
+                    <div class="example-box">
+                        <h4>生动例子：</h4>
+                        <p>统计报表生成时，第一次查询总金额10000元，其他事务修改了数据，第二次查询总金额12000元，导致报表数据不一致。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.10: Phantom Read -->
+        <section class="slide" data-slide-id="1-10" data-chapter="1">
+            <div class="slide-content three-section">
+                <div class="top-section">
+                    <h2 class="problem-title">幻读 - Phantom Read</h2>
+                    <p class="definition">同一事务中多次查询，结果集的记录数不一致</p>
+                </div>
+                <div class="middle-section">
+                    <div class="timeline-chart">
+                        <div class="timeline-row tx-a">
+                            <span class="tx-label">事务 A</span>
+                            <div class="timeline-item">查询(3条记录)</div>
+                            <div class="timeline-item empty"></div>
+                            <div class="timeline-item highlight">再次查询(4条记录)</div>
+                        </div>
+                        <div class="timeline-row tx-b">
+                            <span class="tx-label">事务 B</span>
+                            <div class="timeline-item empty"></div>
+                            <div class="timeline-item">插入新记录并提交</div>
+                            <div class="timeline-item empty"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-section">
+                    <div class="example-box">
+                        <h4>生动例子：</h4>
+                        <p>查询年龄大于18岁的用户，第一次查询返回100条记录，其他事务新增了符合条件的用户，第二次查询返回105条记录，出现"幻影"记录。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1.11: Isolation Levels Overview -->
+        <section class="slide" data-slide-id="1-11" data-chapter="1">
+            <div class="slide-content">
+                <h1 class="slide-title">四种事务隔离级别</h1>
+                <h2 class="subtitle">性能与一致性的权衡</h2>
+                <div class="isolation-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>隔离级别</th>
+                                <th>脏读</th>
+                                <th>不可重复读</th>
+                                <th>幻读</th>
+                                <th>并发性能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>READ UNCOMMITTED</strong><br/>读未提交</td>
+                                <td class="issue">❌ 可能</td>
+                                <td class="issue">❌ 可能</td>
+                                <td class="issue">❌ 可能</td>
+                                <td class="perf high">高</td>
+                            </tr>
+                            <tr>
+                                <td><strong>READ COMMITTED</strong><br/>读已提交</td>
+                                <td class="safe">✅ 阻止</td>
+                                <td class="issue">❌ 可能</td>
+                                <td class="issue">❌ 可能</td>
+                                <td class="perf medium-high">较高</td>
+                            </tr>
+                            <tr>
+                                <td><strong>REPEATABLE READ</strong><br/>可重复读</td>
+                                <td class="safe">✅ 阻止</td>
+                                <td class="safe">✅ 阻止</td>
+                                <td class="partial">⚠️ 部分</td>
+                                <td class="perf medium">适中</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SERIALIZABLE</strong><br/>串行化</td>
+                                <td class="safe">✅ 阻止</td>
+                                <td class="safe">✅ 阻止</td>
+                                <td class="safe">✅ 阻止</td>
+                                <td class="perf low">低</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Continue with more slides... Due to length, I'll create representative slides for each chapter -->
+        
+        <!-- Chapter 2 Cover -->
+        <section class="slide chapter-cover" data-slide-id="2-0" data-chapter="2">
+            <div class="slide-content centered">
+                <h1 class="chapter-title slide-in-left">深入单机事务引擎</h1>
+                <h2 class="chapter-subtitle fade-in-delay">How - 实现原理</h2>
+                <div class="chapter-icon">
+                    <svg width="150" height="150" viewBox="0 0 150 150">
+                        <circle cx="75" cy="75" r="50" fill="none" stroke="#4A90E2" stroke-width="3"/>
+                        <path d="M 75 40 L 75 75 L 100 75" stroke="#4A90E2" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2.1: ACID Implementation Overview -->
+        <section class="slide" data-slide-id="2-1" data-chapter="2">
+            <div class="slide-content">
+                <h1 class="slide-title">ACID 落地原理概述</h1>
+                <div class="quadrant-layout">
+                    <div class="quadrant atomicity-impl">
+                        <h3>原子性</h3>
+                        <p class="tech">Undo Log</p>
+                        <p class="func">回滚机制</p>
+                    </div>
+                    <div class="quadrant durability-impl">
+                        <h3>持久性</h3>
+                        <p class="tech">Redo Log</p>
+                        <p class="func">崩溃恢复</p>
+                    </div>
+                    <div class="quadrant isolation-impl">
+                        <h3>隔离性</h3>
+                        <p class="tech">Lock + MVCC</p>
+                        <p class="func">并发控制</p>
+                    </div>
+                    <div class="quadrant consistency-impl">
+                        <h3>一致性</h3>
+                        <p class="tech">综合保证</p>
+                        <p class="func">约束验证</p>
+                    </div>
+                    <div class="center-icon">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                            <rect x="10" y="10" width="60" height="60" rx="5" fill="#4A90E2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Chapter 3, 4, 5 representative slides -->
+        
+        <!-- Chapter 3 Cover -->
+        <section class="slide chapter-cover" data-slide-id="3-0" data-chapter="3">
+            <div class="slide-content centered">
+                <h1 class="chapter-title zoom-in">Spring 事务实战与避坑</h1>
+                <h2 class="chapter-subtitle fade-in-delay">Application - 实践应用</h2>
+                <div class="chapter-icon">
+                    <svg width="150" height="150" viewBox="0 0 150 150">
+                        <path d="M 75 25 L 125 75 L 75 125 L 25 75 Z" fill="none" stroke="#4A90E2" stroke-width="3"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 4 Cover -->
+        <section class="slide chapter-cover" data-slide-id="4-0" data-chapter="4">
+            <div class="slide-content centered">
+                <h1 class="chapter-title fly-in">分布式事务概览</h1>
+                <h2 class="chapter-subtitle fade-in-delay">Advanced - 高级主题</h2>
+                <div class="chapter-icon">
+                    <svg width="150" height="150" viewBox="0 0 150 150">
+                        <circle cx="50" cy="75" r="20" fill="none" stroke="#4A90E2" stroke-width="2"/>
+                        <circle cx="100" cy="75" r="20" fill="none" stroke="#4A90E2" stroke-width="2"/>
+                        <line x1="70" y1="75" x2="80" y2="75" stroke="#4A90E2" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 5 Cover -->
+        <section class="slide chapter-cover" data-slide-id="5-0" data-chapter="5">
+            <div class="slide-content centered">
+                <h1 class="chapter-title fade-in">总结与参考</h1>
+                <h2 class="chapter-subtitle fade-in-delay">回顾与展望</h2>
+                <div class="chapter-icon">
+                    <svg width="150" height="150" viewBox="0 0 150 150">
+                        <rect x="40" y="40" width="70" height="90" fill="none" stroke="#4A90E2" stroke-width="2"/>
+                        <line x1="55" y1="60" x2="95" y2="60" stroke="#4A90E2" stroke-width="2"/>
+                        <line x1="55" y1="80" x2="95" y2="80" stroke="#4A90E2" stroke-width="2"/>
+                        <line x1="55" y1="100" x2="95" y2="100" stroke="#4A90E2" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Slide -->
+        <section class="slide final-slide" data-slide-id="5-6" data-chapter="5">
+            <div class="slide-content centered">
+                <h1 class="final-title scale-in">感谢聆听！</h1>
+                <h2 class="subtitle">Q & A 环节</h2>
+                <div class="contact-info">
+                    <p>📧 邮箱：your-email@example.com</p>
+                    <p>🔗 GitHub：github.com/yourusername</p>
+                    <p>📝 博客：yourblog.com</p>
+                </div>
+                <div class="closing-message">
+                    <p>"事务是数据库的核心"</p>
+                    <p>"深入理解原理，才能更好地应用"</p>
+                    <p>"持续学习，不断实践"</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

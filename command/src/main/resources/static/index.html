@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CommandHub — 命令管理工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50:'#f0f9ff',100:'#e0f2fe',200:'#bae6fd',300:'#7dd3fc',400:'#38bdf8',500:'#0ea5e9',600:'#0284c7',700:'#0369a1',800:'#075985',900:'#0c4a6e' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen transition-colors">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h1 class="text-lg font-bold text-gray-900 dark:text-white">CommandHub</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="切换主题">
+                    <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg id="moonIcon" class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
+                <button id="loginBtn" class="px-4 py-2 text-sm font-medium rounded-lg bg-brand-500 hover:bg-brand-600 text-white transition-colors">
+                    管理登录
+                </button>
+                <button id="logoutBtn" class="hidden px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    退出登录
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <div class="relative">
+                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input id="searchInput" type="text" placeholder="搜索命令标题、内容或说明..."
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-base transition-all shadow-sm">
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="mb-6 space-y-4">
+            <!-- Platform Filter -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-1">平台：</span>
+                <div id="platformFilter" class="flex gap-2 flex-wrap">
+                    <button data-platform="" class="filter-btn active">全部</button>
+                    <button data-platform="windows" class="filter-btn">
+                        <svg class="w-4 h-4 inline -mt-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+                        Windows
+                    </button>
+                    <button data-platform="linux" class="filter-btn">
+                        <svg class="w-4 h-4 inline -mt-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.581 19.049c-.55-.446-.336-1.431-.907-1.917.553-3.365-.997-6.331-2.845-8.232-1.551-1.595-1.051-3.147-1.051-4.49 0-2.146-.881-4.41-3.55-4.41-2.853 0-3.635 2.38-3.663 3.738-.034 1.665.543 2.485-.058 4.118-1.015 2.76-2.479 4.876-2.132 8.575-.474.396-.91.844-1.373 1.252-.334.323-.59.676-.637 1.175-.08.862.587 1.142.587 1.142s.481.263 1.084-.178c.369-.27.756-.515 1.141-.762.183-.118.362-.248.538-.374.07.054.138.103.197.15.457.364.952.587 1.564.587.614 0 1.127-.227 1.524-.587l.187-.142c.248.16.393.31.578.431.399.262.8.513 1.179.788.593.432 1.07.18 1.07.18s.674-.28.594-1.142c-.047-.499-.303-.852-.637-1.175-.109-.105-.224-.204-.337-.303z"/></svg>
+                        Linux
+                    </button>
+                    <button data-platform="common" class="filter-btn">
+                        <svg class="w-4 h-4 inline -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        通用
+                    </button>
+                </div>
+            </div>
+            <!-- Tag Filter -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-1">标签：</span>
+                <div id="tagFilter" class="flex gap-2 flex-wrap">
+                    <!-- Tags will be rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Action Bar -->
+        <div id="adminBar" class="hidden mb-4">
+            <button id="addCmdBtn" class="px-4 py-2 text-sm font-medium rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                新增命令
+            </button>
+        </div>
+
+        <!-- Command List -->
+        <div id="commandList" class="space-y-4">
+            <!-- Cards rendered by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p class="text-gray-400 dark:text-gray-500 text-lg">没有找到匹配的命令</p>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex items-center justify-center gap-4 mt-8 mb-8">
+            <!-- Rendered by JS -->
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay hidden">
+        <div class="modal-content w-full max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">管理员登录</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">管理密码</label>
+                <input id="passwordInput" type="password" placeholder="请输入管理密码"
+                    class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+            <p id="loginError" class="text-red-500 text-sm mb-3 hidden"></p>
+            <div class="flex gap-3 justify-end">
+                <button id="loginCancelBtn" class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">取消</button>
+                <button id="loginSubmitBtn" class="px-4 py-2 text-sm rounded-lg bg-brand-500 hover:bg-brand-600 text-white transition-colors">登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Edit Modal -->
+    <div id="editModal" class="modal-overlay hidden">
+        <div class="modal-content w-full max-w-lg">
+            <h2 id="editModalTitle" class="text-xl font-bold mb-4 text-gray-900 dark:text-white">新增命令</h2>
+            <input id="editId" type="hidden">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">标题 <span class="text-red-400">*</span></label>
+                    <input id="editTitle" type="text" placeholder="如：查看端口占用"
+                        class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">命令 <span class="text-red-400">*</span></label>
+                    <textarea id="editCommand" rows="3" placeholder="输入命令内容，支持多行"
+                        class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">平台</label>
+                    <select id="editPlatform"
+                        class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="windows">Windows</option>
+                        <option value="linux">Linux</option>
+                        <option value="common">通用</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">标签</label>
+                    <div id="editTagList" class="flex flex-wrap gap-2 mb-2">
+                        <!-- Tag checkboxes rendered by JS -->
+                    </div>
+                    <div class="flex gap-2">
+                        <input id="newTagInput" type="text" placeholder="添加新标签"
+                            class="flex-1 px-3 py-1.5 text-sm rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <button id="addTagBtn" class="px-3 py-1.5 text-sm rounded-lg bg-brand-500 hover:bg-brand-600 text-white transition-colors">添加</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">说明</label>
+                    <textarea id="editDescription" rows="2" placeholder="使用说明、参数解释、注意事项等"
+                        class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-3 justify-end mt-6">
+                <button id="editCancelBtn" class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">取消</button>
+                <button id="editSaveBtn" class="px-4 py-2 text-sm rounded-lg bg-brand-500 hover:bg-brand-600 text-white transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div id="deleteModal" class="modal-overlay hidden">
+        <div class="modal-content w-full max-w-sm">
+            <h2 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">确认删除</h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">确定要删除这条命令吗？此操作不可恢复。</p>
+            <input id="deleteId" type="hidden">
+            <div class="flex gap-3 justify-end">
+                <button id="deleteCancelBtn" class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">取消</button>
+                <button id="deleteConfirmBtn" class="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+        <div class="px-4 py-3 rounded-xl shadow-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium">
+            <span id="toastMsg"></span>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
